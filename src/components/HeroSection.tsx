@@ -1,12 +1,32 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 import { ArrowRight, HelpCircle } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export const HeroSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  const [bannerUrl, setBannerUrl] = useState<string>('');
+
+  useEffect(() => {
+    const fetchBanner = async () => {
+      try {
+        const { data } = await supabase
+          .from('settings')
+          .select('value')
+          .eq('key', 'banner_url')
+          .maybeSingle();
+        if (data?.value) {
+          setBannerUrl(data.value);
+        }
+      } catch (err) {
+        console.error('Error fetching dynamic banner setting:', err);
+      }
+    };
+    fetchBanner();
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -236,9 +256,17 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative w-full h-screen flex items-center justify-center bg-gradient-to-br from-navy-dark via-[#11234F] to-[#0A1430] overflow-hidden z-10">
+    <section
+      style={bannerUrl ? { backgroundImage: `url(${bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+      className="relative w-full h-screen flex items-center justify-center bg-gradient-to-br from-navy-dark via-[#11234F] to-[#0A1430] overflow-hidden z-10"
+    >
+      {/* Dark overlay for dynamic banner image tint & premium readability */}
+      {bannerUrl && (
+        <div className="absolute inset-0 bg-[#0B1531]/75 mix-blend-multiply z-0 pointer-events-none" />
+      )}
+
       {/* Three.js canvas background container */}
-      <div ref={containerRef} className="absolute inset-0 z-0 opacity-40 pointer-events-none" />
+      <div ref={containerRef} className="absolute inset-0 z-0 opacity-45 pointer-events-none" />
 
       {/* Grid overlay for techy visual structure */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(13,27,62,0.6)_80%)] z-0 pointer-events-none" />
