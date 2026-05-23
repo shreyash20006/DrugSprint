@@ -1,0 +1,71 @@
+export async function sendQuestionEmail({
+  studentName,
+  studentYear,
+  directedTo,
+  questionText,
+  memberEmail,
+}: {
+  studentName: string;
+  studentYear: string;
+  directedTo: string;
+  questionText: string;
+  memberEmail: string;
+}) {
+  const brevoApiKey = import.meta.env.VITE_BREVO_API_KEY;
+
+  if (!brevoApiKey || brevoApiKey.includes("your_brevo_key")) {
+    console.warn("⚠️ Brevo API Key is not set or has placeholders! Logging email values instead.");
+    console.log("✉️ [Mock Brevo Email Sent]:", {
+      studentName,
+      studentYear,
+      directedTo,
+      questionText,
+      memberEmail,
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": brevoApiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: "TGPCOP Student Council", email: "sb108750@gmail.com" },
+        to: [{ email: memberEmail, name: directedTo }],
+        subject: `New Student Question — ${directedTo}`,
+        htmlContent: `
+          <div style="font-family:sans-serif;max-width:600px;margin:auto;
+          background:#0D1B3E;color:white;padding:30px;border-radius:12px;">
+            <h2 style="color:#C84B0E;margin-top:0;">📬 New Question Received</h2>
+            <p><b>From:</b> ${studentName}</p>
+            <p><b>Year:</b> ${studentYear}</p>
+            <p><b>Directed To:</b> ${directedTo}</p>
+            <hr style="border:0;border-top:1px solid #C84B0E;margin:20px 0;"/>
+            <p><b>Question:</b></p>
+            <p style="background:rgba(255,255,255,0.1);padding:15px;border-radius:8px;line-height:1.6;">
+              ${questionText}
+            </p>
+            <a href="https://tgpcop-council.vercel.app/admin"
+              style="background:#C84B0E;color:white;padding:12px 24px;
+              border-radius:8px;text-decoration:none;display:inline-block;
+              margin-top:20px;font-weight:bold;">
+              Login to Admin Panel →
+            </a>
+          </div>
+        `,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Brevo API error: ${response.status} - ${errorText}`);
+    }
+  } catch (error) {
+    console.error("❌ Failed to send email via Brevo:", error);
+  }
+}
+
+export default sendQuestionEmail;

@@ -17,6 +17,9 @@ import { Events } from './pages/Events';
 import { Gallery } from './pages/Gallery';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminQuestions } from './pages/admin/AdminQuestions';
+import { AdminNotices } from './pages/admin/AdminNotices';
+import { AdminEvents } from './pages/admin/AdminEvents';
 
 // A helper component to scroll to top automatically on route changes
 const ScrollToTop: React.FC = () => {
@@ -57,6 +60,30 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute>
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/questions"
+            element={
+              <ProtectedRoute>
+                <AdminQuestions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/notices"
+            element={
+              <ProtectedRoute>
+                <AdminNotices />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/events"
+            element={
+              <ProtectedRoute>
+                <AdminEvents />
               </ProtectedRoute>
             }
           />

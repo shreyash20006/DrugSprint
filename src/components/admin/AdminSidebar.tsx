@@ -1,45 +1,53 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Mail, Megaphone, Calendar, PlusCircle, LogOut, GraduationCap } from 'lucide-react';
+import { Mail, Megaphone, Calendar, LogOut, GraduationCap, LayoutDashboard } from 'lucide-react';
 
 interface AdminSidebarProps {
-  activeTab: 'questions' | 'notices' | 'events' | 'add_new';
-  setActiveTab: (tab: 'questions' | 'notices' | 'events' | 'add_new') => void;
-  pendingQuestionsCount: number;
+  activeTab: 'dashboard' | 'questions' | 'notices' | 'events';
+  pendingQuestionsCount?: number;
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   activeTab,
-  setActiveTab,
-  pendingQuestionsCount,
+  pendingQuestionsCount = 0,
 }) => {
+  const navigate = useNavigate();
+
   const handleLogout = async () => {
     if (window.confirm("Are you sure you want to sign out?")) {
-      await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut();
+      if (!error) {
+        navigate('/admin/login', { replace: true });
+      }
     }
   };
 
   const navItems = [
     {
+      id: 'dashboard' as const,
+      path: '/admin/dashboard',
+      name: 'Dashboard Overview',
+      icon: <LayoutDashboard className="w-5 h-5" />,
+    },
+    {
       id: 'questions' as const,
-      name: 'Questions',
+      path: '/admin/questions',
+      name: 'Questions Hub',
       icon: <Mail className="w-5 h-5" />,
       badge: pendingQuestionsCount > 0 ? pendingQuestionsCount : null,
     },
     {
       id: 'notices' as const,
+      path: '/admin/notices',
       name: 'Notices Board',
       icon: <Megaphone className="w-5 h-5" />,
     },
     {
       id: 'events' as const,
+      path: '/admin/events',
       name: 'Events & Contests',
       icon: <Calendar className="w-5 h-5" />,
-    },
-    {
-      id: 'add_new' as const,
-      name: 'Add New Item',
-      icon: <PlusCircle className="w-5 h-5" />,
     },
   ];
 
@@ -67,9 +75,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
-              <button
+              <Link
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                to={item.path}
                 className={`w-full flex items-center justify-between px-4 py-3.5 rounded-lg font-display text-sm font-semibold transition-all duration-200 outline-none ${
                   isActive
                     ? 'bg-orange-burnt text-white shadow-md shadow-orange-burnt/20'
@@ -85,7 +93,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                     {item.badge}
                   </span>
                 )}
-              </button>
+              </Link>
             );
           })}
         </nav>

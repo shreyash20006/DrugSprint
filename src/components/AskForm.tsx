@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle2, ChevronDown, HelpCircle, MessageSquare, Loader2 } from 'lucide-react';
 import { councilMembers } from '../data/council';
 import { supabase } from '../lib/supabase';
-import { sendQuestionEmail } from '../lib/emailjs';
+import { sendQuestionEmail } from '../lib/brevo';
 
 interface FAQItem {
   question: string;
@@ -13,24 +13,24 @@ interface FAQItem {
 
 const faqs: FAQItem[] = [
   {
-    question: "What is TGPCOP's policy on ragging and campus discipline?",
-    answer: "TGPCOP enforces a strict Zero Tolerance policy regarding ragging of any kind. The Anti-Ragging Committee, spearheaded by Anjali Hardas (Anti-Ragging Incharge), monitors the campus daily. Anyone engaged in such acts is subject to severe disciplinary and legal actions under Maharashtra laws."
+    question: "How long for a response?",
+    answer: "You can expect an official response from the directed council member or executive committee within 3-5 working days depending on the nature of the inquiry."
   },
   {
-    question: "How can I access study materials and lecture notes?",
-    answer: "You can access the free study repository via the 'NotesDrive' folder on our Notices page. It contains detailed unit-wise notes, handbooks, and previous years' university question papers uploaded directly by faculty and council seniors."
+    question: "Can I ask anonymously?",
+    answer: "Currently, providing your name and course year is required so we can verify your student status and contact you directly with a resolution."
   },
   {
-    question: "How can I apply for cultural festivals or sports tournaments?",
-    answer: "Keep an eye on the Competitions section. The Event and Cultural secretaries publish Google Forms there for direct team registrations. You can also consult Shruti Kamble (Cultural Secretary) or Nayan Thote (Events Coordinator) directly."
+    question: "What topics can I ask about?",
+    answer: "You can submit queries regarding general college life, B.Pharm academic timetables, library study hours, anti-ragging compliance, cultural events, or sports week rosters."
   },
   {
-    question: "Whom should I contact if I have a fee issue or academic grievance?",
-    answer: "For financial concerns, consult Laksh Jaiswal or Rohan Bhil (Treasurers). For academic, exam-related, or general college issues, you can submit your questions here addressing Nandini Rajurkar (College Issues Rep) or Vinay Deogade (General Secretary)."
+    question: "How will I get the reply?",
+    answer: "The Student Council will contact you directly via your registered college email or phone number. Approved replies are also recorded in our secure administration console."
   },
   {
-    question: "How do I enroll in NSS (National Service Scheme) volunteer programs?",
-    answer: "Enrollments for NSS occur at the beginning of each academic semester. For mid-term entry or to participate in special camps like the Blood Donation Camp, you can reach out to Shivam Waghmare (NSS Incharge) directly."
+    question: "Can I suggest events?",
+    answer: "Yes, absolutely! We welcome student feedback and campus suggestions. Feel free to use this question form and direct your proposal to our Events Coordinator (Nayan Thote)."
   }
 ];
 
@@ -51,6 +51,7 @@ export const AskForm: React.FC = () => {
       setFormData((prev) => ({ ...prev, directedTo: defaultTo }));
     }
   }, [defaultTo]);
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -61,7 +62,7 @@ export const AskForm: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // 1. Insert into Supabase
+      // 1. Insert query into Supabase
       const { error } = await supabase.from('questions').insert([
         {
           student_name: formData.name,
@@ -74,15 +75,32 @@ export const AskForm: React.FC = () => {
 
       if (error) throw error;
 
-      // 2. Trigger EmailJS notification
+      // Find targeted member's email
+      const targetedMember = councilMembers.find((m) => m.name === formData.directedTo);
+      const memberEmail = targetedMember ? targetedMember.email : "sb108750@gmail.com";
+
+      // 2. Trigger Brevo SMTP email alert
       await sendQuestionEmail({
-        to_name: formData.directedTo,
-        student_name: formData.name,
-        student_year: formData.year,
-        question: formData.question
+        studentName: formData.name,
+        studentYear: formData.year,
+        directedTo: formData.directedTo,
+        questionText: formData.question,
+        memberEmail: memberEmail
       });
 
       setIsSubmitted(true);
+
+      // 3. Reset form after 3 seconds
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          name: '',
+          year: 'B.Pharm I Year',
+          directedTo: 'General Council',
+          question: ''
+        });
+      }, 3000);
+
     } catch (err: any) {
       alert(`Error submitting inquiry: ${err.message}`);
     } finally {
@@ -175,7 +193,7 @@ export const AskForm: React.FC = () => {
                     >
                       <option value="General Council">General Council</option>
                       {councilMembers.map((member) => (
-                        <option key={member.id} value={member.name}>
+                        <option key={member.name} value={member.name}>
                           {member.role.split(' ')[0]} - {member.name}
                         </option>
                       ))}
@@ -199,24 +217,24 @@ export const AskForm: React.FC = () => {
                   />
                 </div>
 
-                  {/* Submit button */}
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="group flex items-center justify-center space-x-2 w-full py-3.5 bg-orange-burnt hover:bg-orange-burnt/95 text-white font-display font-bold rounded-lg text-sm sm:text-base shadow-lg hover:shadow-orange-burnt/25 hover:-translate-y-0.5 transition-all duration-300 disabled:bg-orange-burnt/70 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Submitting Question...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Submit Question</span>
-                        <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform" />
-                      </>
-                    )}
-                  </button>
+                {/* Submit button */}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="group flex items-center justify-center space-x-2 w-full py-3.5 bg-orange-burnt hover:bg-orange-burnt/95 text-white font-display font-bold rounded-lg text-sm sm:text-base shadow-lg hover:shadow-orange-burnt/25 hover:-translate-y-0.5 transition-all duration-300 disabled:bg-orange-burnt/70 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Submitting Question...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Submit Question</span>
+                      <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform" />
+                    </>
+                  )}
+                </button>
               </motion.form>
             ) : (
               <motion.div
@@ -228,18 +246,10 @@ export const AskForm: React.FC = () => {
               >
                 <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-4 animate-bounce" />
                 <h3 className="font-display font-bold text-2xl text-navy-dark mb-2">Submitted Successfully!</h3>
-                <p className="text-navy-dark/75 text-sm sm:text-base max-w-sm mb-8">
-                  ✅ Your question has been submitted! The council will respond soon.
+                <p className="text-navy-dark/75 text-sm sm:text-base max-w-sm mb-4">
+                  ✅ Question submitted successfully! The council will get back to you soon.
                 </p>
-                <button
-                  onClick={() => {
-                    setIsSubmitted(false);
-                    setFormData({ name: '', year: 'B.Pharm I Year', directedTo: 'General Council', question: '' });
-                  }}
-                  className="px-6 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white font-display text-sm font-semibold rounded-lg shadow transition-colors"
-                >
-                  Ask Another Question
-                </button>
+                <span className="text-xs text-navy-dark/40 italic">Resetting form...</span>
               </motion.div>
             )}
           </AnimatePresence>
