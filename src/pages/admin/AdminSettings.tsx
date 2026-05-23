@@ -3,7 +3,18 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../components/admin/ProtectedRoute';
 import { useToast } from '../../components/admin/Toast';
 import { logActivity } from '../../lib/logs';
-import { Sliders, Upload, ImageIcon, Loader2, Check, RotateCcw, ExternalLink, Sun } from 'lucide-react';
+import { Sliders, Upload, ImageIcon, Loader2, Check, RotateCcw, ExternalLink, Sun, Megaphone } from 'lucide-react';
+
+const isVideoUrl = (url: string): boolean => {
+  if (!url) return false;
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.m4v'];
+  const lowerUrl = url.toLowerCase();
+  return (
+    videoExtensions.some(ext => lowerUrl.endsWith(ext)) ||
+    lowerUrl.includes('/video/upload/') ||
+    (lowerUrl.includes('res.cloudinary.com/') && lowerUrl.includes('/video/'))
+  );
+};
 
 export const AdminSettings: React.FC = () => {
   const { email: myEmail } = useAuth();
@@ -12,11 +23,17 @@ export const AdminSettings: React.FC = () => {
   const [logoUrl, setLogoUrl] = useState('');
   const [bannerUrl, setBannerUrl] = useState('');
   const [faviconUrl, setFaviconUrl] = useState('');
+  const [announcementText, setAnnouncementText] = useState('');
+  const [announcementEnabled, setAnnouncementEnabled] = useState(false);
+
   const [originalLogo, setOriginalLogo] = useState('');
   const [originalBanner, setOriginalBanner] = useState('');
   const [originalFavicon, setOriginalFavicon] = useState('');
+  const [originalAnnouncementText, setOriginalAnnouncementText] = useState('');
+  const [originalAnnouncementEnabled, setOriginalAnnouncementEnabled] = useState(false);
+
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState<'logo' | 'banner' | 'favicon' | null>(null);
+  const [isSaving, setIsSaving] = useState<'logo' | 'banner' | 'favicon' | 'announcement' | null>(null);
   const [logoError, setLogoError] = useState('');
   const [bannerError, setBannerError] = useState('');
   const [faviconError, setFaviconError] = useState('');
@@ -35,9 +52,14 @@ export const AdminSettings: React.FC = () => {
       setLogoUrl(map['logo_url'] || '');
       setBannerUrl(map['banner_url'] || '');
       setFaviconUrl(map['favicon_url'] || '');
+      setAnnouncementText(map['announcement_text'] || '');
+      setAnnouncementEnabled(map['announcement_enabled'] === 'true');
+
       setOriginalLogo(map['logo_url'] || '');
       setOriginalBanner(map['banner_url'] || '');
       setOriginalFavicon(map['favicon_url'] || '');
+      setOriginalAnnouncementText(map['announcement_text'] || '');
+      setOriginalAnnouncementEnabled(map['announcement_enabled'] === 'true');
     } catch (err: any) {
       toast.error('❌ Failed to load settings: ' + err.message);
     } finally {
@@ -86,6 +108,44 @@ export const AdminSettings: React.FC = () => {
       toast.success(`✅ ${key === 'logo_url' ? 'Logo' : key === 'banner_url' ? 'Banner' : 'Favicon'} updated successfully!`);
     } catch (err: any) {
       toast.error(`❌ Failed to save: ${err.message}`);
+    } finally {
+      setIsSaving(null);
+    }
+  };
+
+  const saveAnnouncement = async () => {
+    setIsSaving('announcement');
+    try {
+      const { error: textError } = await supabase
+        .from('settings')
+        .upsert({ 
+          key: 'announcement_text', 
+          value: announcementText, 
+          updated_at: new Date().toISOString() 
+        });
+      if (textError) throw textError;
+
+      const { error: enabledError } = await supabase
+        .from('settings')
+        .upsert({ 
+          key: 'announcement_enabled', 
+          value: announcementEnabled ? 'true' : 'false', 
+          updated_at: new Date().toISOString() 
+        });
+      if (enabledError) throw enabledError;
+
+      await logActivity(
+        myEmail, 
+        'announcement_change', 
+        `Updated announcement to: "${announcementText}" (Enabled: ${announcementEnabled})`
+      );
+
+      setOriginalAnnouncementText(announcementText);
+      setOriginalAnnouncementEnabled(announcementEnabled);
+
+      toast.success('✅ Announcement settings updated successfully!');
+    } catch (err: any) {
+      toast.error(`❌ Failed to save announcement: ${err.message}`);
     } finally {
       setIsSaving(null);
     }
@@ -198,14 +258,27 @@ export const AdminSettings: React.FC = () => {
         {/* Preview */}
         <div className="w-full h-40 rounded-xl overflow-hidden bg-navy-dark/5 border border-navy-dark/10 flex items-center justify-center relative">
           {bannerUrl ? (
-            <img
-              ref={bannerImgRef}
-              src={bannerUrl}
-              alt="Banner Preview"
-              className="w-full h-full object-cover"
-              onError={() => setBannerError('Image could not be loaded. Check the URL.')}
-              onLoad={() => setBannerError('')}
-            />
+            isVideoUrl(bannerUrl) ? (
+              <video
+                src={bannerUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+                onError={() => setBannerError('Video could not be loaded. Check the URL.')}
+                onPlay={() => setBannerError('')}
+              />
+            ) : (
+              <img
+                ref={bannerImgRef}
+                src={bannerUrl}
+                alt="Banner Preview"
+                className="w-full h-full object-cover"
+                onError={() => setBannerError('Image could not be loaded. Check the URL.')}
+                onLoad={() => setBannerError('')}
+              />
+            )
           ) : (
             <div className="text-center text-navy-dark/25">
               <Upload className="w-10 h-10 mx-auto mb-2" />
@@ -315,6 +388,68 @@ export const AdminSettings: React.FC = () => {
           <button
             onClick={() => { setFaviconUrl(originalFavicon); setFaviconError(''); }}
             disabled={faviconUrl === originalFavicon}
+            className="flex items-center space-x-1.5 px-4 py-2.5 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── Announcement Bar Settings ────────────────────────────────────── */}
+      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs p-6 space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-navy-dark/5">
+          <div className="flex items-center space-x-2">
+            <Megaphone className="w-4 h-4 text-orange-burnt" />
+            <h4 className="font-display font-bold text-sm text-navy-dark">📢 Live Announcement Bar</h4>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={announcementEnabled}
+              onChange={e => setAnnouncementEnabled(e.target.checked)}
+              className="sr-only peer"
+            />
+            <div className="w-9 h-5 bg-navy-dark/15 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-burnt" />
+            <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
+              {announcementEnabled ? 'Enabled' : 'Disabled'}
+            </span>
+          </label>
+        </div>
+
+        {/* Announcement Text Input */}
+        <div className="space-y-2">
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
+            Announcement Ticker Text (displayed at the very top of the website)
+          </label>
+          <textarea
+            value={announcementText}
+            onChange={e => setAnnouncementText(e.target.value)}
+            placeholder="🎉 Welcome to the official TGPCOP Student Council Portal! Admissions are open for the academic year 2026-2027. Apply now!"
+            rows={3}
+            maxLength={300}
+            className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-sm font-sans text-navy-dark transition-colors resize-none"
+          />
+          <div className="flex justify-between text-[9px] text-navy-dark/40 font-bold uppercase tracking-wider">
+            <span>Maximum 300 characters</span>
+            <span>{announcementText.length} / 300 chars</span>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={saveAnnouncement}
+            disabled={isSaving === 'announcement' || (announcementText === originalAnnouncementText && announcementEnabled === originalAnnouncementEnabled)}
+            className="flex items-center space-x-1.5 px-5 py-2.5 bg-orange-burnt hover:bg-orange-burnt/90 text-white rounded-lg font-display text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-orange-burnt/15"
+          >
+            {isSaving === 'announcement' ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Saving...</span></> : <><Check className="w-3.5 h-3.5" /><span>Save Announcement</span></>}
+          </button>
+          <button
+            onClick={() => {
+              setAnnouncementText(originalAnnouncementText);
+              setAnnouncementEnabled(originalAnnouncementEnabled);
+            }}
+            disabled={announcementText === originalAnnouncementText && announcementEnabled === originalAnnouncementEnabled}
             className="flex items-center space-x-1.5 px-4 py-2.5 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-3.5 h-3.5" />

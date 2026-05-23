@@ -2,13 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, GraduationCap, ChevronDown } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
   const [isMoreDropdownOpen, setIsMoreDropdownOpen] = useState(false);
+  const [announcementText, setAnnouncementText] = useState<string>('');
+  const [announcementEnabled, setAnnouncementEnabled] = useState<boolean>(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const fetchAnnouncement = async () => {
+      try {
+        const { data } = await supabase.from('settings').select('*');
+        if (data) {
+          const map: Record<string, string> = {};
+          data.forEach((row: any) => { map[row.key] = row.value; });
+          setAnnouncementText(map['announcement_text'] || '');
+          setAnnouncementEnabled(map['announcement_enabled'] === 'true');
+        }
+      } catch (err) {
+        console.error('Error fetching announcement settings:', err);
+      }
+    };
+    fetchAnnouncement();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,6 +72,13 @@ export const Navbar: React.FC = () => {
             : 'bg-navy-dark/90 backdrop-blur-md py-4 text-white'
         }`}
       >
+        {/* Dynamic Announcement Bar */}
+        {announcementEnabled && announcementText && (
+          <div className="w-full bg-gradient-to-r from-orange-burnt to-gold-accent py-2 px-4 text-white text-center text-[10px] sm:text-xs font-display font-bold tracking-wide flex items-center justify-center space-x-2 shadow-inner border-b border-white/5">
+            <span className="bg-white/20 border border-white/30 px-2 py-0.5 rounded text-[8px] sm:text-[9px] uppercase tracking-wider animate-pulse shrink-0">LATEST</span>
+            <span className="truncate">{announcementText}</span>
+          </div>
+        )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo & College Name */}
           <Link to="/" className="flex items-center space-x-3 group">

@@ -5,6 +5,17 @@ import * as THREE from 'three';
 import { ArrowRight, HelpCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
+const isVideoUrl = (url: string): boolean => {
+  if (!url) return false;
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.m4v'];
+  const lowerUrl = url.toLowerCase();
+  return (
+    videoExtensions.some(ext => lowerUrl.endsWith(ext)) ||
+    lowerUrl.includes('/video/upload/') ||
+    (lowerUrl.includes('res.cloudinary.com/') && lowerUrl.includes('/video/'))
+  );
+};
+
 export const HeroSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
@@ -257,10 +268,30 @@ export const HeroSection: React.FC = () => {
 
   return (
     <section
-      style={bannerUrl ? { backgroundImage: `url(${bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
       className="relative w-full h-screen flex items-center justify-center bg-gradient-to-br from-navy-dark via-[#11234F] to-[#0A1430] overflow-hidden z-10"
     >
-      {/* Dark overlay for dynamic banner image tint & premium readability */}
+      {/* Dynamic Background Image */}
+      {bannerUrl && !isVideoUrl(bannerUrl) && (
+        <img
+          src={bannerUrl}
+          alt="Hero Banner"
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none animate-fade-in duration-500"
+        />
+      )}
+
+      {/* Dynamic Background Video */}
+      {bannerUrl && isVideoUrl(bannerUrl) && (
+        <video
+          src={bannerUrl}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none animate-fade-in duration-500"
+        />
+      )}
+
+      {/* Dark overlay for dynamic banner tint & premium readability */}
       {bannerUrl && (
         <div className="absolute inset-0 bg-[#0B1531]/75 mix-blend-multiply z-0 pointer-events-none" />
       )}
