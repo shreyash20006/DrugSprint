@@ -96,6 +96,19 @@ export const Navbar: React.FC = () => {
                 </NavLink>
               );
             })}
+
+            {/* Portal Action button */}
+            <Link
+              to="/admin"
+              className={`ml-2 px-4 py-1.5 rounded-full border text-[11px] font-display font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-1 shrink-0 ${
+                isScrolled
+                  ? 'border-orange-burnt text-orange-burnt hover:bg-orange-burnt hover:text-white shadow-xs shadow-orange-burnt/10'
+                  : 'border-white/35 text-white hover:bg-white hover:text-navy-dark shadow-xs'
+              }`}
+            >
+              <span>🔑</span>
+              <span>Portal</span>
+            </Link>
           </nav>
 
           {/* Hamburger Menu Button */}
@@ -169,8 +182,17 @@ export const Navbar: React.FC = () => {
                 </nav>
               </div>
 
-              <div className="text-center text-xs text-white/50 border-t border-white/10 pt-4">
-                TGPCOP Student Council © 2026
+              <div>
+                <Link
+                  to="/admin"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full text-center py-3 bg-orange-burnt hover:bg-orange-burnt/95 text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-orange-burnt/15 transition-all block mb-4 active:scale-98"
+                >
+                  🔑 Admin Portal
+                </Link>
+                <div className="text-center text-xs text-white/50 border-t border-white/10 pt-4">
+                  TGPCOP Student Council © 2026
+                </div>
               </div>
             </motion.div>
           </>
