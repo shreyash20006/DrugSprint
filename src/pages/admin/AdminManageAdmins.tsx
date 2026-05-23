@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import {
-  ASSIGNABLE_ROLES,
-  Role,
-  getRoleDisplayName,
-  AdminUser,
-} from '../../hooks/useRole';
+import { ASSIGNABLE_ROLES, getRoleDisplayName } from '../../hooks/useRole';
+import type { Role, AdminUser } from '../../hooks/useRole';
 import { RequirePermission } from '../../components/admin/RequirePermission';
 import { useToast } from '../../components/admin/Toast';
 import { useAuth } from '../../components/admin/ProtectedRoute';
