@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { ShieldCheck, Mail, Lock, Loader2, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../components/admin/Toast';
+import { logActivity } from '../../lib/logs';
+import { sendAdminNotification } from '../../lib/brevo';
 
 export const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -37,11 +39,21 @@ export const AdminLogin: React.FC = () => {
       });
 
       if (error) throw error;
+
+      // Log successful login
+      await logActivity(email, 'login_success', `Successful login from portal for ${email}`);
       navigate('/admin/dashboard', { replace: true });
     } catch (err: any) {
       const errMsg = err.message || 'Invalid email or password. Please try again.';
       setErrorMessage(errMsg);
       toast.error(`❌ Login failed! ${errMsg}`);
+      // Log failed login and optionally notify super admin
+      await logActivity(email, 'login_fail', `Failed login attempt for "${email}": ${errMsg}`);
+      await sendAdminNotification({
+        subject: '🚨 Failed Login Attempt Detected',
+        title: 'Failed Login Attempt',
+        bodyHtml: `<p><b>Email Attempted:</b> ${email}</p><p><b>Error:</b> ${errMsg}</p><p>Please review the Activity Logs for more details.</p>`,
+      });
     } finally {
       setIsLoggingIn(false);
     }

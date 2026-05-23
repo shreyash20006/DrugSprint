@@ -68,4 +68,65 @@ export async function sendQuestionEmail({
   }
 }
 
+export async function sendAdminNotification({
+  subject,
+  title,
+  bodyHtml,
+}: {
+  subject: string;
+  title: string;
+  bodyHtml: string;
+}) {
+  const brevoApiKey = import.meta.env.VITE_BREVO_API_KEY;
+  const adminEmail = "sb108750@gmail.com"; // Primary alert inbox
+
+  if (!brevoApiKey || brevoApiKey.includes("your_brevo_key")) {
+    console.warn("⚠️ Brevo API Key is not set or has placeholders! Logging email values instead.");
+    console.log("✉️ [Mock Brevo Admin Notification Sent]:", {
+      subject,
+      title,
+      bodyHtml,
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": brevoApiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: "TGPCOP Alert System", email: "sb108750@gmail.com" },
+        to: [{ email: adminEmail, name: "TGPCOP Super Admin" }],
+        subject: subject,
+        htmlContent: `
+          <div style="font-family:sans-serif;max-width:600px;margin:auto;
+          background:#0D1B3E;color:white;padding:30px;border-radius:12px;border-top:4px solid #C84B0E;">
+            <h2 style="color:#C84B0E;margin-top:0;">🔔 ${title}</h2>
+            <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:20px 0;"/>
+            <div style="line-height:1.6;font-size:14px;color:rgba(255,255,255,0.95);">
+              ${bodyHtml}
+            </div>
+            <a href="https://tgpcop-council.vercel.app/admin"
+              style="background:#C84B0E;color:white;padding:12px 24px;
+              border-radius:8px;text-decoration:none;display:inline-block;
+              margin-top:30px;font-weight:bold;font-size:14px;">
+              Access Portal Console →
+            </a>
+          </div>
+        `,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Brevo API error: ${response.status} - ${errorText}`);
+    }
+  } catch (error) {
+    console.error("❌ Failed to send email via Brevo:", error);
+  }
+}
+
 export default sendQuestionEmail;

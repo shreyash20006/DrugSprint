@@ -15,6 +15,7 @@ import { Ask } from './pages/Ask';
 import { Notices } from './pages/Notices';
 import { Events } from './pages/Events';
 import { Gallery } from './pages/Gallery';
+import { ReportBug } from './pages/ReportBug';
 import { AdminLogin } from './pages/admin/AdminLogin';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AdminQuestions } from './pages/admin/AdminQuestions';
@@ -22,6 +23,10 @@ import { AdminNotices } from './pages/admin/AdminNotices';
 import { AdminEvents } from './pages/admin/AdminEvents';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { AdminGallery } from './pages/admin/AdminGallery';
+import { AdminUsers } from './pages/admin/AdminUsers';
+import { AdminSettings } from './pages/admin/AdminSettings';
+import { AdminLogs } from './pages/admin/AdminLogs';
+import { AdminBugs } from './pages/admin/AdminBugs';
 
 // A helper component to scroll to top automatically on route changes
 const ScrollToTop: React.FC = () => {
@@ -54,6 +59,7 @@ const AppContent: React.FC = () => {
           <Route path="/notices" element={<Notices />} />
           <Route path="/events" element={<Events />} />
           <Route path="/media" element={<Gallery />} />
+          <Route path="/report" element={<ReportBug />} />
 
           {/* Secure Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />
@@ -70,6 +76,11 @@ const AppContent: React.FC = () => {
             <Route path="/admin/notices" element={<AdminNotices />} />
             <Route path="/admin/events" element={<AdminEvents />} />
             <Route path="/admin/gallery" element={<AdminGallery />} />
+            {/* Super Admin Exclusive Routes */}
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/logs" element={<AdminLogs />} />
+            <Route path="/admin/bugs" element={<AdminBugs />} />
           </Route>
         </Routes>
       </main>

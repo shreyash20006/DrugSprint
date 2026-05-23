@@ -54,14 +54,36 @@ export const NoticeModal: React.FC<NoticeModalProps> = ({
     e.preventDefault();
     if (!formData.title || !formData.description) return;
 
+    // Validate attachment links if they are provided
+    const cleanPdf = formData.pdf_url?.trim();
+    const cleanLink = formData.external_link?.trim();
+
+    if (cleanPdf) {
+      if (!cleanPdf.toLowerCase().startsWith('https://')) {
+        toast.warning("⚠️ Attachment PDF link must start with secure https:// protocol!");
+        return;
+      }
+      if (!cleanPdf.toLowerCase().includes('.pdf') && !cleanPdf.toLowerCase().includes('cloudinary.com')) {
+        toast.warning("⚠️ Attachment PDF must point to a valid .pdf file!");
+        return;
+      }
+    }
+
+    if (cleanLink) {
+      if (!cleanLink.toLowerCase().startsWith('https://')) {
+        toast.warning("⚠️ External resource link must start with secure https:// protocol!");
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       const dataPayload = {
         title: formData.title,
         description: formData.description,
         category: formData.category,
-        pdf_url: formData.pdf_url || null,
-        external_link: formData.external_link || null,
+        pdf_url: cleanPdf || null,
+        external_link: cleanLink || null,
         is_pinned: formData.is_pinned,
       };
 

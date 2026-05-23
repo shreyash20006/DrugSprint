@@ -20,6 +20,14 @@ export const AdminLayout: React.FC = () => {
         return 'Events & Competitions';
       case '/admin/gallery':
         return 'Photo Gallery Management';
+      case '/admin/users':
+        return 'User Administration';
+      case '/admin/settings':
+        return 'Portal Branding Settings';
+      case '/admin/logs':
+        return 'Security Audit Trail';
+      case '/admin/bugs':
+        return 'Glitch & Issue Reports';
       case '/admin/dashboard':
       default:
         return 'Dashboard Overview';

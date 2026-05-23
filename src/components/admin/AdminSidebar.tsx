@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from './ProtectedRoute';
 import { 
   LayoutDashboard, 
   Mail, 
@@ -9,7 +10,13 @@ import {
   Image as ImageIcon, 
   Globe, 
   LogOut, 
-  GraduationCap 
+  GraduationCap,
+  Users,
+  Sliders,
+  ClipboardList,
+  Bug,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -23,6 +30,20 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { role } = useAuth();
+  const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
+
+  const toggleDarkMode = () => {
+    if (document.documentElement.classList.contains('dark')) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      setIsDark(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      setIsDark(true);
+    }
+  };
 
   const handleLogout = async () => {
     if (window.confirm("Are you sure you want to sign out?")) {
@@ -63,8 +84,34 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     },
   ];
 
+  // Append Super Admin only tabs
+  if (role === 'super_admin') {
+    navItems.push(
+      {
+        path: '/admin/users',
+        name: 'User Management',
+        icon: <Users className="w-5 h-5" />,
+      },
+      {
+        path: '/admin/settings',
+        name: 'Portal Settings',
+        icon: <Sliders className="w-5 h-5" />,
+      },
+      {
+        path: '/admin/logs',
+        name: 'Activity Logs',
+        icon: <ClipboardList className="w-5 h-5" />,
+      },
+      {
+        path: '/admin/bugs',
+        name: 'Bug Reports',
+        icon: <Bug className="w-5 h-5" />,
+      }
+    );
+  }
+
   return (
-    <div className="w-[240px] bg-navy-dark text-white flex flex-col justify-between h-full border-r border-white/5 shrink-0">
+    <div className="w-[240px] bg-navy-dark text-white flex flex-col justify-between h-full border-r border-white/5 shrink-0 overflow-y-auto">
       <div>
         {/* Top Branding Section */}
         <div className="p-6 border-b border-white/10 flex items-center space-x-3">
@@ -90,10 +137,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 key={item.path}
                 to={item.path}
                 onClick={onClose}
-                className={`w-full flex items-center justify-between px-6 py-3 font-display text-sm font-semibold transition-all duration-200 outline-none relative ${
+                className={`w-full flex items-center justify-between px-6 py-3 font-display text-sm font-semibold transition-all duration-200 outline-none relative border-l-4 ${
                   isActive
-                    ? 'text-orange-burnt bg-white/[0.03] border-l-4 border-orange-burnt'
-                    : 'text-white/70 hover:bg-orange-burnt/10 hover:text-orange-burnt border-l-4 border-transparent'
+                    ? 'text-orange-burnt bg-white/[0.03] border-orange-burnt'
+                    : 'text-white/70 hover:bg-orange-burnt/10 hover:text-orange-burnt border-transparent'
                 }`}
               >
                 <div className="flex items-center space-x-3">
@@ -111,8 +158,26 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         </nav>
       </div>
 
-      {/* Footer Navigation & Logout Operations */}
-      <div className="p-4 border-t border-white/10 space-y-2">
+      {/* Footer Navigation & Theme/Logout Operations */}
+      <div className="p-4 border-t border-white/10 space-y-1">
+        {/* Dark Mode Toggle */}
+        <button
+          onClick={toggleDarkMode}
+          className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg font-display text-xs font-bold text-white/60 hover:bg-white/5 hover:text-white transition-all outline-none"
+        >
+          {isDark ? (
+            <>
+              <Sun className="w-4 h-4 text-amber-500 animate-pulse" />
+              <span>☀️ Light Mode</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-4 h-4 text-indigo-400" />
+              <span>🌙 Dark Mode</span>
+            </>
+          )}
+        </button>
+
         {/* View Website External Link */}
         <a
           href="/"
