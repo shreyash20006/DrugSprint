@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Check, MessageSquare, Trash2, Loader2, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from './Toast';
+import { sendQuestionReplyEmail } from '../../lib/brevo';
 
 interface QuestionRowProps {
   question: any;
@@ -15,6 +16,10 @@ export const QuestionRow: React.FC<QuestionRowProps> = ({ question, onRefresh })
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const toast = useToast();
+
+  useEffect(() => {
+    setReplyText(question.admin_reply || '');
+  }, [question.admin_reply]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -61,6 +66,22 @@ export const QuestionRow: React.FC<QuestionRowProps> = ({ question, onRefresh })
         .eq('id', question.id);
 
       if (error) throw error;
+
+      // Send email notification to student if email is available
+      if (question.student_email) {
+        try {
+          await sendQuestionReplyEmail({
+            studentName: question.student_name,
+            studentEmail: question.student_email,
+            questionText: question.question_text,
+            replyText: replyText,
+            directedTo: question.directed_to,
+          });
+        } catch (emailErr) {
+          console.warn("Failed to send reply email to student:", emailErr);
+        }
+      }
+
       toast.success("✅ Reply submitted successfully!");
       onRefresh();
       setIsExpanded(false);
@@ -206,6 +227,17 @@ export const QuestionRow: React.FC<QuestionRowProps> = ({ question, onRefresh })
                   "{question.question_text}"
                 </p>
               </div>
+
+              {question.student_email && (
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-navy-dark/40 block mb-1">
+                    Student Email Address
+                  </span>
+                  <p className="text-sm leading-relaxed text-navy-dark/85 bg-white px-4 py-2.5 rounded-lg border border-navy-dark/5 shadow-inner font-sans select-all">
+                    {question.student_email}
+                  </p>
+                </div>
+              )}
 
               <form onSubmit={handleReplySubmit} className="space-y-3">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-navy-dark/40 block">

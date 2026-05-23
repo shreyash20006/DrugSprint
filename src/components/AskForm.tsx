@@ -40,6 +40,7 @@ export const AskForm: React.FC = () => {
 
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     year: 'B.Pharm I Year',
     directedTo: 'General Council',
     question: ''
@@ -58,7 +59,7 @@ export const AskForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.question) return;
+    if (!formData.name || !formData.email || !formData.question) return;
 
     setIsSubmitting(true);
     try {
@@ -66,6 +67,7 @@ export const AskForm: React.FC = () => {
       const { error } = await supabase.from('questions').insert([
         {
           student_name: formData.name,
+          student_email: formData.email,
           student_year: formData.year,
           directed_to: formData.directedTo,
           question_text: formData.question,
@@ -95,6 +97,7 @@ export const AskForm: React.FC = () => {
         setIsSubmitted(false);
         setFormData({
           name: '',
+          email: '',
           year: 'B.Pharm I Year',
           directedTo: 'General Council',
           question: ''
@@ -157,6 +160,22 @@ export const AskForm: React.FC = () => {
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt bg-white/70 outline-none text-navy-dark text-sm sm:text-base transition-colors"
+                  />
+                </div>
+
+                {/* Student Email */}
+                <div>
+                  <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-navy-dark/75 mb-2">
+                    Your Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    placeholder="your.email@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt bg-white/70 outline-none text-navy-dark text-sm sm:text-base transition-colors"
                   />
                 </div>

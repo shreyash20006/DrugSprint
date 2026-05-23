@@ -5,6 +5,7 @@ import { DataTable } from '../../components/admin/DataTable';
 import { QuestionRow } from '../../components/admin/QuestionRow';
 import { councilMembers } from '../../data/council';
 import { useToast } from '../../components/admin/Toast';
+import { sendQuestionReplyEmail } from '../../lib/brevo';
 import { 
   Mail, 
   AlertCircle, 
@@ -30,6 +31,10 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const toast = useToast();
+
+  useEffect(() => {
+    setReplyText(question.admin_reply || '');
+  }, [question.admin_reply]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -76,6 +81,22 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
         .eq('id', question.id);
 
       if (error) throw error;
+
+      // Send email notification to student if email is available
+      if (question.student_email) {
+        try {
+          await sendQuestionReplyEmail({
+            studentName: question.student_name,
+            studentEmail: question.student_email,
+            questionText: question.question_text,
+            replyText: replyText,
+            directedTo: question.directed_to,
+          });
+        } catch (emailErr) {
+          console.warn("Failed to send reply email to student:", emailErr);
+        }
+      }
+
       toast.success("✅ Reply submitted successfully!");
       onRefresh();
       setIsExpanded(false);
@@ -178,6 +199,16 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
       {/* Inline Collapsible Reply Drawer Box */}
       {isExpanded && (
         <div className="mt-4 pt-4 border-t border-navy-dark/5 space-y-3 bg-gray-50/50 p-4 rounded-xl">
+          {question.student_email && (
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-navy-dark/40 block mb-0.5">
+                Student Email Address
+              </span>
+              <p className="text-xs text-navy-dark/80 bg-white px-3 py-1.5 rounded-lg border border-navy-dark/5 font-sans select-all">
+                {question.student_email}
+              </p>
+            </div>
+          )}
           <span className="text-[9px] font-bold uppercase tracking-widest text-navy-dark/40 block">
             Admin Response / Reply
           </span>
