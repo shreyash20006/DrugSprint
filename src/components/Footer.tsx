@@ -13,8 +13,16 @@ export const Footer: React.FC = () => {
           {/* Left Column: Brand & Tagline */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 rounded-full bg-orange-burnt flex items-center justify-center shrink-0">
-                <GraduationCap className="w-6 h-6 text-white" />
+              <div className="relative overflow-hidden w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border border-white/10 shadow-sm">
+                <img
+                  src="https://res.cloudinary.com/dsqxboxoc/image/upload/v1779522116/WhatsApp_Image_2026-05-23_at_1.10.29_PM_susb5a.jpg"
+                  alt="TGPCOP Logo"
+                  className="w-full h-full object-cover error-fallback-hide absolute inset-0 transition-transform duration-300 group-hover:scale-108"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+                <GraduationCap className="w-5 h-5 text-orange-burnt absolute" />
               </div>
               <div>
                 <span className="font-display font-bold text-xl tracking-tight block leading-none">

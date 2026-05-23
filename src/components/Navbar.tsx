@@ -43,17 +43,17 @@ export const Navbar: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo & College Name */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="relative overflow-hidden w-10 h-10 rounded-full bg-orange-burnt flex items-center justify-center shrink-0">
-              {/* Attempt to load TGPCOP logo, fallback to beautiful Icon */}
+            <div className="relative overflow-hidden w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 border border-orange-burnt/10 shadow-sm">
+              {/* Load the official TGPCOP logo, fallback to GraduationCap */}
               <img
-                src="/assets/logo.png"
+                src="https://res.cloudinary.com/dsqxboxoc/image/upload/v1779522116/WhatsApp_Image_2026-05-23_at_1.10.29_PM_susb5a.jpg"
                 alt="TGPCOP Logo"
-                className="w-full h-full object-contain error-fallback-hide absolute inset-0"
+                className="w-full h-full object-cover error-fallback-hide absolute inset-0 transition-transform duration-300 group-hover:scale-108"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <GraduationCap className="w-6 h-6 text-white absolute" />
+              <GraduationCap className="w-5 h-5 text-orange-burnt absolute" />
             </div>
             <div>
               <span className="font-display font-bold text-lg sm:text-xl tracking-tight block leading-none">
