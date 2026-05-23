@@ -28,6 +28,20 @@ export const AdminLayout: React.FC = () => {
         return 'Database Viewer';
       case '/admin/manage-admins':
         return 'Manage Admin Roles';
+      case '/admin/registrations':
+        return 'Event Registrations';
+      case '/admin/polls':
+        return 'Polls & Voting';
+      case '/admin/feedback':
+        return 'Event Feedback Analytics';
+      case '/admin/achievements':
+        return 'Hall of Fame Management';
+      case '/admin/newsletter':
+        return 'Newsletter Management';
+      case '/admin/complaints':
+        return 'Anonymous Complaints';
+      case '/admin/mentors':
+        return 'Mentorship Program';
       case '/admin/logs':
         return 'Security Audit Trail';
       case '/admin/bugs':

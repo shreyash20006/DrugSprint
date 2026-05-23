@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, GraduationCap } from 'lucide-react';
+import { Menu, X, GraduationCap, ChevronDown } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const location = useLocation();
+
+  const moreLinks = [
+    { name: '🏆 Achievements', path: '/achievements' },
+    { name: '🗳️ Vote Now', path: '/vote' },
+    { name: '🤝 Mentors', path: '/mentors' },
+    { name: '📰 Newsletter', path: '/newsletter' },
+    { name: '🆘 Report Issue', path: '/complaint' },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,6 +106,41 @@ export const Navbar: React.FC = () => {
               );
             })}
 
+            <div
+              className="relative"
+              onMouseEnter={() => setMoreOpen(true)}
+              onMouseLeave={() => setMoreOpen(false)}
+            >
+              <button
+                type="button"
+                className={`flex items-center gap-1 font-display font-medium text-sm px-1 py-2 transition-colors hover:text-orange-burnt ${
+                  isScrolled ? 'text-navy-dark/80' : 'text-white/80'
+                }`}
+              >
+                More <ChevronDown className="w-4 h-4" />
+              </button>
+              <AnimatePresence>
+                {moreOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    className="absolute top-full left-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-navy-dark/10 py-2 z-50"
+                  >
+                    {moreLinks.map((link) => (
+                      <Link
+                        key={link.path}
+                        to={link.path}
+                        className="block px-4 py-2.5 text-sm text-navy-dark hover:bg-orange-burnt/10 hover:text-orange-burnt font-medium"
+                      >
+                        {link.name}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {/* Portal Action button */}
             <Link
               to="/admin"
@@ -179,6 +223,17 @@ export const Navbar: React.FC = () => {
                       </Link>
                     );
                   })}
+                  <p className="text-[10px] font-bold uppercase text-white/40 pt-4">More</p>
+                  {moreLinks.map((link) => (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="font-display font-medium text-base py-2 text-white/80 hover:text-orange-burnt"
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
                 </nav>
               </div>
 

@@ -16,6 +16,13 @@ import {
   Moon,
   Database,
   Users,
+  ClipboardList,
+  Vote,
+  BarChart3,
+  Trophy,
+  Newspaper,
+  AlertTriangle,
+  Handshake,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -87,6 +94,48 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       name: 'Gallery',
       icon: <ImageIcon className="w-5 h-5" />,
       permission: 'upload_gallery',
+    },
+    {
+      path: '/admin/registrations',
+      name: 'Registrations',
+      icon: <ClipboardList className="w-5 h-5" />,
+      permission: 'view_registrations',
+    },
+    {
+      path: '/admin/polls',
+      name: 'Polls',
+      icon: <Vote className="w-5 h-5" />,
+      permission: 'manage_polls',
+    },
+    {
+      path: '/admin/feedback',
+      name: 'Feedback',
+      icon: <BarChart3 className="w-5 h-5" />,
+      permission: 'view_feedback',
+    },
+    {
+      path: '/admin/achievements',
+      name: 'Achievements',
+      icon: <Trophy className="w-5 h-5" />,
+      permission: 'manage_achievements',
+    },
+    {
+      path: '/admin/newsletter',
+      name: 'Newsletter',
+      icon: <Newspaper className="w-5 h-5" />,
+      permission: 'manage_newsletter',
+    },
+    {
+      path: '/admin/complaints',
+      name: 'Complaints',
+      icon: <AlertTriangle className="w-5 h-5" />,
+      permission: 'view_complaints',
+    },
+    {
+      path: '/admin/mentors',
+      name: 'Mentors',
+      icon: <Handshake className="w-5 h-5" />,
+      permission: 'manage_mentors',
     },
     {
       path: '/admin/settings',

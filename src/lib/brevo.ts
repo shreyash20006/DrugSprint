@@ -237,4 +237,112 @@ export async function sendAdminNotification({
   }
 }
 
+// ─── Event registration confirmation ─────────────────────────────────────────
+export async function sendEventRegistrationEmail({
+  studentName,
+  studentEmail,
+  eventName,
+  eventDate,
+}: {
+  studentName: string;
+  studentEmail: string;
+  eventName: string;
+  eventDate: string;
+}): Promise<void> {
+  try {
+    await sendBrevoEmail({
+      sender: SENDER,
+      to: [{ email: studentEmail, name: studentName }],
+      subject: `✅ You're registered for ${eventName}!`,
+      htmlContent: `
+        <div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0D1B3E;color:white;padding:30px;border-radius:12px;">
+          <h2 style="color:#C84B0E;margin-top:0;">✅ You're registered for ${eventName}!</h2>
+          <p>Dear ${studentName},</p>
+          <p>Your registration is confirmed.</p>
+          <p><b>Date:</b> ${eventDate}</p>
+          <p>See you there!</p>
+          <p style="color:#C84B0E;">— TGPCOP Student Council</p>
+        </div>
+      `,
+    });
+  } catch (error) {
+    console.error("❌ sendEventRegistrationEmail failed:", error);
+  }
+}
+
+// ─── Anonymous complaint alert ─────────────────────────────────────────────────
+export async function sendComplaintAlert({
+  incidentType,
+  description,
+  incidentDate,
+  location,
+}: {
+  incidentType: string;
+  description: string;
+  incidentDate?: string;
+  location?: string;
+}): Promise<void> {
+  try {
+    await sendBrevoEmail({
+      sender: SENDER,
+      to: [
+        { email: "antiragging@tgpcop.com", name: "Anti-Ragging Cell" },
+        { email: "president@tgpcop.com", name: "President" },
+      ],
+      subject: "⚠️ New Anonymous Complaint",
+      htmlContent: `
+        <div style="font-family:sans-serif;max-width:600px;margin:auto;background:#0D1B3E;color:white;padding:30px;border-radius:12px;">
+          <h2 style="color:#C84B0E;">⚠️ New Anonymous Complaint</h2>
+          <p><b>Type:</b> ${incidentType}</p>
+          <p><b>Date:</b> ${incidentDate || 'Not specified'}</p>
+          <p><b>Location:</b> ${location || 'Not specified'}</p>
+          <div style="background:#ffffff15;padding:15px;border-radius:8px;margin:15px 0;">${description}</div>
+          <a href="${ADMIN_URL}/complaints" style="background:#C84B0E;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:bold;">Review in Admin →</a>
+        </div>
+      `,
+    });
+  } catch (error) {
+    console.error("❌ sendComplaintAlert failed:", error);
+  }
+}
+
+// ─── Mentorship emails ───────────────────────────────────────────────────────
+export async function sendMentorRequestEmails({
+  mentorName,
+  mentorEmail,
+  juniorName,
+  juniorEmail,
+  message,
+}: {
+  mentorName: string;
+  mentorEmail: string;
+  juniorName: string;
+  juniorEmail: string;
+  message: string;
+}): Promise<void> {
+  try {
+    await sendBrevoEmail({
+      sender: SENDER,
+      to: [{ email: mentorEmail, name: mentorName }],
+      subject: `New mentorship request from ${juniorName}`,
+      htmlContent: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:20px;"><h2>New mentorship request</h2><p><b>From:</b> ${juniorName}</p><p>${message}</p></div>`,
+    });
+    await sendBrevoEmail({
+      sender: SENDER,
+      to: [{ email: juniorEmail, name: juniorName }],
+      subject: `Request sent to ${mentorName}!`,
+      htmlContent: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:20px;"><h2>Request sent!</h2><p>Your mentorship request was sent to <b>${mentorName}</b>. They will contact you soon.</p></div>`,
+    });
+  } catch (error) {
+    console.error("❌ sendMentorRequestEmails failed:", error);
+  }
+}
+
+export function openWhatsAppConfirmation(phone: string, eventName: string) {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 10) return;
+  const text = encodeURIComponent(`Hi! I'm registered for ${eventName} via TGPCOP Council.`);
+  window.open(`https://wa.me/${digits}?text=${text}`, '_blank', 'noopener,noreferrer');
+}
+
 export default sendQuestionEmail;

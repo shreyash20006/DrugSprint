@@ -10,7 +10,8 @@ export type Role =
   | 'gallery'
   | 'questions'
   | 'treasurer'
-  | 'limited';
+  | 'limited'
+  | 'antiragging';
 
 export const ASSIGNABLE_ROLES: Role[] = [
   'super_admin',
@@ -22,6 +23,7 @@ export const ASSIGNABLE_ROLES: Role[] = [
   'treasurer',
   'limited',
   'developer',
+  'antiragging',
 ];
 
 export interface AdminUser {
@@ -45,6 +47,7 @@ export function getRoleDisplayName(role: Role): string {
     questions: 'Questions',
     treasurer: 'Treasurer',
     limited: 'Limited',
+    antiragging: 'Anti-Ragging',
   };
   return labels[role];
 }
@@ -60,6 +63,7 @@ export function getPositionTitle(role: Role): string {
     questions: 'Questions Manager',
     treasurer: 'Treasurer',
     limited: 'Council Member',
+    antiragging: 'Anti-Ragging Cell',
   };
   return titles[role];
 }
@@ -150,6 +154,13 @@ export function useRole() {
       view_database: ['developer'],
       manage_admins: ['developer'],
       developer_settings: ['developer'],
+      view_registrations: withDeveloper(['super_admin', 'admin', 'events']),
+      manage_polls: withDeveloper(['super_admin', 'admin']),
+      view_feedback: withDeveloper(['super_admin', 'admin', 'events']),
+      manage_achievements: withDeveloper(['super_admin', 'admin']),
+      manage_newsletter: withDeveloper(['super_admin', 'admin', 'secretary']),
+      view_complaints: withDeveloper(['super_admin', 'antiragging']),
+      manage_mentors: withDeveloper(['super_admin', 'admin']),
     };
 
     return permissions[action]?.includes(role) ?? false;

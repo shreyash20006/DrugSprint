@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HeroSection } from '../components/HeroSection';
 import { MarqueeStrip } from '../components/MarqueeStrip';
+import { HomeFeatureSections } from '../components/HomeFeatureSections';
 import {
   FileText,
   HelpCircle,
@@ -77,6 +78,8 @@ export const Home: React.FC = () => {
 
       {/* 2. Horizontal Marquee Announcements */}
       <MarqueeStrip />
+
+      <HomeFeatureSections />
 
       {/* 3. About the Council (2-Column Grid) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">

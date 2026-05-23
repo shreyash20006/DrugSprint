@@ -206,7 +206,7 @@ export const Events: React.FC = () => {
                 {/* Competitions Card Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto py-8">
                   {competitions.map((comp) => (
-                    <CompetitionCard key={comp.id} competition={comp} />
+                    <CompetitionCard key={comp.id} event={comp} />
                   ))}
                 </div>
 

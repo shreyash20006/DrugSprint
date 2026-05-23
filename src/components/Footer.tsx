@@ -213,6 +213,10 @@ export const Footer: React.FC = () => {
             <Link to="/report" className="hover:text-orange-burnt transition-colors font-semibold tracking-wide">
               ⚠️ Report a Problem
             </Link>
+            <span className="text-white/25 hidden sm:inline">|</span>
+            <Link to="/complaint" className="hover:text-orange-burnt transition-colors font-semibold tracking-wide">
+              🆘 Report an Issue
+            </Link>
           </p>
           <p className="flex items-center space-x-1">
             <span>Made with</span>
