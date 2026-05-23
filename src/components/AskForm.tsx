@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle2, ChevronDown, HelpCircle, MessageSquare, Loader2 } from 'lucide-react';
 import { councilMembers } from '../data/council';
 import { supabase } from '../lib/supabase';
-import { sendQuestionEmail } from '../lib/brevo';
+import { sendConfirmationToStudent, sendQuestionToCouncil } from '../lib/brevo';
 
 interface FAQItem {
   question: string;
@@ -40,6 +40,7 @@ export const AskForm: React.FC = () => {
 
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     year: 'B.Pharm I Year',
     directedTo: 'General Council',
     question: ''
@@ -62,10 +63,11 @@ export const AskForm: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // 1. Insert query into Supabase
+      // 1. Insert query into Supabase (with student_email)
       const { error } = await supabase.from('questions').insert([
         {
           student_name: formData.name,
+          student_email: formData.email,
           student_year: formData.year,
           directed_to: formData.directedTo,
           question_text: formData.question,
@@ -79,14 +81,25 @@ export const AskForm: React.FC = () => {
       const targetedMember = councilMembers.find((m) => m.name === formData.directedTo);
       const memberEmail = targetedMember ? targetedMember.email : "sb108750@gmail.com";
 
-      // 2. Trigger Brevo SMTP email alert
-      await sendQuestionEmail({
-        studentName: formData.name,
-        studentYear: formData.year,
-        directedTo: formData.directedTo,
-        questionText: formData.question,
-        memberEmail: memberEmail
-      });
+      // 2. Send both emails in parallel
+      await Promise.all([
+        // Email 1: Confirmation to student
+        sendConfirmationToStudent({
+          studentName: formData.name,
+          studentEmail: formData.email,
+          directedTo: formData.directedTo,
+          questionText: formData.question,
+        }),
+        // Email 2: Notify council member
+        sendQuestionToCouncil({
+          studentName: formData.name,
+          studentEmail: formData.email,
+          studentYear: formData.year,
+          directedTo: formData.directedTo,
+          questionText: formData.question,
+          memberEmail,
+        }),
+      ]);
 
       setIsSubmitted(true);
 
@@ -95,6 +108,7 @@ export const AskForm: React.FC = () => {
         setIsSubmitted(false);
         setFormData({
           name: '',
+          email: '',
           year: 'B.Pharm I Year',
           directedTo: 'General Council',
           question: ''
@@ -148,7 +162,7 @@ export const AskForm: React.FC = () => {
                 {/* Name */}
                 <div>
                   <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-navy-dark/75 mb-2">
-                    Your Name
+                    Your Name *
                   </label>
                   <input
                     type="text"
@@ -161,11 +175,30 @@ export const AskForm: React.FC = () => {
                   />
                 </div>
 
-                {/* Academic Year dropdown */}
+                {/* Email */}
+                <div>
+                  <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-navy-dark/75 mb-2">
+                    Your Email *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    placeholder="yourname@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt bg-white/70 outline-none text-navy-dark text-sm sm:text-base transition-colors"
+                  />
+                  <p className="text-[10px] text-navy-dark/45 mt-1 font-sans">
+                    We'll send a confirmation and the council's reply to this email.
+                  </p>
+                </div>
+
+                {/* Academic Year + Directed To */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="year" className="block text-xs font-bold uppercase tracking-wider text-navy-dark/75 mb-2">
-                      Your Year
+                      Your Year *
                     </label>
                     <select
                       id="year"
@@ -183,7 +216,7 @@ export const AskForm: React.FC = () => {
                   {/* Direct Question to dropdown */}
                   <div>
                     <label htmlFor="directedTo" className="block text-xs font-bold uppercase tracking-wider text-navy-dark/75 mb-2">
-                      Direct Question To
+                      Direct Question To *
                     </label>
                     <select
                       id="directedTo"
@@ -204,7 +237,7 @@ export const AskForm: React.FC = () => {
                 {/* Question Text Area */}
                 <div>
                   <label htmlFor="question" className="block text-xs font-bold uppercase tracking-wider text-navy-dark/75 mb-2">
-                    Your Question / Grievance
+                    Your Question / Grievance *
                   </label>
                   <textarea
                     id="question"

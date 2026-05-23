@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Check, MessageSquare, Trash2, Loader2, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from './Toast';
+import { sendReplyToStudent } from '../../lib/brevo';
 
 interface QuestionRowProps {
   question: any;
@@ -52,6 +53,7 @@ export const QuestionRow: React.FC<QuestionRowProps> = ({ question, onRefresh })
 
     setIsReplying(true);
     try {
+      // 1. Save reply to Supabase
       const { error } = await supabase
         .from('questions')
         .update({
@@ -61,7 +63,19 @@ export const QuestionRow: React.FC<QuestionRowProps> = ({ question, onRefresh })
         .eq('id', question.id);
 
       if (error) throw error;
-      toast.success("✅ Reply submitted successfully!");
+
+      // 2. Send reply email to student (if email exists)
+      if (question.student_email) {
+        await sendReplyToStudent({
+          studentName: question.student_name,
+          studentEmail: question.student_email,
+          directedTo: question.directed_to,
+          questionText: question.question_text,
+          adminReply: replyText,
+        });
+      }
+
+      toast.success("✅ Reply submitted & email sent to student!");
       onRefresh();
       setIsExpanded(false);
     } catch (err: any) {
@@ -119,6 +133,11 @@ export const QuestionRow: React.FC<QuestionRowProps> = ({ question, onRefresh })
           <span className="font-display font-bold text-sm text-navy-dark">
             {question.student_name}
           </span>
+          {question.student_email && (
+            <span className="block text-[10px] text-navy-dark/45 font-sans mt-0.5">
+              {question.student_email}
+            </span>
+          )}
         </td>
 
         {/* Student Year */}

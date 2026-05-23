@@ -5,6 +5,7 @@ import { DataTable } from '../../components/admin/DataTable';
 import { QuestionRow } from '../../components/admin/QuestionRow';
 import { councilMembers } from '../../data/council';
 import { useToast } from '../../components/admin/Toast';
+import { sendReplyToStudent } from '../../lib/brevo';
 import { 
   Mail, 
   AlertCircle, 
@@ -67,6 +68,7 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
 
     setIsReplying(true);
     try {
+      // 1. Save reply to Supabase
       const { error } = await supabase
         .from('questions')
         .update({
@@ -76,7 +78,19 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
         .eq('id', question.id);
 
       if (error) throw error;
-      toast.success("✅ Reply submitted successfully!");
+
+      // 2. Send reply email to student (if email exists)
+      if (question.student_email) {
+        await sendReplyToStudent({
+          studentName: question.student_name,
+          studentEmail: question.student_email,
+          directedTo: question.directed_to,
+          questionText: question.question_text,
+          adminReply: replyText,
+        });
+      }
+
+      toast.success("✅ Reply submitted & email sent to student!");
       onRefresh();
       setIsExpanded(false);
     } catch (err: any) {
