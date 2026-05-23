@@ -11,15 +11,19 @@ export const AdminSettings: React.FC = () => {
 
   const [logoUrl, setLogoUrl] = useState('');
   const [bannerUrl, setBannerUrl] = useState('');
+  const [faviconUrl, setFaviconUrl] = useState('');
   const [originalLogo, setOriginalLogo] = useState('');
   const [originalBanner, setOriginalBanner] = useState('');
+  const [originalFavicon, setOriginalFavicon] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState<'logo' | 'banner' | null>(null);
+  const [isSaving, setIsSaving] = useState<'logo' | 'banner' | 'favicon' | null>(null);
   const [logoError, setLogoError] = useState('');
   const [bannerError, setBannerError] = useState('');
+  const [faviconError, setFaviconError] = useState('');
 
   const logoImgRef = useRef<HTMLImageElement>(null);
   const bannerImgRef = useRef<HTMLImageElement>(null);
+  const faviconImgRef = useRef<HTMLImageElement>(null);
 
   const fetchSettings = async () => {
     setIsLoading(true);
@@ -30,8 +34,10 @@ export const AdminSettings: React.FC = () => {
       (data || []).forEach((row: any) => { map[row.key] = row.value; });
       setLogoUrl(map['logo_url'] || '');
       setBannerUrl(map['banner_url'] || '');
+      setFaviconUrl(map['favicon_url'] || '');
       setOriginalLogo(map['logo_url'] || '');
       setOriginalBanner(map['banner_url'] || '');
+      setOriginalFavicon(map['favicon_url'] || '');
     } catch (err: any) {
       toast.error('❌ Failed to load settings: ' + err.message);
     } finally {
@@ -51,25 +57,33 @@ export const AdminSettings: React.FC = () => {
     }
   };
 
-  const saveSetting = async (key: 'logo_url' | 'banner_url', value: string) => {
+  const saveSetting = async (key: 'logo_url' | 'banner_url' | 'favicon_url', value: string) => {
     if (value && !validateUrl(value)) {
       if (key === 'logo_url') setLogoError('URL must start with https://');
-      else setBannerError('URL must start with https://');
+      else if (key === 'banner_url') setBannerError('URL must start with https://');
+      else setFaviconError('URL must start with https://');
       return;
     }
     setLogoError('');
     setBannerError('');
-    setIsSaving(key === 'logo_url' ? 'logo' : 'banner');
+    setFaviconError('');
+    setIsSaving(key === 'logo_url' ? 'logo' : key === 'banner_url' ? 'banner' : 'favicon');
     try {
       const { error } = await supabase
         .from('settings')
         .upsert({ key, value, updated_at: new Date().toISOString() });
       if (error) throw error;
-      await logActivity(myEmail, key === 'logo_url' ? 'logo_change' : 'banner_change',
-        `Updated ${key === 'logo_url' ? 'college logo' : 'homepage banner'} to: "${value}"`);
+      await logActivity(myEmail, key === 'logo_url' ? 'logo_change' : key === 'banner_url' ? 'banner_change' : 'favicon_change',
+        `Updated ${key === 'logo_url' ? 'college logo' : key === 'banner_url' ? 'homepage banner' : 'tab favicon'} to: "${value}"`);
       if (key === 'logo_url') setOriginalLogo(value);
-      else setOriginalBanner(value);
-      toast.success(`✅ ${key === 'logo_url' ? 'Logo' : 'Banner'} updated successfully!`);
+      else if (key === 'banner_url') setOriginalBanner(value);
+      else {
+        setOriginalFavicon(value);
+        // Dynamically update favicon in the DOM of the admin dashboard immediately
+        let faviconLink = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+        if (faviconLink) faviconLink.href = value;
+      }
+      toast.success(`✅ ${key === 'logo_url' ? 'Logo' : key === 'banner_url' ? 'Banner' : 'Favicon'} updated successfully!`);
     } catch (err: any) {
       toast.error(`❌ Failed to save: ${err.message}`);
     } finally {
@@ -229,6 +243,78 @@ export const AdminSettings: React.FC = () => {
           <button
             onClick={() => { setBannerUrl(originalBanner); setBannerError(''); }}
             disabled={bannerUrl === originalBanner}
+            className="flex items-center space-x-1.5 px-4 py-2.5 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── Browser Tab Favicon ───────────────────────────────────────────── */}
+      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs p-6 space-y-5">
+        <div className="flex items-center space-x-2 pb-3 border-b border-navy-dark/5">
+          <Upload className="w-4 h-4 text-orange-burnt" />
+          <h4 className="font-display font-bold text-sm text-navy-dark">Browser Tab Favicon (Logo)</h4>
+        </div>
+
+        {/* Preview */}
+        <div className="flex items-center space-x-5">
+          <div className="w-14 h-14 rounded-xl bg-navy-dark/5 border border-navy-dark/10 flex items-center justify-center overflow-hidden shrink-0">
+            {faviconUrl ? (
+              <img
+                ref={faviconImgRef}
+                src={faviconUrl}
+                alt="Favicon Preview"
+                className="w-8 h-8 object-contain"
+                onError={() => setFaviconError('Favicon could not be loaded. Check the URL.')}
+                onLoad={() => setFaviconError('')}
+              />
+            ) : (
+              <ImageIcon className="w-6 h-6 text-navy-dark/20" />
+            )}
+          </div>
+          <div className="text-xs text-navy-dark/50 font-sans leading-relaxed">
+            <p className="font-semibold text-navy-dark/70 mb-1">Current Favicon URL:</p>
+            {originalFavicon ? (
+              <a href={originalFavicon} target="_blank" rel="noopener noreferrer" className="text-orange-burnt hover:underline flex items-center space-x-1 truncate max-w-xs">
+                <ExternalLink className="w-3 h-3 shrink-0" />
+                <span className="truncate">{originalFavicon}</span>
+              </a>
+            ) : (
+              <span className="italic text-navy-dark/30">No custom favicon URL set — using default tab icon</span>
+            )}
+          </div>
+        </div>
+
+        {/* URL Input */}
+        <div className="space-y-2">
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
+            New Favicon Image URL (must be https://)
+          </label>
+          <input
+            type="url"
+            value={faviconUrl}
+            onChange={e => { setFaviconUrl(e.target.value); setFaviconError(''); }}
+            placeholder="https://res.cloudinary.com/.../favicon.png"
+            className={`w-full px-4 py-2.5 rounded-lg border ${faviconError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-sm font-sans text-navy-dark transition-colors`}
+          />
+          {faviconError && (
+            <p className="text-xs text-red-500 font-medium">{faviconError}</p>
+          )}
+        </div>
+
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => saveSetting('favicon_url', faviconUrl)}
+            disabled={isSaving === 'favicon' || faviconUrl === originalFavicon}
+            className="flex items-center space-x-1.5 px-5 py-2.5 bg-orange-burnt hover:bg-orange-burnt/90 text-white rounded-lg font-display text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-orange-burnt/15"
+          >
+            {isSaving === 'favicon' ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Saving...</span></> : <><Check className="w-3.5 h-3.5" /><span>Save Favicon</span></>}
+          </button>
+          <button
+            onClick={() => { setFaviconUrl(originalFavicon); setFaviconError(''); }}
+            disabled={faviconUrl === originalFavicon}
             className="flex items-center space-x-1.5 px-4 py-2.5 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-3.5 h-3.5" />

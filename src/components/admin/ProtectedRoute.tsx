@@ -2,9 +2,10 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Loader2, ShieldAlert, LogOut } from 'lucide-react';
+import type { Role } from '../../hooks/useRole';
 
 interface AuthContextType {
-  role: 'super_admin' | 'admin' | 'moderator' | 'notice_manager' | 'content_editor' | 'developer' | null;
+  role: Role | null;
   email: string | null;
   userId: string | null;
   isSuspended: boolean;

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
+import { supabase } from './lib/supabase';
 
 // Import components
 import { Navbar } from './components/Navbar';
@@ -124,6 +125,34 @@ const AppContent: React.FC = () => {
 import { ToastProvider } from './components/admin/Toast';
 
 export const App: React.FC = () => {
+  // Global dynamic favicon mounting on application load
+  useEffect(() => {
+    const loadFavicon = async () => {
+      try {
+        const { data } = await supabase
+          .from('settings')
+          .select('value')
+          .eq('key', 'favicon_url')
+          .maybeSingle();
+
+        if (data?.value) {
+          let faviconLink = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+          if (faviconLink) {
+            faviconLink.href = data.value;
+          } else {
+            faviconLink = document.createElement('link');
+            faviconLink.rel = 'icon';
+            faviconLink.href = data.value;
+            document.head.appendChild(faviconLink);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load custom portal favicon:', err);
+      }
+    };
+    loadFavicon();
+  }, []);
+
   // Global Lenis smooth scroll engine initialization
   useEffect(() => {
     const lenis = new Lenis({

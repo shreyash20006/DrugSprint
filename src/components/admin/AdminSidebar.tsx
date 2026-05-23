@@ -120,24 +120,33 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     },
   ];
 
-  // Append Super Admin only tabs
-  if (role === 'super_admin') {
+  // Append specialized role tabs
+  if (role === 'super_admin' || role === 'developer' || role === 'antiragging') {
+    navItems.push({
+      path: '/admin/complaints',
+      name: 'Complaints',
+      icon: <AlertTriangle className="w-5 h-5 text-orange-burnt animate-pulse" />,
+    });
+  }
+
+  if (role === 'super_admin' || role === 'developer') {
+    navItems.push({
+      path: '/admin/users',
+      name: 'User Management',
+      icon: <Users className="w-5 h-5" />,
+    });
+  }
+
+  if (role === 'super_admin' || role === 'developer' || role === 'admin') {
+    navItems.push({
+      path: '/admin/settings',
+      name: 'Portal Settings',
+      icon: <Sliders className="w-5 h-5" />,
+    });
+  }
+
+  if (role === 'super_admin' || role === 'developer') {
     navItems.push(
-      {
-        path: '/admin/complaints',
-        name: 'Complaints',
-        icon: <AlertTriangle className="w-5 h-5 text-orange-burnt animate-pulse" />,
-      },
-      {
-        path: '/admin/users',
-        name: 'User Management',
-        icon: <Users className="w-5 h-5" />,
-      },
-      {
-        path: '/admin/settings',
-        name: 'Portal Settings',
-        icon: <Sliders className="w-5 h-5" />,
-      },
       {
         path: '/admin/logs',
         name: 'Activity Logs',

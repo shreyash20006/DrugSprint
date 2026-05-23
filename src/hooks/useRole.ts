@@ -140,7 +140,7 @@ export function useRole() {
       delete_events: withDeveloper(['super_admin', 'admin']),
       upload_gallery: withDeveloper(['super_admin', 'admin', 'events', 'gallery']),
       delete_gallery: withDeveloper(['super_admin', 'admin']),
-      manage_settings: withDeveloper(['super_admin']),
+      manage_settings: withDeveloper(['super_admin', 'admin']),
       view_dashboard: withDeveloper([
         'super_admin',
         'admin',
