@@ -61,25 +61,36 @@ export const HeroSection: React.FC = () => {
     containerRef.current.appendChild(renderer.domElement);
 
     // LIGHTS
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 1.0);
     dirLight1.position.set(5, 10, 7);
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0xc84b0e, 0.5); // Warm orange glow light
+    const dirLight2 = new THREE.DirectionalLight(0xc84b0e, 0.8); // Warm orange glow light
     dirLight2.position.set(-5, -5, -5);
     scene.add(dirLight2);
 
-    // PALETTE
-    const colors = [
-      new THREE.Color('#0D1B3E'), // Deep Navy
-      new THREE.Color('#C84B0E'), // Burnt Orange
-      new THREE.Color('#F5A623'), // Gold Accent
-    ];
+    // Dynamic Starfield (Deep Cosmic Parallax Space)
+    const starsGeo = new THREE.BufferGeometry();
+    const starsCount = 1200;
+    const starsPositions = new Float32Array(starsCount * 3);
+    for (let i = 0; i < starsCount * 3; i++) {
+      starsPositions[i] = (Math.random() - 0.5) * 24;
+    }
+    starsGeo.setAttribute('position', new THREE.BufferAttribute(starsPositions, 3));
+    const starsMat = new THREE.PointsMaterial({
+      color: 0xf5a623,
+      size: 0.04,
+      transparent: true,
+      opacity: 0.65,
+      blending: THREE.AdditiveBlending
+    });
+    const starField = new THREE.Points(starsGeo, starsMat);
+    scene.add(starField);
 
-    // FLOATABLE PARTICLE CLASS
+    // FLOATABLE PARTICLE SYSTEM
     const particlesArray: {
       mesh: THREE.Group | THREE.Mesh;
       speedX: number;
@@ -91,18 +102,18 @@ export const HeroSection: React.FC = () => {
       floatOffset: number;
     }[] = [];
 
-    // Create 3D geometries
+    // Create 3D geometries representing pharmacy & structures
     const capsuleGeo = new THREE.CapsuleGeometry(0.12, 0.35, 8, 16);
-    const hexagonGeo = new THREE.TorusGeometry(0.25, 0.05, 8, 6); // 6-sided Torus = Chemistry Hexagon
+    const hexagonGeo = new THREE.TorusGeometry(0.25, 0.05, 8, 6); // Chemistry Hexagon Torus
     const sphereGeo = new THREE.SphereGeometry(0.08, 16, 16);
 
-    const createMortarMesh = (color: THREE.Color) => {
+    const createMortarMesh = () => {
       const mortarGroup = new THREE.Group();
       
-      // Bowl (hollow cone/cylinder)
+      // Bowl
       const bowlMat = new THREE.MeshStandardMaterial({
-        color: color,
-        roughness: 0.2,
+        color: 0xc84b0e,
+        roughness: 0.15,
         metalness: 0.8,
         side: THREE.DoubleSide
       });
@@ -116,7 +127,7 @@ export const HeroSection: React.FC = () => {
       base.position.y = -0.1;
       mortarGroup.add(base);
 
-      // Pestle (diagonal rod)
+      // Pestle
       const pestleMat = new THREE.MeshStandardMaterial({
         color: 0xf5a623,
         roughness: 0.1,
@@ -135,14 +146,12 @@ export const HeroSection: React.FC = () => {
 
     for (let i = 0; i < particleCount; i++) {
       let particleMesh: THREE.Group | THREE.Mesh;
-      const color = colors[i % colors.length];
       const material = new THREE.MeshStandardMaterial({
-        color: color,
+        color: new THREE.Color(),
         roughness: 0.15,
-        metalness: 0.75,
+        metalness: 0.8,
       });
 
-      // Stagger geometries
       const geoType = i % 4;
       if (geoType === 0) {
         particleMesh = new THREE.Mesh(capsuleGeo, material);
@@ -151,7 +160,7 @@ export const HeroSection: React.FC = () => {
       } else if (geoType === 2) {
         particleMesh = new THREE.Mesh(sphereGeo, material);
       } else {
-        particleMesh = createMortarMesh(color);
+        particleMesh = createMortarMesh();
       }
 
       // Random position
@@ -161,7 +170,7 @@ export const HeroSection: React.FC = () => {
         (Math.random() - 0.5) * 6
       );
 
-      // Random scales
+      // Random scale
       const scale = 0.5 + Math.random() * 0.8;
       particleMesh.scale.set(scale, scale, scale);
 
@@ -169,8 +178,8 @@ export const HeroSection: React.FC = () => {
 
       particlesArray.push({
         mesh: particleMesh,
-        speedX: (Math.random() - 0.5) * 0.005,
-        speedY: (Math.random() - 0.5) * 0.005,
+        speedX: (Math.random() - 0.5) * 0.006,
+        speedY: (Math.random() - 0.5) * 0.006,
         rotSpeedX: (Math.random() - 0.5) * 0.015,
         rotSpeedY: (Math.random() - 0.5) * 0.015,
         rotSpeedZ: (Math.random() - 0.5) * 0.015,
@@ -178,6 +187,70 @@ export const HeroSection: React.FC = () => {
         floatOffset: Math.random() * Math.PI * 2,
       });
     }
+
+    // Dynamic Connections (Chemistry Neural Network Lattice)
+    const maxLines = 80;
+    const linePositions = new Float32Array(maxLines * 2 * 3);
+    const lineGeo = new THREE.BufferGeometry();
+    lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+    const lineMat = new THREE.LineBasicMaterial({
+      color: 0xc84b0e,
+      transparent: true,
+      opacity: 0.25,
+      blending: THREE.AdditiveBlending
+    });
+    const lineMesh = new THREE.LineSegments(lineGeo, lineMat);
+    scene.add(lineMesh);
+
+    // Interactive Click Sparks Array (Cosmic burst)
+    const sparksArray: {
+      mesh: THREE.Mesh;
+      velocity: THREE.Vector3;
+      life: number;
+    }[] = [];
+    const sparkGeo = new THREE.SphereGeometry(0.04, 8, 8);
+
+    const handleContainerClick = (event: MouseEvent) => {
+      // Project the click relative to screen coordinates
+      const x = (event.clientX / window.innerWidth - 0.5) * 12;
+      const y = -(event.clientY / window.innerHeight - 0.5) * 8;
+      
+      const burstColors = [0xf5a623, 0xc84b0e, 0x00f2fe, 0xffffff];
+      
+      for (let i = 0; i < 25; i++) {
+        const sparkMat = new THREE.MeshBasicMaterial({
+          color: burstColors[i % burstColors.length],
+          transparent: true,
+          opacity: 1.0,
+          blending: THREE.AdditiveBlending
+        });
+        const spark = new THREE.Mesh(sparkGeo, sparkMat);
+        spark.position.set(
+          x + (Math.random() - 0.5) * 0.2,
+          y + (Math.random() - 0.5) * 0.2,
+          (Math.random() - 0.5) * 2
+        );
+        scene.add(spark);
+
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 0.04 + Math.random() * 0.07;
+        const velocity = new THREE.Vector3(
+          Math.cos(angle) * speed,
+          Math.sin(angle) * speed,
+          (Math.random() - 0.5) * 0.05
+        );
+
+        sparksArray.push({
+          mesh: spark,
+          velocity,
+          life: 1.0
+        });
+      }
+    };
+    
+    // Add event listener directly to the container
+    const containerElement = containerRef.current;
+    containerElement.addEventListener('click', handleContainerClick);
 
     // MOUSE PARALLAX HANDLER
     const handleMouseMove = (event: MouseEvent) => {
@@ -202,8 +275,14 @@ export const HeroSection: React.FC = () => {
 
       const elapsedTime = clock.getElapsedTime();
 
+      // Dynamic Color Shifting HSL
+      const pulseColor = new THREE.Color();
+      const hue = (elapsedTime * 0.04) % 1.0;
+      pulseColor.setHSL(hue, 0.9, 0.5);
+      lineMat.color.copy(pulseColor);
+
       // Slow drift & rotation of 3D objects
-      particlesArray.forEach((p) => {
+      particlesArray.forEach((p, idx) => {
         p.mesh.rotation.x += p.rotSpeedX;
         p.mesh.rotation.y += p.rotSpeedY;
         p.mesh.rotation.z += p.rotSpeedZ;
@@ -215,14 +294,82 @@ export const HeroSection: React.FC = () => {
         // Boundary looping
         if (p.mesh.position.x > 9) p.mesh.position.x = -9;
         if (p.mesh.position.x < -9) p.mesh.position.x = 9;
+
+        // Multi-color organic shift
+        if (p.mesh instanceof THREE.Mesh && p.mesh.material instanceof THREE.MeshStandardMaterial) {
+          const meshHue = (hue + idx / particlesArray.length * 0.2) % 1.0;
+          p.mesh.material.color.setHSL(meshHue, 0.9, 0.55);
+        } else if (p.mesh instanceof THREE.Group) {
+          p.mesh.children.forEach((child, cIdx) => {
+            if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+              const meshHue = (hue + cIdx * 0.25) % 1.0;
+              child.material.color.setHSL(meshHue, 0.9, 0.55);
+            }
+          });
+        }
       });
 
-      // Lerp mouse coordinate for smooth parallax camera shifting
+      // Update Chemistry connection lattice
+      let lineCount = 0;
+      const posArray = lineGeo.attributes.position.array as Float32Array;
+      for (let i = 0; i < particlesArray.length; i++) {
+        for (let j = i + 1; j < particlesArray.length; j++) {
+          if (lineCount >= maxLines) break;
+          const dx = particlesArray[i].mesh.position.x - particlesArray[j].mesh.position.x;
+          const dy = particlesArray[i].mesh.position.y - particlesArray[j].mesh.position.y;
+          const dz = particlesArray[i].mesh.position.z - particlesArray[j].mesh.position.z;
+          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          
+          if (dist < 2.8) {
+            const idx = lineCount * 6;
+            posArray[idx] = particlesArray[i].mesh.position.x;
+            posArray[idx + 1] = particlesArray[i].mesh.position.y;
+            posArray[idx + 2] = particlesArray[i].mesh.position.z;
+            posArray[idx + 3] = particlesArray[j].mesh.position.x;
+            posArray[idx + 4] = particlesArray[j].mesh.position.y;
+            posArray[idx + 5] = particlesArray[j].mesh.position.z;
+            lineCount++;
+          }
+        }
+      }
+      
+      // Clear remainder of position buffer
+      for (let i = lineCount * 6; i < maxLines * 6; i++) {
+        posArray[i] = 0;
+      }
+      lineGeo.attributes.position.needsUpdate = true;
+
+      // Update click sparks
+      for (let i = sparksArray.length - 1; i >= 0; i--) {
+        const s = sparksArray[i];
+        s.mesh.position.add(s.velocity);
+        s.velocity.multiplyScalar(0.96); // Drag slowdown
+        s.life -= 0.02; // Fading
+        if (s.mesh.material instanceof THREE.MeshBasicMaterial) {
+          s.mesh.material.opacity = s.life;
+        }
+        if (s.life <= 0) {
+          scene.remove(s.mesh);
+          s.mesh.geometry.dispose();
+          if (s.mesh.material instanceof THREE.Material) {
+            s.mesh.material.dispose();
+          }
+          sparksArray.splice(i, 1);
+        }
+      }
+
+      // Deep space starry field rotation & counter-parallax mouse movement
+      starField.rotation.y = elapsedTime * 0.008;
+      starField.rotation.x = elapsedTime * 0.004;
+      starField.position.x = -mouseRef.current.x * 0.8;
+      starField.position.y = -mouseRef.current.y * 0.8;
+
+      // Lerp mouse coordinates for smooth 4D camera shifting
       mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.05;
       mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.05;
 
-      camera.position.x = mouseRef.current.x * 1.5;
-      camera.position.y = mouseRef.current.y * 1.5;
+      camera.position.x = mouseRef.current.x * 1.8;
+      camera.position.y = mouseRef.current.y * 1.8;
       camera.lookAt(scene.position);
 
       renderer.render(scene, camera);
@@ -232,15 +379,23 @@ export const HeroSection: React.FC = () => {
 
     // CLEANUP
     return () => {
+      if (containerElement) {
+        containerElement.removeEventListener('click', handleContainerClick);
+      }
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
-      if (containerRef.current && renderer.domElement) {
-        containerRef.current.removeChild(renderer.domElement);
+      if (containerElement && renderer.domElement) {
+        containerElement.removeChild(renderer.domElement);
       }
       scene.clear();
       capsuleGeo.dispose();
       hexagonGeo.dispose();
       sphereGeo.dispose();
+      sparkGeo.dispose();
+      starsGeo.dispose();
+      lineGeo.dispose();
+      lineMat.dispose();
+      starsMat.dispose();
       renderer.dispose();
     };
   }, []);
@@ -297,7 +452,7 @@ export const HeroSection: React.FC = () => {
       )}
 
       {/* Three.js canvas background container */}
-      <div ref={containerRef} className="absolute inset-0 z-0 opacity-45 pointer-events-none" />
+      <div ref={containerRef} className="absolute inset-0 z-0 opacity-65 pointer-events-auto cursor-pointer" />
 
       {/* Grid overlay for techy visual structure */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(13,27,62,0.6)_80%)] z-0 pointer-events-none" />
