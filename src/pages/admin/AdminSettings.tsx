@@ -216,6 +216,83 @@ export const AdminSettings: React.FC = () => {
     }
   };
 
+  const [isUploading, setIsUploading] = useState<'logo' | 'banner' | 'favicon' | 'profile' | null>(null);
+
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: 'logo' | 'banner' | 'favicon' | 'profile'
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isVideo = file.type.startsWith('video/');
+    const isImage = file.type.startsWith('image/');
+    
+    if (!isImage && !isVideo) {
+      toast.error('❌ Invalid file type. Please select an image or video file.');
+      return;
+    }
+
+    if (type === 'favicon' && isVideo) {
+      toast.error('❌ Favicon must be an image file.');
+      return;
+    }
+
+    if (type === 'logo' && isVideo) {
+      toast.error('❌ College Logo must be an image file.');
+      return;
+    }
+
+    const maxSize = isVideo ? 15 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error(`❌ File size exceeds the limit (${isVideo ? '15MB' : '5MB'}).`);
+      return;
+    }
+
+    setIsUploading(type);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${type}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('branding')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('branding')
+        .getPublicUrl(filePath);
+
+      if (type === 'logo') {
+        setLogoUrl(publicUrl);
+        setLogoError('');
+        toast.success('📷 Logo uploaded! Click "Save Logo" to apply changes.');
+      } else if (type === 'banner') {
+        setBannerUrl(publicUrl);
+        setBannerError('');
+        toast.success('🎥 Banner uploaded! Click "Save Banner" to apply changes.');
+      } else if (type === 'favicon') {
+        setFaviconUrl(publicUrl);
+        setFaviconError('');
+        toast.success('📷 Favicon uploaded! Click "Save Favicon" to apply changes.');
+      } else if (type === 'profile') {
+        setMyProfileAvatar(publicUrl);
+        setProfileError('');
+        toast.success('👤 Profile photo uploaded! Click "Save Profile" to apply changes.');
+      }
+    } catch (err: any) {
+      toast.error(`❌ Upload failed: ${err.message}. Ensure your 'branding' bucket is created in Supabase storage!`);
+      console.error(err);
+    } finally {
+      setIsUploading(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-32 text-navy-dark/40">
@@ -318,13 +395,32 @@ export const AdminSettings: React.FC = () => {
           {/* Profile Picture Input */}
           <div className="space-y-1.5">
             <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">Profile Photo URL (https://)</label>
-            <input
-              type="url"
-              value={myProfileAvatar}
-              onChange={e => { setMyProfileAvatar(e.target.value); setProfileError(''); }}
-              placeholder="https://res.cloudinary.com/.../your-photo.jpg"
-              className={`w-full px-4 py-2.5 rounded-lg border ${profileError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-xs sm:text-sm font-sans text-navy-dark transition-colors`}
-            />
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={myProfileAvatar}
+                onChange={e => { setMyProfileAvatar(e.target.value); setProfileError(''); }}
+                placeholder="https://res.cloudinary.com/.../your-photo.jpg"
+                className={`flex-grow px-4 py-2.5 rounded-lg border ${profileError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-xs sm:text-sm font-sans text-navy-dark transition-colors`}
+              />
+              <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+                {isUploading === 'profile' ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-1.5" />
+                    <span>Upload</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => handleFileUpload(e, 'profile')}
+                  className="hidden"
+                  disabled={isUploading !== null}
+                />
+              </label>
+            </div>
           </div>
         </div>
 
@@ -399,13 +495,32 @@ export const AdminSettings: React.FC = () => {
           <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
             New Logo URL (must be https://)
           </label>
-          <input
-            type="url"
-            value={logoUrl}
-            onChange={e => { setLogoUrl(e.target.value); setLogoError(''); }}
-            placeholder="https://res.cloudinary.com/your-cloud/image/upload/..."
-            className={`w-full px-4 py-2.5 rounded-lg border ${logoError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-sm font-sans text-navy-dark transition-colors`}
-          />
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={logoUrl}
+              onChange={e => { setLogoUrl(e.target.value); setLogoError(''); }}
+              placeholder="https://res.cloudinary.com/your-cloud/image/upload/..."
+              className={`flex-grow px-4 py-2.5 rounded-lg border ${logoError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-sm font-sans text-navy-dark transition-colors`}
+            />
+            <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+              {isUploading === 'logo' ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-1.5" />
+                  <span>Upload</span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={e => handleFileUpload(e, 'logo')}
+                className="hidden"
+                disabled={isUploading !== null}
+              />
+            </label>
+          </div>
           {logoError && (
             <p className="text-xs text-red-500 font-medium">{logoError}</p>
           )}
@@ -473,15 +588,34 @@ export const AdminSettings: React.FC = () => {
         {/* URL Input */}
         <div className="space-y-2">
           <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
-            Banner Image URL (must be https://)
+            Banner Image or Video URL (must be https://)
           </label>
-          <input
-            type="url"
-            value={bannerUrl}
-            onChange={e => { setBannerUrl(e.target.value); setBannerError(''); }}
-            placeholder="https://res.cloudinary.com/your-cloud/image/upload/..."
-            className={`w-full px-4 py-2.5 rounded-lg border ${bannerError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-sm font-sans text-navy-dark transition-colors`}
-          />
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={bannerUrl}
+              onChange={e => { setBannerUrl(e.target.value); setBannerError(''); }}
+              placeholder="https://res.cloudinary.com/your-cloud/image/upload/..."
+              className={`flex-grow px-4 py-2.5 rounded-lg border ${bannerError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-sm font-sans text-navy-dark transition-colors`}
+            />
+            <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+              {isUploading === 'banner' ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-1.5" />
+                  <span>Upload</span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={e => handleFileUpload(e, 'banner')}
+                className="hidden"
+                disabled={isUploading !== null}
+              />
+            </label>
+          </div>
           {bannerError && (
             <p className="text-xs text-red-500 font-medium">{bannerError}</p>
           )}
@@ -547,13 +681,32 @@ export const AdminSettings: React.FC = () => {
           <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
             New Favicon Image URL (must be https://)
           </label>
-          <input
-            type="url"
-            value={faviconUrl}
-            onChange={e => { setFaviconUrl(e.target.value); setFaviconError(''); }}
-            placeholder="https://res.cloudinary.com/.../favicon.png"
-            className={`w-full px-4 py-2.5 rounded-lg border ${faviconError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-sm font-sans text-navy-dark transition-colors`}
-          />
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={faviconUrl}
+              onChange={e => { setFaviconUrl(e.target.value); setFaviconError(''); }}
+              placeholder="https://res.cloudinary.com/.../favicon.png"
+              className={`flex-grow px-4 py-2.5 rounded-lg border ${faviconError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-sm font-sans text-navy-dark transition-colors`}
+            />
+            <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+              {isUploading === 'favicon' ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-1.5" />
+                  <span>Upload</span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={e => handleFileUpload(e, 'favicon')}
+                className="hidden"
+                disabled={isUploading !== null}
+              />
+            </label>
+          </div>
           {faviconError && (
             <p className="text-xs text-red-500 font-medium">{faviconError}</p>
           )}

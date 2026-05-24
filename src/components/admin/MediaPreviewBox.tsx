@@ -5,9 +5,11 @@ import {
   Music, 
   AlertTriangle, 
   Link as LinkIcon, 
-  Loader2 
+  Loader2,
+  Upload
 } from 'lucide-react';
 import { getCloudinaryMediaUrl } from '../../lib/cloudinary';
+import { supabase } from '../../lib/supabase';
 
 interface MediaPreviewBoxProps {
   mediaType: 'image' | 'video' | 'audio';
@@ -26,6 +28,8 @@ export const MediaPreviewBox: React.FC<MediaPreviewBoxProps> = ({
 }) => {
   const [loadError, setLoadError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   useEffect(() => {
     const trimmed = value.trim();
@@ -84,6 +88,63 @@ export const MediaPreviewBox: React.FC<MediaPreviewBoxProps> = ({
     onValidationError?.(true);
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate type
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    const isAudio = file.type.startsWith('audio/');
+
+    if (mediaType === 'image' && !isImage) {
+      setUploadError('Please select a valid image file.');
+      return;
+    }
+    if (mediaType === 'video' && !isVideo) {
+      setUploadError('Please select a valid video file.');
+      return;
+    }
+    if (mediaType === 'audio' && !isAudio) {
+      setUploadError('Please select a valid audio file.');
+      return;
+    }
+
+    // Validate size (Images: 5MB, Videos: 15MB, Audio: 10MB)
+    const maxSize = mediaType === 'video' ? 15 * 1024 * 1024 : mediaType === 'audio' ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setUploadError(`File size exceeds limit (${mediaType === 'video' ? '15MB' : mediaType === 'audio' ? '10MB' : '5MB'}).`);
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError('');
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `gallery-${Date.now()}.${fileExt}`;
+      const filePath = `gallery/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('branding')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('branding')
+        .getPublicUrl(filePath);
+
+      onChange(publicUrl);
+    } catch (err: any) {
+      setUploadError(`Upload failed: ${err.message}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const activeMediaUrl = getCloudinaryMediaUrl(value, mediaType);
 
   const getMediaIcon = (type: typeof mediaType) => {
@@ -106,25 +167,46 @@ export const MediaPreviewBox: React.FC<MediaPreviewBoxProps> = ({
           <LinkIcon className="w-3 h-3 text-orange-burnt" />
           <span>Cloudinary or Direct Media URL {required && '*'}</span>
         </label>
-        <input
-          type="url"
-          required={required}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={`Paste direct ${mediaType} URL address here...`}
-          className={`w-full px-3 py-2.5 rounded-lg border focus:ring-1 outline-none text-sm bg-white transition-colors ${
-            loadError && value.trim()
-              ? 'border-amber-500 focus:border-amber-500 focus:ring-amber-500 bg-amber-50/10'
-              : 'border-navy-dark/15 focus:border-orange-burnt focus:ring-orange-burnt'
-          }`}
-        />
-        {loadError && value.trim() ? (
+        <div className="flex gap-2">
+          <input
+            type="url"
+            required={required}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={`Paste direct ${mediaType} URL address here...`}
+            className={`flex-grow px-3 py-2.5 rounded-lg border focus:ring-1 outline-none text-sm bg-white transition-colors ${
+              (loadError || uploadError) && value.trim()
+                ? 'border-amber-500 focus:border-amber-500 focus:ring-amber-500 bg-amber-50/10'
+                : 'border-navy-dark/15 focus:border-orange-burnt focus:ring-orange-burnt'
+            }`}
+          />
+          <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+            {isUploading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <>
+                <Upload className="w-4 h-4 mr-1.5" />
+                <span>Upload</span>
+              </>
+            )}
+            <input
+              type="file"
+              accept={`${mediaType}/*`}
+              onChange={handleFileUpload}
+              className="hidden"
+              disabled={isUploading}
+            />
+          </label>
+        </div>
+        {uploadError ? (
+          <p className="text-xs text-red-500 font-sans mt-2 font-semibold">{uploadError}</p>
+        ) : loadError && value.trim() ? (
           <p className="text-xs text-[#F59E0B] font-sans mt-2 flex items-start space-x-1 font-semibold leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200">
-            <span>⚠️ Could not load media. Make sure URL is correct Cloudinary link.</span>
+            <span>⚠️ Could not load media. Make sure URL is correct direct link.</span>
           </p>
         ) : (
           <p className="text-[10px] text-navy-dark/45 mt-1 font-sans">
-            Upload media to Cloudinary, copy the direct address link (e.g. .jpg, .mp4, .mp3, etc.), and paste here.
+            Paste a URL or upload a file directly from your computer using the Upload button.
           </p>
         )}
       </div>

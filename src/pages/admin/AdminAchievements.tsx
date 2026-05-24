@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useToast } from '../../components/admin/Toast';
 import { logActivity } from '../../lib/logs';
 import { useAuth } from '../../components/admin/ProtectedRoute';
-import { Trophy, Plus, Loader2, Trash2, Edit, X } from 'lucide-react';
+import { Trophy, Plus, Loader2, Trash2, Edit, X, Upload } from 'lucide-react';
 
 const CATEGORIES = ['academic', 'sports', 'cultural', 'research', 'competition'];
 
@@ -19,6 +19,7 @@ export const AdminAchievements: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [studentName, setStudentName] = useState('');
   const [year, setYear] = useState('');
@@ -77,6 +78,48 @@ export const AdminAchievements: React.FC = () => {
     await logActivity(email, 'achievement_delete', `Deleted: ${a.title}`);
     showToast('Achievement deleted', 'success');
     fetchAll();
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('❌ Please select a valid image file.', 'error');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('❌ File size exceeds 5MB limit.', 'error');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `achievement-${Date.now()}.${fileExt}`;
+      const filePath = `achievements/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('branding')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('branding')
+        .getPublicUrl(filePath);
+
+      setImageUrl(publicUrl);
+      showToast('📷 Image uploaded successfully!', 'success');
+    } catch (err: any) {
+      showToast(`❌ Upload failed: ${err.message}`, 'error');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -141,8 +184,34 @@ export const AdminAchievements: React.FC = () => {
                 <input type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 outline-none text-sm" /></div>
               <div><label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1.5">Description</label>
                 <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 outline-none text-sm resize-none" /></div>
-              <div><label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1.5">Image URL (Cloudinary)</label>
-                <input type="url" value={imageUrl} onChange={e => setImageUrl(e.target.value)} className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 outline-none text-sm" /></div>
+              <div><label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1.5">Image URL (Cloudinary or Uploaded)</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="url" 
+                    value={imageUrl} 
+                    onChange={e => setImageUrl(e.target.value)} 
+                    placeholder="https://..."
+                    className="flex-grow px-4 py-2.5 rounded-lg border border-navy-dark/15 outline-none text-sm" 
+                  />
+                  <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+                    {isUploading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-1.5" />
+                        <span>Upload</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={isUploading}
+                    />
+                  </label>
+                </div>
+              </div>
               <div className="flex space-x-3 pt-2">
                 <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-lg border border-navy-dark/15 text-navy-dark/60 font-display text-xs font-bold">Cancel</button>
                 <button onClick={handleSave} disabled={isSaving} className="flex-1 py-2.5 rounded-lg bg-orange-burnt text-white font-display text-xs font-bold shadow-md disabled:opacity-50 flex items-center justify-center">

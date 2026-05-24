@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useToast } from '../../components/admin/Toast';
 import { logActivity } from '../../lib/logs';
 import { useAuth } from '../../components/admin/ProtectedRoute';
-import { Newspaper, Plus, Loader2, Trash2, Edit, X, Eye, EyeOff } from 'lucide-react';
+import { Newspaper, Plus, Loader2, Trash2, Edit, X, Eye, EyeOff, Upload } from 'lucide-react';
 
 export const AdminNewsletter: React.FC = () => {
   const toast = useToast();
@@ -17,6 +17,7 @@ export const AdminNewsletter: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [title, setTitle] = useState('');
   const [month, setMonth] = useState('');
@@ -83,6 +84,48 @@ export const AdminNewsletter: React.FC = () => {
     await supabase.from('newsletters').update({ is_published: !n.is_published }).eq('id', n.id);
     showToast(n.is_published ? 'Unpublished' : 'Published!', 'success');
     fetchAll();
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      showToast('❌ Please select a valid PDF file.', 'error');
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      showToast('❌ File size exceeds 15MB limit.', 'error');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `newsletter-${Date.now()}.${fileExt}`;
+      const filePath = `newsletters/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('branding')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('branding')
+        .getPublicUrl(filePath);
+
+      setPdfUrl(publicUrl);
+      showToast('📄 Newsletter PDF uploaded successfully!', 'success');
+    } catch (err: any) {
+      showToast(`❌ Upload failed: ${err.message}`, 'error');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -154,8 +197,34 @@ export const AdminNewsletter: React.FC = () => {
                 </div>
               </div>
 
-              <div><label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1.5">PDF URL (Cloudinary)</label>
-                <input type="url" value={pdfUrl} onChange={e => setPdfUrl(e.target.value)} className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 outline-none text-sm" /></div>
+              <div><label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1.5">PDF URL (Cloudinary or Uploaded)</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="url" 
+                    value={pdfUrl} 
+                    onChange={e => setPdfUrl(e.target.value)} 
+                    placeholder="https://..."
+                    className="flex-grow px-4 py-2.5 rounded-lg border border-navy-dark/15 outline-none text-sm" 
+                  />
+                  <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+                    {isUploading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-1.5" />
+                        <span>Upload</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={isUploading}
+                    />
+                  </label>
+                </div>
+              </div>
 
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input type="checkbox" checked={isPublished} onChange={e => setIsPublished(e.target.checked)} className="accent-orange-burnt w-4 h-4" />

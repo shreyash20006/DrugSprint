@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useToast } from '../../components/admin/Toast';
 import { logActivity } from '../../lib/logs';
 import { useAuth } from '../../components/admin/ProtectedRoute';
-import { Handshake, Plus, Loader2, Trash2, Edit, X, Eye, EyeOff, Users } from 'lucide-react';
+import { Handshake, Plus, Loader2, Trash2, Edit, X, Eye, EyeOff, Users, Upload } from 'lucide-react';
 
 export const AdminMentors: React.FC = () => {
   const toast = useToast();
@@ -18,6 +18,7 @@ export const AdminMentors: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState<'mentors' | 'requests'>('mentors');
 
   // Mentor form
@@ -92,6 +93,48 @@ export const AdminMentors: React.FC = () => {
     await supabase.from('mentors').update({ is_available: !m.is_available }).eq('id', m.id);
     showToast(m.is_available ? 'Mentor hidden' : 'Mentor visible', 'success');
     fetchAll();
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('❌ Please select a valid image file.', 'error');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('❌ File size exceeds 5MB limit.', 'error');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `mentor-${Date.now()}.${fileExt}`;
+      const filePath = `mentors/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('branding')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('branding')
+        .getPublicUrl(filePath);
+
+      setPhotoUrl(publicUrl);
+      showToast('📷 Mentor photo uploaded successfully!', 'success');
+    } catch (err: any) {
+      showToast(`❌ Upload failed: ${err.message}`, 'error');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -194,7 +237,33 @@ export const AdminMentors: React.FC = () => {
               <div><label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1">Bio</label>
                 <textarea value={bio} onChange={e => setBio(e.target.value)} rows={2} className="w-full px-4 py-2 rounded-lg border border-navy-dark/15 outline-none text-sm resize-none" /></div>
               <div><label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1">Photo URL</label>
-                <input type="url" value={photoUrl} onChange={e => setPhotoUrl(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-navy-dark/15 outline-none text-sm" /></div>
+                <div className="flex gap-2">
+                  <input 
+                    type="url" 
+                    value={photoUrl} 
+                    onChange={e => setPhotoUrl(e.target.value)} 
+                    placeholder="https://..."
+                    className="flex-grow px-4 py-2 rounded-lg border border-navy-dark/15 outline-none text-sm" 
+                  />
+                  <label className="flex items-center justify-center px-4 py-2 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+                    {isUploading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-1.5" />
+                        <span>Upload</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      disabled={isUploading}
+                    />
+                  </label>
+                </div>
+              </div>
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input type="checkbox" checked={isAvailable} onChange={e => setIsAvailable(e.target.checked)} className="accent-orange-burnt w-4 h-4" />
                 <span className="text-sm font-sans text-navy-dark">Available for mentoring</span>
