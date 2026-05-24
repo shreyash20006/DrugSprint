@@ -11,22 +11,76 @@
   --font-display: 'Poppins', sans-serif;
 }
 
+/* ============================================
+   DARK / LIGHT MODE DESIGN TOKENS
+   ============================================ */
+
+/* Dark mode tokens (default — applied via .dark class on <html>) */
+:root,
+html.dark {
+  --bg-base:         #050B18;
+  --bg-card:         #0F1E42;
+  --bg-surface:      #0B1531;
+  --bg-nav:          rgba(6, 11, 28, 0.85);
+  --bg-drawer:       rgba(5, 11, 24, 0.97);
+  --bg-dropdown:     rgba(8, 15, 37, 0.97);
+  --bg-input:        rgba(15, 30, 66, 0.5);
+  --text-primary:    #F1F5F9;
+  --text-secondary:  rgba(241, 245, 249, 0.7);
+  --text-muted:      rgba(241, 245, 249, 0.45);
+  --border-subtle:   rgba(255, 255, 255, 0.06);
+  --border-mid:      rgba(255, 255, 255, 0.1);
+  --glass-bg:        rgba(15, 30, 66, 0.45);
+  --glass-dark-bg:   rgba(8, 15, 37, 0.7);
+  --shimmer-from:    rgba(255, 255, 255, 0.03);
+  --shimmer-mid:     rgba(255, 255, 255, 0.08);
+  --grid-line:       rgba(255, 255, 255, 0.007);
+  --scrollbar-track: #050B18;
+  --scrollbar-thumb: rgba(214, 90, 30, 0.2);
+}
+
+/* Light mode tokens — applied via .light class on <html> */
+html.light {
+  --bg-base:         #F4F6FB;
+  --bg-card:         #FFFFFF;
+  --bg-surface:      #EEF1F8;
+  --bg-nav:          rgba(255, 255, 255, 0.88);
+  --bg-drawer:       rgba(255, 255, 255, 0.98);
+  --bg-dropdown:     rgba(255, 255, 255, 0.98);
+  --bg-input:        rgba(214, 90, 30, 0.05);
+  --text-primary:    #0F1E42;
+  --text-secondary:  rgba(15, 30, 66, 0.75);
+  --text-muted:      rgba(15, 30, 66, 0.5);
+  --border-subtle:   rgba(15, 30, 66, 0.08);
+  --border-mid:      rgba(15, 30, 66, 0.15);
+  --glass-bg:        rgba(255, 255, 255, 0.65);
+  --glass-dark-bg:   rgba(240, 244, 255, 0.8);
+  --shimmer-from:    rgba(0, 0, 0, 0.03);
+  --shimmer-mid:     rgba(0, 0, 0, 0.07);
+  --grid-line:       rgba(0, 0, 0, 0.025);
+  --scrollbar-track: #EEF1F8;
+  --scrollbar-thumb: rgba(214, 90, 30, 0.25);
+}
+
 @layer base {
   html {
     scroll-behavior: initial;
     font-family: var(--font-sans);
-    background-color: var(--color-gray-light);
-    color: #F1F5F9;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    transition: background-color 0.35s ease, color 0.35s ease;
   }
-  
+
   body {
     overflow-x: hidden;
-    background-color: var(--color-gray-light);
+    background-color: var(--bg-base);
+    transition: background-color 0.35s ease;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    color: #FFFFFF;
+    color: var(--text-primary);
+    transition: color 0.35s ease;
   }
 }
 
@@ -36,12 +90,12 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-gray-light);
+  background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(214, 90, 30, 0.2);
+  background: var(--scrollbar-thumb);
   border-radius: 10px;
-  border: 2px solid var(--color-gray-light);
+  border: 2px solid var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-orange-burnt);
@@ -70,17 +124,19 @@ html.lenis, html.lenis body {
 
 /* Premium Glow Cards & Glassmorphism Utilities */
 .glass-panel {
-  background: rgba(15, 30, 66, 0.45);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  transition: background 0.35s ease, border-color 0.35s ease;
 }
 
 .glass-panel-dark {
-  background: rgba(8, 15, 37, 0.7);
+  background: var(--glass-dark-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  transition: background 0.35s ease, border-color 0.35s ease;
 }
 
 /* Hover active glow border */
@@ -119,8 +175,8 @@ html.lenis, html.lenis body {
 /* Elegant tech noise/grid overlays */
 .grid-bg-overlay {
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.007) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.007) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 50px 50px;
 }
 
@@ -134,9 +190,28 @@ html.lenis, html.lenis body {
   }
 }
 .shimmer {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 37%, rgba(255, 255, 255, 0.03) 63%);
+  background: linear-gradient(90deg, var(--shimmer-from) 25%, var(--shimmer-mid) 37%, var(--shimmer-from) 63%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
+}
+
+/* ============================================
+   LIGHT MODE COMPONENT OVERRIDES
+   ============================================ */
+
+/* In light mode, flip any component that hard-codes dark navy bg */
+html.light .bg-navy-dark,
+html.light .bg-\[\#080F25\],
+html.light .bg-\[\#050B18\],
+html.light .bg-\[\#060B1C\] {
+  background-color: var(--bg-surface) !important;
+}
+
+/* Smooth theme transition on all interactive elements */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
 }
 
 /* Soft blink badge */

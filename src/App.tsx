@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Lenis from 'lenis';
 import { supabase } from './lib/supabase';
 import { AuthProvider } from './lib/AuthProvider';
+import { ThemeProvider } from './lib/ThemeProvider';
 
 // Import components
 import { Navbar } from './components/Navbar';
@@ -184,20 +185,22 @@ export const App: React.FC = () => {
   }, []);
 
     return (
-      <AuthProvider>
-        <ToastProvider>
-          <Router>
-            {/* Reset window viewport coordinate on routing */}
-            <ScrollToTop />
-            
-            {/* Fixed Scroll progress indicator */}
-            <ScrollProgressBar />
+      <ThemeProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <Router>
+              {/* Reset window viewport coordinate on routing */}
+              <ScrollToTop />
+              
+              {/* Fixed Scroll progress indicator */}
+              <ScrollProgressBar />
 
-            {/* Dynamic Content isolated layout */}
-            <AppContent />
-          </Router>
-        </ToastProvider>
-      </AuthProvider>
+              {/* Dynamic Content isolated layout */}
+              <AppContent />
+            </Router>
+          </ToastProvider>
+        </AuthProvider>
+      </ThemeProvider>
     );
 };
 

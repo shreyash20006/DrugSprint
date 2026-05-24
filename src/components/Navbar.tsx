@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, GraduationCap, ChevronDown, Lock } from 'lucide-react';
+import { Menu, X, GraduationCap, ChevronDown, Lock, Sun, Moon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useThemeContext } from '../lib/ThemeProvider';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -12,6 +13,7 @@ export const Navbar: React.FC = () => {
   const [announcementText, setAnnouncementText] = useState<string>('');
   const [announcementEnabled, setAnnouncementEnabled] = useState<boolean>(false);
   const location = useLocation();
+  const { theme, toggleTheme } = useThemeContext();
 
   useEffect(() => {
     const fetchAnnouncement = async () => {
@@ -190,6 +192,32 @@ export const Navbar: React.FC = () => {
               </AnimatePresence>
             </div>
 
+            {/* Theme Toggle Button */}
+            <button
+              id="theme-toggle-desktop"
+              onClick={toggleTheme}
+              aria-label="Toggle dark/light mode"
+              className="relative w-14 h-7 rounded-full border border-white/15 bg-white/10 hover:bg-white/15 flex items-center px-1 transition-all duration-300 overflow-hidden shrink-0 cursor-pointer"
+            >
+              <motion.div
+                className="absolute w-5 h-5 rounded-full bg-gradient-to-br from-orange-burnt to-gold-accent shadow-md shadow-orange-burnt/30 flex items-center justify-center"
+                animate={{ x: theme === 'dark' ? 0 : 26 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  {theme === 'dark' ? (
+                    <motion.div key="moon" initial={{ rotate: -30, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 30, opacity: 0 }} transition={{ duration: 0.2 }}>
+                      <Moon className="w-3 h-3 text-white" />
+                    </motion.div>
+                  ) : (
+                    <motion.div key="sun" initial={{ rotate: 30, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -30, opacity: 0 }} transition={{ duration: 0.2 }}>
+                      <Sun className="w-3 h-3 text-white" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </button>
+
             {/* Portal Action button upgraded with gold active ring */}
             <Link
               to="/admin"
@@ -316,6 +344,25 @@ export const Navbar: React.FC = () => {
               </div>
 
               <div className="mt-8 pt-6 border-t border-white/5">
+                {/* Mobile Theme Toggle */}
+                <button
+                  id="theme-toggle-mobile"
+                  onClick={toggleTheme}
+                  aria-label="Toggle dark/light mode"
+                  className="w-full flex items-center justify-between py-3 px-4 mb-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+                >
+                  <span className="font-display font-semibold text-xs text-white/80">
+                    {theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+                  </span>
+                  <div className="relative w-12 h-6 rounded-full border border-white/15 bg-white/10 flex items-center px-1">
+                    <motion.div
+                      className="w-4 h-4 rounded-full bg-gradient-to-br from-orange-burnt to-gold-accent"
+                      animate={{ x: theme === 'dark' ? 0 : 22 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                    />
+                  </div>
+                </button>
+
                 <Link
                   to="/admin"
                   onClick={() => setIsMobileMenuOpen(false)}
