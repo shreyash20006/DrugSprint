@@ -39,17 +39,17 @@ export const Leaderboard: React.FC = () => {
   // Filter achievements by category
   const filteredByCategory = activeCategory === 'all' 
     ? achievements 
-    : achievements.filter(a => a.category.toLowerCase() === activeCategory.toLowerCase());
+    : achievements.filter(a => a.category && a.category.toLowerCase() === activeCategory.toLowerCase());
 
   // Group achievements by student name to calculate top leaders
   const studentGroups: Record<string, AchievementGroup> = {};
 
   filteredByCategory.forEach(a => {
-    const name = a.student_name.trim();
+    const name = (a.student_name || 'Anonymous').trim();
     if (!studentGroups[name]) {
       studentGroups[name] = {
         student_name: name,
-        year: a.year,
+        year: a.year || 'Unknown Year',
         count: 0,
         achievements: []
       };

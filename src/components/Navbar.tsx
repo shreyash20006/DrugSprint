@@ -270,16 +270,16 @@ export const Navbar: React.FC = () => {
                 {studentProfile.avatar_url ? (
                   <img
                     src={studentProfile.avatar_url}
-                    alt={studentProfile.full_name}
+                    alt={studentProfile.full_name || 'Student'}
                     className="w-6 h-6 rounded-full object-cover border border-orange-burnt"
                   />
                 ) : (
                   <div className="w-6 h-6 rounded-full bg-orange-burnt flex items-center justify-center text-[10px] font-bold">
-                    {studentProfile.full_name.charAt(0)}
+                    {(studentProfile.full_name || 'Student').charAt(0)}
                   </div>
                 )}
                 <span className="text-[10px] font-display font-bold uppercase tracking-wider truncate max-w-[80px]">
-                  {studentProfile.full_name.split(' ')[0]}
+                  {(studentProfile.full_name || 'Student').split(' ')[0]}
                 </span>
               </Link>
             ) : (
@@ -440,16 +440,16 @@ export const Navbar: React.FC = () => {
                       {studentProfile.avatar_url ? (
                         <img
                           src={studentProfile.avatar_url}
-                          alt={studentProfile.full_name}
+                          alt={studentProfile.full_name || 'Student'}
                           className="w-8 h-8 rounded-full object-cover border border-orange-burnt"
                         />
                       ) : (
                         <div className="w-8 h-8 rounded-full bg-orange-burnt flex items-center justify-center text-xs font-bold">
-                          {studentProfile.full_name.charAt(0)}
+                          {(studentProfile.full_name || 'Student').charAt(0)}
                         </div>
                       )}
                       <div className="text-left">
-                        <span className="block font-display font-bold text-xs">{studentProfile.full_name}</span>
+                        <span className="block font-display font-bold text-xs">{studentProfile.full_name || 'Student'}</span>
                         <span className="block text-[9px] text-white/50">{studentProfile.email}</span>
                       </div>
                     </div>

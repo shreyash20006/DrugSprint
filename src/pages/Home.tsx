@@ -469,7 +469,7 @@ export const Home: React.FC = () => {
                     </div>
                     
                     <div className="space-y-4">
-                      {activePoll.options.map((opt: string) => {
+                      {(activePoll.options || []).map((opt: string) => {
                         const pct = getOptionPercentage(opt);
                         const votes = getOptionVotes(opt);
                         return (
@@ -494,7 +494,7 @@ export const Home: React.FC = () => {
                 ) : (
                   <form onSubmit={handleVoteSubmit} className="space-y-4">
                     <div className="space-y-3">
-                      {activePoll.options.map((opt: string) => (
+                      {(activePoll.options || []).map((opt: string) => (
                         <label
                           key={opt}
                           className={`flex items-center space-x-3 p-4 rounded-xl border transition-all cursor-pointer ${

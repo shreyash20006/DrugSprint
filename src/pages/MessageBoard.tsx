@@ -109,7 +109,7 @@ export const MessageBoard: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const nameToSubmit = isAnonymous ? 'Anonymous' : (authorName.trim() || 'Anonymous');
+      const nameToSubmit = isAnonymous ? 'Anonymous' : ((authorName || '').trim() || 'Anonymous');
       const emailToSubmit = studentProfile?.email || null;
 
       const { error } = await supabase
