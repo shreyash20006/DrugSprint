@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle2, ChevronDown, HelpCircle, MessageSquare } from 'lucide-react';
 import { councilMembers } from '../data/council';
 import { supabase } from '../lib/supabase';
+import { useStudentAuth } from '../lib/StudentAuthProvider';
 import { sendQuestionEmail } from '../lib/brevo';
 import { DNALoader } from './DNALoader';
 
@@ -38,6 +39,8 @@ const faqs: FAQItem[] = [
 export const AskForm: React.FC = () => {
   const [searchParams] = useSearchParams();
   const defaultTo = searchParams.get('to') || 'General Council';
+  
+  const { studentProfile } = useStudentAuth();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -46,6 +49,18 @@ export const AskForm: React.FC = () => {
     directedTo: 'General Council',
     question: ''
   });
+
+  // Pre-fill from student auth if available
+  useEffect(() => {
+    if (studentProfile) {
+      setFormData(prev => ({
+        ...prev,
+        name: studentProfile.full_name || prev.name,
+        email: studentProfile.email || prev.email,
+        year: studentProfile.year || prev.year
+      }));
+    }
+  }, [studentProfile]);
 
   // Pre-fill 'directedTo' if the search parameter changes
   useEffect(() => {
@@ -174,11 +189,21 @@ export const AskForm: React.FC = () => {
                     type="email"
                     id="email"
                     required
+                    readOnly={!!studentProfile}
                     placeholder="your.email@example.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-orange-burnt/20 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt bg-[#0F1E42]/60 outline-none text-white text-sm sm:text-base transition-colors shadow-inner font-sans placeholder-white/30"
+                    className={`w-full px-4 py-3 rounded-xl border border-orange-burnt/20 outline-none text-white text-sm sm:text-base transition-colors shadow-inner font-sans placeholder-white/30 ${
+                      studentProfile 
+                        ? 'bg-white/5 cursor-not-allowed text-white/60' 
+                        : 'bg-[#0F1E42]/60 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt'
+                    }`}
                   />
+                  {studentProfile && (
+                    <p className="text-[10px] text-white/40 mt-1">
+                      Using your registered Google Login email. Questions asked will appear in your Student Profile.
+                    </p>
+                  )}
                 </div>
 
                 {/* Academic Year dropdown */}
