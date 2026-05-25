@@ -98,44 +98,6 @@ export const NotificationBell: React.FC = () => {
     fetchInitial();
   }, []);
 
-  // Supabase Realtime — listen for new notices and events
-  useEffect(() => {
-    const addNotif = (notif: Notification) => {
-      setNotifications(prev => {
-        const updated = [{ ...notif, isRead: false }, ...prev].slice(0, 15);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        return updated;
-      });
-    };
-
-    const noticesSub = supabase
-      .channel('realtime-notices')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notices' }, (payload: any) => {
-        addNotif({
-          id: `notice_${payload.new.id}`, type: 'notice',
-          title: 'New Notice Posted!', message: payload.new.title,
-          path: '/notices', time: payload.new.created_at, isRead: false,
-        });
-      })
-      .subscribe();
-
-    const eventsSub = supabase
-      .channel('realtime-events')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'events' }, (payload: any) => {
-        addNotif({
-          id: `event_${payload.new.id}`, type: 'event',
-          title: 'New Event Added!', message: payload.new.name,
-          path: '/events', time: payload.new.created_at, isRead: false,
-        });
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(noticesSub);
-      supabase.removeChannel(eventsSub);
-    };
-  }, []);
-
   // Close on outside click
   useEffect(() => {
     if (!isOpen) return;

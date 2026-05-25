@@ -290,13 +290,14 @@ export const HeroSection: React.FC = () => {
       window.addEventListener('resize', handleResize);
 
       // ANIMATION LOOP
-      const clock = new THREE.Clock();
+      const startTime = Date.now();
+      const getElapsed = () => (Date.now() - startTime) / 1000;
 
       const animate = () => {
         animFrameId = requestAnimationFrame(animate);
         if (!scene) return;
 
-        const elapsedTime = clock.getElapsedTime();
+        const elapsedTime = getElapsed();
 
         // Dynamic Color Shifting HSL
         const pulseColor = new THREE.Color();

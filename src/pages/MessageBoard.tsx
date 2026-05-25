@@ -66,43 +66,6 @@ export const MessageBoard: React.FC = () => {
     fetchMessages();
   }, []);
 
-  // Supabase Realtime Subscription for real-time posts updates
-  useEffect(() => {
-    const messagesChannel = supabase
-      .channel('realtime-messages')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'messages' },
-        (payload: any) => {
-          // If a new approved message is inserted or updated to approved
-          if (payload.eventType === 'INSERT' && payload.new.is_approved) {
-            setMessages(prev => {
-              const exists = prev.some(m => m.id === payload.new.id);
-              if (exists) return prev;
-              return [payload.new, ...prev].sort((a, b) => (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-            });
-          } else if (payload.eventType === 'UPDATE') {
-            if (payload.new.is_approved) {
-              setMessages(prev => {
-                const filtered = prev.filter(m => m.id !== payload.new.id);
-                return [payload.new, ...filtered].sort((a, b) => (b.is_pinned ? 1 : 0) - (a.is_pinned ? 1 : 0) || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-              });
-            } else {
-              // Removed from approval
-              setMessages(prev => prev.filter(m => m.id !== payload.new.id));
-            }
-          } else if (payload.eventType === 'DELETE') {
-            setMessages(prev => prev.filter(m => m.id !== payload.old.id));
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(messagesChannel);
-    };
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;

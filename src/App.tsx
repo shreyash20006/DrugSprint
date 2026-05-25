@@ -143,6 +143,61 @@ const AppContent: React.FC = () => {
 
 import { ToastProvider } from './components/admin/Toast';
 
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  override state = { hasError: false };
+  
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  override componentDidCatch(error: any, errorInfo: any) {
+    console.error("ErrorBoundary caught an unhandled exception:", error, errorInfo);
+  }
+
+  override render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          background: '#0D1B3E',
+          color: 'white',
+          gap: '16px',
+          fontFamily: 'sans-serif'
+        }}>
+          <h2>Something went wrong</h2>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              background: '#C84B0E', 
+              color: 'white',
+              padding: '12px 24px',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export const App: React.FC = () => {
   // Global dynamic favicon mounting on application load
   useEffect(() => {
@@ -196,24 +251,26 @@ export const App: React.FC = () => {
   }, []);
 
     return (
-      <ThemeProvider>
-        <AuthProvider>
-          <StudentAuthProvider>
-            <ToastProvider>
-              <Router>
-                {/* Reset window viewport coordinate on routing */}
-                <ScrollToTop />
-                
-                {/* Fixed Scroll progress indicator */}
-                <ScrollProgressBar />
+      <ErrorBoundary>
+        <ThemeProvider>
+          <AuthProvider>
+            <StudentAuthProvider>
+              <ToastProvider>
+                <Router>
+                  {/* Reset window viewport coordinate on routing */}
+                  <ScrollToTop />
+                  
+                  {/* Fixed Scroll progress indicator */}
+                  <ScrollProgressBar />
 
-                {/* Dynamic Content isolated layout */}
-                <AppContent />
-              </Router>
-            </ToastProvider>
-          </StudentAuthProvider>
-        </AuthProvider>
-      </ThemeProvider>
+                  {/* Dynamic Content isolated layout */}
+                  <AppContent />
+                </Router>
+              </ToastProvider>
+            </StudentAuthProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </ErrorBoundary>
     );
 };
 
