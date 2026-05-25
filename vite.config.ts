@@ -29,6 +29,6 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['three', 'framer-motion', 'lenis']
+    include: ['framer-motion', 'lenis']
   }
 })
