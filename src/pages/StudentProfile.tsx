@@ -77,7 +77,7 @@ export const StudentProfile: React.FC = () => {
         const { data: quests, error: questsErr } = await supabase
           .from('questions')
           .select('*')
-          .eq('email', studentProfile.email)
+          .eq('student_email', studentProfile.email)
           .order('created_at', { ascending: false });
 
         if (!questsErr && quests) {

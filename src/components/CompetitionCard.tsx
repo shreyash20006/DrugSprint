@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Trophy, Users, Hourglass, ArrowRight } from 'lucide-react';
+import { Trophy, Users, Hourglass, ArrowRight, Heart } from 'lucide-react';
 
 interface CompetitionCardProps {
   competition: any;
@@ -18,6 +18,25 @@ export const CompetitionCard: React.FC<CompetitionCardProps> = ({ competition })
 
   const seatsLeft = (competition.capacity || 100) - (competition.registered_count || 0);
   const isFull = seatsLeft <= 0;
+
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    const stored: string[] = JSON.parse(localStorage.getItem('tgpcop_saved_events') || '[]');
+    setIsSaved(stored.includes(competition.id));
+  }, [competition.id]);
+
+  const toggleBookmark = () => {
+    const stored: string[] = JSON.parse(localStorage.getItem('tgpcop_saved_events') || '[]');
+    let updated;
+    if (isSaved) {
+      updated = stored.filter(id => id !== competition.id);
+    } else {
+      updated = [...stored, competition.id];
+    }
+    localStorage.setItem('tgpcop_saved_events', JSON.stringify(updated));
+    setIsSaved(!isSaved);
+  };
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -143,23 +162,37 @@ export const CompetitionCard: React.FC<CompetitionCardProps> = ({ competition })
             </div>
           )}
 
-          {/* Participate CTA Button */}
-          {timeLeft.isExpired || isFull ? (
+          {/* Participate CTA Button & Bookmark */}
+          <div className="flex items-center gap-2">
             <button
-              disabled
-              className="w-full py-3 bg-white/5 text-white/30 font-display font-bold rounded-xl text-xs sm:text-sm cursor-not-allowed uppercase border border-white/5"
+              onClick={toggleBookmark}
+              title={isSaved ? "Remove Bookmark" : "Save Competition"}
+              className={`p-3 rounded-xl border transition-all ${
+                isSaved 
+                  ? 'bg-orange-burnt/10 border-orange-burnt/30 text-orange-burnt shadow-inner shadow-orange-burnt/20' 
+                  : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10'
+              }`}
             >
-              {isFull && !timeLeft.isExpired ? 'Registrations Full' : 'Registrations Closed'}
+              <Heart className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
             </button>
-          ) : (
-            <Link
-              to={`/register/${competition.id}`}
-              className="group flex items-center justify-center space-x-2 w-full py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display font-bold rounded-xl text-xs sm:text-sm shadow-md hover:shadow-orange-burnt/25 hover:-translate-y-[1px] transition-all duration-300 border border-white/5 active:scale-98"
-            >
-              <span>REGISTER NOW</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          )}
+
+            {timeLeft.isExpired || isFull ? (
+              <button
+                disabled
+                className="flex-1 py-3 bg-white/5 text-white/30 font-display font-bold rounded-xl text-xs sm:text-sm cursor-not-allowed uppercase border border-white/5"
+              >
+                {isFull && !timeLeft.isExpired ? 'Registrations Full' : 'Registrations Closed'}
+              </button>
+            ) : (
+              <Link
+                to={`/register/${competition.id}`}
+                className="group flex-1 flex items-center justify-center space-x-2 py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display font-bold rounded-xl text-xs sm:text-sm shadow-md hover:shadow-orange-burnt/25 hover:-translate-y-[1px] transition-all duration-300 border border-white/5 active:scale-98"
+              >
+                <span>REGISTER NOW</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>

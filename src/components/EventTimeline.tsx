@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Calendar, Award, BookOpen, Music, Accessibility, ArrowRight } from 'lucide-react';
+import { Calendar, Award, BookOpen, Music, Accessibility, ArrowRight, Heart } from 'lucide-react';
 import { timelineEvents } from '../data/events';
 
 interface EventTimelineProps {
@@ -134,6 +134,25 @@ const TimelineCard: React.FC<{
   const seatsLeft = (event.capacity || 100) - (event.registered_count || 0);
   const isFull = seatsLeft <= 0;
  
+  const [isSaved, setIsSaved] = React.useState(false);
+
+  React.useEffect(() => {
+    const stored: string[] = JSON.parse(localStorage.getItem('tgpcop_saved_events') || '[]');
+    setIsSaved(stored.includes(event.id));
+  }, [event.id]);
+
+  const toggleBookmark = () => {
+    const stored: string[] = JSON.parse(localStorage.getItem('tgpcop_saved_events') || '[]');
+    let updated;
+    if (isSaved) {
+      updated = stored.filter(id => id !== event.id);
+    } else {
+      updated = [...stored, event.id];
+    }
+    localStorage.setItem('tgpcop_saved_events', JSON.stringify(updated));
+    setIsSaved(!isSaved);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, x: isEven ? -40 : 40 }}
@@ -170,7 +189,19 @@ const TimelineCard: React.FC<{
       </p>
  
       {/* Action Button */}
-      <div className={`flex ${isEven ? 'md:justify-end' : 'justify-start'}`}>
+      <div className={`flex items-center gap-2 ${isEven ? 'md:justify-end' : 'justify-start'}`}>
+        <button
+          onClick={toggleBookmark}
+          title={isSaved ? "Remove Bookmark" : "Save Event"}
+          className={`p-2 rounded-lg border transition-all ${
+            isSaved 
+              ? 'bg-orange-burnt/10 border-orange-burnt/30 text-orange-burnt shadow-inner shadow-orange-burnt/20' 
+              : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10'
+          }`}
+        >
+          <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+        </button>
+
         {isFull ? (
           <button
             disabled
