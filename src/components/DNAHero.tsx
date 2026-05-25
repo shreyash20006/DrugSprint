@@ -5,6 +5,17 @@ import * as THREE from 'three';
 import { ArrowRight, HelpCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
+const isVideoUrl = (url: string): boolean => {
+  if (!url) return false;
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.m4v'];
+  const lowerUrl = url.toLowerCase();
+  return (
+    videoExtensions.some(ext => lowerUrl.endsWith(ext)) ||
+    lowerUrl.includes('/video/upload/') ||
+    (lowerUrl.includes('res.cloudinary.com/') && lowerUrl.includes('/video/'))
+  );
+};
+
 export const DNAHero: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
@@ -383,15 +394,26 @@ export const DNAHero: React.FC = () => {
   return (
     <section className="relative w-full h-screen flex items-center justify-center overflow-hidden z-10">
       
-      {/* Layer 1: College Photo Base background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center z-0 pointer-events-none select-none"
-        style={{
-          backgroundImage: bannerUrl 
-            ? `url(${bannerUrl})` 
-            : `url('https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2086&auto=format&fit=crop')`
-        }}
-      />
+      {/* Layer 1: College Photo or Video Base background */}
+      {bannerUrl && isVideoUrl(bannerUrl) ? (
+        <video
+          src={bannerUrl}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
+        />
+      ) : (
+        <div 
+          className="absolute inset-0 bg-cover bg-center z-0 pointer-events-none select-none"
+          style={{
+            backgroundImage: bannerUrl 
+              ? `url(${bannerUrl})` 
+              : `url('https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2086&auto=format&fit=crop')`
+          }}
+        />
+      )}
 
       {/* Layer 2: Dark Navy Overlay opacity 0.6 */}
       <div className="absolute inset-0 bg-[#0D1B3E] opacity-60 z-0 pointer-events-none" />
