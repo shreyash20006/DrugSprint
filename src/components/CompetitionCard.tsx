@@ -166,4 +166,4 @@ export const CompetitionCard: React.FC<CompetitionCardProps> = ({ competition })
   );
 };
 
-export default CompetitionCard;
+export default React.memo(CompetitionCard);

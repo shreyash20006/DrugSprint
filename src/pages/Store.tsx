@@ -85,12 +85,16 @@ export const Store: React.FC = () => {
     },
   ];
 
-  const filteredBooks = studyBooks.filter(book => {
+  const filteredBooks = React.useMemo(() => studyBooks.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       book.subject.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesYear = selectedYear === 'all' || book.year.toLowerCase() === selectedYear.toLowerCase();
     return matchesSearch && matchesYear;
-  });
+  }), [searchQuery, selectedYear]);
+
+  const handleYearSelect = React.useCallback((yearOpt: string) => {
+    setSelectedYear(yearOpt === 'All' ? 'all' : yearOpt);
+  }, []);
 
   const handleBuy = (book: StudyBook) => {
     setPurchaseBook(book);
@@ -127,7 +131,7 @@ export const Store: React.FC = () => {
               return (
                 <button
                   key={yearOpt}
-                  onClick={() => setSelectedYear(yearOpt === 'All' ? 'all' : yearOpt)}
+                  onClick={() => handleYearSelect(yearOpt)}
                   className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-display font-bold uppercase tracking-wider transition-all select-none ${
                     active 
                       ? 'bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white shadow-md shadow-orange-burnt/25'
@@ -183,6 +187,8 @@ export const Store: React.FC = () => {
                       src={book.image} 
                       alt={book.title} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
                     />
                     
                     {/* Hover black sheet */}

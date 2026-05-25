@@ -329,184 +329,161 @@ export const Navbar: React.FC = () => {
         </div>
       </header>
 
-      {/* Mobile Menu Drawer */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+      {/* Mobile Menu Drawer (Pure CSS Transform Optimization) */}
+      {/* Backdrop */}
+      <div
+        onClick={() => setIsMobileMenuOpen(false)}
+        className={`fixed inset-0 bg-black/80 z-40 md:hidden backdrop-blur-sm transition-opacity duration-250 ease-in-out ${
+          isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      />
+
+      {/* Slide-in Drawer with GPU layer force CSS translate */}
+      <div
+        style={{ background: '#0D1B3E', borderLeft: '1px solid rgba(200, 75, 14, 0.2)' }}
+        className={`fixed right-0 top-0 bottom-0 w-[290px] p-6 z-50 shadow-2xl flex flex-col justify-between md:hidden overflow-y-auto transition-transform duration-250 ease-in-out ${
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div>
+          <div className="flex items-center justify-between mb-8">
+            <span className="font-display font-extrabold text-lg text-orange-burnt uppercase tracking-wider">
+              TGPCOP Council
+            </span>
+            <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/80 z-40 md:hidden backdrop-blur-sm"
-            />
-
-            {/* Slide-in Drawer with Glassmorphism */}
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              style={{ background: '#0D1B3E', borderLeft: '1px solid rgba(200, 75, 14, 0.2)' }}
-              className="fixed right-0 top-0 bottom-0 w-[290px] backdrop-blur-2xl p-6 z-50 shadow-2xl flex flex-col justify-between md:hidden overflow-y-auto"
+              className="p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer"
             >
-              <div>
-                <div className="flex items-center justify-between mb-8">
-                  <span className="font-display font-extrabold text-lg text-orange-burnt uppercase tracking-wider">
-                    TGPCOP Council
-                  </span>
-                  <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 rounded-xl hover:bg-white/5 transition-colors"
-                  >
-                    <X className="w-6 h-6 text-white" />
-                  </button>
-                </div>
+              <X className="w-6 h-6 text-white" />
+            </button>
+          </div>
 
-                <nav className="flex flex-col space-y-4">
-                  {navLinks.map((link, idx) => {
-                    const isActive = location.pathname === link.path;
+          <nav className="flex flex-col space-y-4">
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.path;
+              return (
+                <div key={link.path}>
+                  <Link
+                    to={link.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`font-display font-semibold text-sm py-2 flex items-center justify-between border-b border-white/5 transition-colors ${
+                      isActive ? 'text-orange-burnt font-extrabold' : 'text-white/80 hover:text-white'
+                    }`}
+                  >
+                    {link.name}
+                    {isActive && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-burnt shadow-md shadow-orange-burnt/50" />
+                    )}
+                  </Link>
+                </div>
+              );
+            })}
+
+            {/* Expandable Mobile "More" Items */}
+            <div>
+              <button
+                onClick={() => setIsMobileMoreOpen(!isMobileMoreOpen)}
+                className="w-full font-display font-semibold text-sm py-2 flex items-center justify-between outline-none text-white/80 cursor-pointer"
+              >
+                <span>More Features</span>
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform duration-300 ${
+                    isMobileMoreOpen ? 'rotate-180 text-orange-burnt' : ''
+                  }`}
+                />
+              </button>
+
+              {isMobileMoreOpen && (
+                <div className="pl-4 pb-2 mt-2 space-y-3 overflow-hidden flex flex-col border-l border-white/5 text-xs">
+                  {moreLinks.map((subLink) => {
+                    const isSubActive = location.pathname === subLink.path;
                     return (
-                      <motion.div
-                        key={link.path}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.08, type: 'spring', stiffness: 100 }}
+                      <Link
+                        key={subLink.path}
+                        to={subLink.path}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={`py-1 flex items-center space-x-2 transition-colors ${
+                          isSubActive ? 'text-orange-burnt font-extrabold' : 'text-white/60 hover:text-white'
+                        }`}
                       >
-                        <Link
-                          to={link.path}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className={`font-display font-semibold text-sm py-2 flex items-center justify-between border-b border-white/5 transition-colors ${
-                            isActive ? 'text-orange-burnt font-extrabold' : 'text-white/80 hover:text-white'
-                          }`}
-                        >
-                          {link.name}
-                          {isActive && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-orange-burnt shadow-md shadow-orange-burnt/50" />
-                          )}
-                        </Link>
-                      </motion.div>
+                        <span>{subLink.icon}</span>
+                        <span>{subLink.name}</span>
+                      </Link>
                     );
                   })}
+                </div>
+              )}
+            </div>
+          </nav>
+        </div>
 
-                  {/* Expandable Mobile "More" Items */}
-                  <div>
-                    <button
-                      onClick={() => setIsMobileMoreOpen(!isMobileMoreOpen)}
-                      className={`w-full font-display font-semibold text-sm py-2 flex items-center justify-between outline-none text-white/80`}
-                    >
-                      <span>More Features</span>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform duration-300 ${
-                          isMobileMoreOpen ? 'rotate-180 text-orange-burnt' : ''
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence>
-                      {isMobileMoreOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.25 }}
-                          className="pl-4 pb-2 mt-2 space-y-3 overflow-hidden flex flex-col border-l border-white/5 text-xs"
-                        >
-                          {moreLinks.map((subLink) => {
-                            const isSubActive = location.pathname === subLink.path;
-                            return (
-                              <Link
-                                key={subLink.path}
-                                to={subLink.path}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className={`py-1 flex items-center space-x-2 transition-colors ${
-                                  isSubActive ? 'text-orange-burnt font-extrabold' : 'text-white/60 hover:text-white'
-                                }`}
-                              >
-                                <span>{subLink.icon}</span>
-                                <span>{subLink.name}</span>
-                              </Link>
-                            );
-                          })}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </nav>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-white/5">
-                {/* Mobile Student Profile / Sign In */}
-                {studentProfile ? (
-                  <Link
-                    to="/profile"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full flex items-center justify-between py-3 px-4 mb-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-white"
-                  >
-                    <div className="flex items-center space-x-3">
-                      {studentProfile.avatar_url ? (
-                        <img
-                          src={studentProfile.avatar_url}
-                          alt={studentProfile.full_name || 'Student'}
-                          className="w-8 h-8 rounded-full object-cover border border-orange-burnt"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-orange-burnt flex items-center justify-center text-xs font-bold">
-                          {(studentProfile.full_name || 'Student').charAt(0)}
-                        </div>
-                      )}
-                      <div className="text-left">
-                        <span className="block font-display font-bold text-xs">{studentProfile.full_name || 'Student'}</span>
-                        <span className="block text-[9px] text-white/50">{studentProfile.email}</span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-orange-burnt tracking-wide">VIEW</span>
-                  </Link>
+        <div className="mt-8 pt-6 border-t border-white/5">
+          {/* Mobile Student Profile / Sign In */}
+          {studentProfile ? (
+            <Link
+              to="/profile"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="w-full flex items-center justify-between py-3 px-4 mb-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-white"
+            >
+              <div className="flex items-center space-x-3">
+                {studentProfile.avatar_url ? (
+                  <img
+                    src={studentProfile.avatar_url}
+                    alt={studentProfile.full_name || 'Student'}
+                    className="w-8 h-8 rounded-full object-cover border border-orange-burnt"
+                  />
                 ) : (
-                  <button
-                    onClick={() => { signInWithGoogle(); setIsMobileMenuOpen(false); }}
-                    className="w-full flex items-center justify-center space-x-2 py-3 px-4 mb-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-display text-xs font-bold uppercase tracking-wider cursor-pointer"
-                  >
-                    <User className="w-4 h-4 text-orange-burnt" />
-                    <span>Student Login</span>
-                  </button>
-                )}
-
-                {/* Mobile Theme Toggle */}
-                <button
-                  id="theme-toggle-mobile"
-                  onClick={toggleTheme}
-                  aria-label="Toggle dark/light mode"
-                  className="w-full flex items-center justify-between py-3 px-4 mb-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
-                >
-                  <span className="font-display font-semibold text-xs text-white/80">
-                    {theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
-                  </span>
-                  <div className="relative w-12 h-6 rounded-full border border-white/15 bg-white/10 flex items-center px-1">
-                    <motion.div
-                      className="w-4 h-4 rounded-full bg-gradient-to-br from-orange-burnt to-gold-accent"
-                      animate={{ x: theme === 'dark' ? 0 : 22 }}
-                      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                    />
+                  <div className="w-8 h-8 rounded-full bg-orange-burnt flex items-center justify-center text-xs font-bold">
+                    {(studentProfile.full_name || 'Student').charAt(0)}
                   </div>
-                </button>
-
-                <Link
-                  to="/admin"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full text-center py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg shadow-orange-burnt/15 transition-all block mb-4 active:scale-98 border border-white/5"
-                >
-                  🔑 Admin Portal
-                </Link>
-                <div className="text-center text-[10px] text-white/45 tracking-wider">
-                  TGPCOP Student Council © 2026
+                )}
+                <div className="text-left">
+                  <span className="block font-display font-bold text-xs">{studentProfile.full_name || 'Student'}</span>
+                  <span className="block text-[9px] text-white/50">{studentProfile.email}</span>
                 </div>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              <span className="text-[10px] font-bold text-orange-burnt tracking-wide">VIEW</span>
+            </Link>
+          ) : (
+            <button
+              onClick={() => { signInWithGoogle(); setIsMobileMenuOpen(false); }}
+              className="w-full flex items-center justify-center space-x-2 py-3 px-4 mb-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-display text-xs font-bold uppercase tracking-wider cursor-pointer"
+            >
+              <User className="w-4 h-4 text-orange-burnt" />
+              <span>Student Login</span>
+            </button>
+          )}
+
+          {/* Mobile Theme Toggle */}
+          <button
+            id="theme-toggle-mobile"
+            onClick={toggleTheme}
+            aria-label="Toggle dark/light mode"
+            className="w-full flex items-center justify-between py-3 px-4 mb-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all cursor-pointer"
+          >
+            <span className="font-display font-semibold text-xs text-white/80">
+              {theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+            </span>
+            <div className="relative w-12 h-6 rounded-full border border-white/15 bg-white/10 flex items-center px-1">
+              <div
+                className="w-4 h-4 rounded-full bg-gradient-to-br from-orange-burnt to-gold-accent transition-transform duration-250 ease-out"
+                style={{ transform: theme === 'dark' ? 'translateX(0)' : 'translateX(22px)' }}
+              />
+            </div>
+          </button>
+
+          <Link
+            to="/admin"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="w-full text-center py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg shadow-orange-burnt/15 transition-all block mb-4 active:scale-98 border border-white/5"
+          >
+            🔑 Admin Portal
+          </Link>
+          <div className="text-center text-[10px] text-white/45 tracking-wider">
+            TGPCOP Student Council © 2026
+          </div>
+        </div>
+      </div>
 
       {/* Global Command Palette Search */}
       <CommandPalette isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

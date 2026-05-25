@@ -252,4 +252,4 @@ export const NoticeCard: React.FC<NoticeCardProps> = ({ notice }) => {
   );
 };
 
-export default NoticeCard;
+export default React.memo(NoticeCard);

@@ -33,9 +33,13 @@ export const Notices: React.FC = () => {
     fetchNotices();
   }, []);
 
-  const filteredNotices = notices.filter(
+  const filteredNotices = React.useMemo(() => notices.filter(
     (n) => activeFilter === 'All' || n.category === activeFilter
-  );
+  ), [notices, activeFilter]);
+
+  const handleFilter = React.useCallback((filter: 'All' | 'Academic' | 'Event' | 'Alert' | 'General') => {
+    setActiveFilter(filter);
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-[#050B18] overflow-hidden pb-24">
@@ -60,7 +64,7 @@ export const Notices: React.FC = () => {
           {(['All', 'Academic', 'Event', 'Alert', 'General'] as const).map((filter) => (
             <button
               key={filter}
-              onClick={() => setActiveFilter(filter)}
+              onClick={() => handleFilter(filter)}
               className={`px-5 py-2.5 sm:py-3 rounded-xl font-display text-xs sm:text-sm font-semibold tracking-wide transition-all duration-300 relative border ${
                 activeFilter === filter
                   ? 'bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white border-transparent shadow-lg shadow-orange-burnt/15 scale-102'

@@ -1,9 +1,17 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { isMobile } from '../lib/device';
 
 export const ScienceBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [showCanvas, setShowCanvas] = useState(false);
 
   useEffect(() => {
+    // Only mount background canvas on desktop/tablet to optimize mobile GPU/CPU
+    setShowCanvas(!isMobile());
+  }, []);
+
+  useEffect(() => {
+    if (!showCanvas) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -29,15 +37,15 @@ export const ScienceBackground: React.FC = () => {
     const initParticles = () => {
       const width = canvas.width;
       const height = canvas.height;
-      const isMobile = window.innerWidth < 768;
-      const count = isMobile ? 30 : 70; // 50% fewer on mobile for maximum fps
+      const isMobileWidth = window.innerWidth < 768;
+      const count = isMobileWidth ? 20 : 70; // highly optimized particle count
 
       particles = [];
       for (let i = 0; i < count; i++) {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.45, // Slow random drift
+          vx: (Math.random() - 0.5) * 0.45,
           vy: (Math.random() - 0.5) * 0.45,
           radius: 1.5 + Math.random() * 2,
         });
@@ -55,22 +63,18 @@ export const ScienceBackground: React.FC = () => {
       const height = canvas.height;
       const maxDistance = 110;
 
-      // Update and draw particles
       particles.forEach((p, idx) => {
         p.x += p.vx;
         p.y += p.vy;
 
-        // Bounce boundaries
         if (p.x < 0 || p.x > width) p.vx *= -1;
         if (p.y < 0 || p.y > height) p.vy *= -1;
 
-        // Draw node dot
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(200, 75, 14, 0.45)'; // Soft orange molecular dot
+        ctx.fillStyle = 'rgba(200, 75, 14, 0.45)';
         ctx.fill();
 
-        // Connect lines
         for (let j = idx + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const dx = p.x - p2.x;
@@ -78,11 +82,11 @@ export const ScienceBackground: React.FC = () => {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < maxDistance) {
-            const alpha = (1 - dist / maxDistance) * 0.16; // soft lines
+            const alpha = (1 - dist / maxDistance) * 0.16;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(245, 166, 35, ${alpha})`; // Gold molecular bond lines
+            ctx.strokeStyle = `rgba(245, 166, 35, ${alpha})`;
             ctx.lineWidth = 0.8;
             ctx.stroke();
           }
@@ -98,12 +102,14 @@ export const ScienceBackground: React.FC = () => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [showCanvas]);
+
+  if (!showCanvas) return null;
 
   return (
     <canvas 
       ref={canvasRef} 
-      className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-12 bg-transparent"
+      className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-12 bg-transparent science-bg"
       style={{ mixBlendMode: 'screen' }}
     />
   );

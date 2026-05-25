@@ -1,77 +1,75 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 import { supabase } from './lib/supabase';
 import { AuthProvider } from './lib/AuthProvider';
 import { ThemeProvider } from './lib/ThemeProvider';
 import { StudentAuthProvider } from './lib/StudentAuthProvider';
+import { isMobile } from './lib/device';
 
-// Import components
+// Import core static layout components
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { ScrollProgressBar } from './components/ScrollProgressBar';
 import { ProtectedRoute } from './components/admin/ProtectedRoute';
+import { DNALoader } from './components/DNALoader';
 
-// Import pages
-import { Home } from './pages/Home';
-import { Council } from './pages/Council';
-import { Ask } from './pages/Ask';
-import { Notices } from './pages/Notices';
-import { Events } from './pages/Events';
-import { Gallery } from './pages/Gallery';
-import { ReportBug } from './pages/ReportBug';
-import { EventRegister } from './pages/EventRegister';
-import { Vote } from './pages/Vote';
-import { EventFeedback } from './pages/EventFeedback';
-import { Achievements } from './pages/Achievements';
-import { Newsletter } from './pages/Newsletter';
-import { Complaint } from './pages/Complaint';
-import { Mentors } from './pages/Mentors';
-import { StudentProfile } from './pages/StudentProfile';
-import { MyCalendar } from './pages/MyCalendar';
-import { Leaderboard } from './pages/Leaderboard';
-import { MessageBoard } from './pages/MessageBoard';
-import { Store } from './pages/Store';
+// Lazy load ALL pages for dynamic bundle code-splitting & minimal first-paint loading times
+const Home = lazy(() => import('./pages/Home'));
+const Council = lazy(() => import('./pages/Council'));
+const Ask = lazy(() => import('./pages/Ask'));
+const Notices = lazy(() => import('./pages/Notices'));
+const Events = lazy(() => import('./pages/Events'));
+const Gallery = lazy(() => import('./pages/Gallery'));
+const ReportBug = lazy(() => import('./pages/ReportBug'));
+const EventRegister = lazy(() => import('./pages/EventRegister'));
+const Vote = lazy(() => import('./pages/Vote'));
+const EventFeedback = lazy(() => import('./pages/EventFeedback'));
+const Achievements = lazy(() => import('./pages/Achievements'));
+const Newsletter = lazy(() => import('./pages/Newsletter'));
+const Complaint = lazy(() => import('./pages/Complaint'));
+const Mentors = lazy(() => import('./pages/Mentors'));
+const StudentProfile = lazy(() => import('./pages/StudentProfile'));
+const MyCalendar = lazy(() => import('./pages/MyCalendar'));
+const Leaderboard = lazy(() => import('./pages/Leaderboard'));
+const MessageBoard = lazy(() => import('./pages/MessageBoard'));
+const Store = lazy(() => import('./pages/Store'));
 
-// Import admin pages
-import { AdminLogin } from './pages/admin/AdminLogin';
-import { AdminDashboard } from './pages/admin/AdminDashboard';
-import { AdminQuestions } from './pages/admin/AdminQuestions';
-import { AdminNotices } from './pages/admin/AdminNotices';
-import { AdminEvents } from './pages/admin/AdminEvents';
-import { AdminLayout } from './pages/admin/AdminLayout';
-import { AdminGallery } from './pages/admin/AdminGallery';
-import { AdminUsers } from './pages/admin/AdminUsers';
-import { AdminSettings } from './pages/admin/AdminSettings';
-import { AdminLogs } from './pages/admin/AdminLogs';
-import { AdminBugs } from './pages/admin/AdminBugs';
-import { AdminRegistrations } from './pages/admin/AdminRegistrations';
-import { AdminPolls } from './pages/admin/AdminPolls';
-import { AdminFeedback } from './pages/admin/AdminFeedback';
-import { AdminMessages } from './pages/admin/AdminMessages';
-import { AdminAchievements } from './pages/admin/AdminAchievements';
-import { AdminNewsletter } from './pages/admin/AdminNewsletter';
-import { AdminComplaints } from './pages/admin/AdminComplaints';
-import { AdminMentors } from './pages/admin/AdminMentors';
-import { AdminDeveloper } from './pages/admin/AdminDeveloper';
-import { AdminManageAdmins } from './pages/admin/AdminManageAdmins';
+// Lazy load all admin pages
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminQuestions = lazy(() => import('./pages/admin/AdminQuestions'));
+const AdminNotices = lazy(() => import('./pages/admin/AdminNotices'));
+const AdminEvents = lazy(() => import('./pages/admin/AdminEvents'));
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminGallery = lazy(() => import('./pages/admin/AdminGallery'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
+const AdminLogs = lazy(() => import('./pages/admin/AdminLogs'));
+const AdminBugs = lazy(() => import('./pages/admin/AdminBugs'));
+const AdminRegistrations = lazy(() => import('./pages/admin/AdminRegistrations'));
+const AdminPolls = lazy(() => import('./pages/admin/AdminPolls'));
+const AdminFeedback = lazy(() => import('./pages/admin/AdminFeedback'));
+const AdminMessages = lazy(() => import('./pages/admin/AdminMessages'));
+const AdminAchievements = lazy(() => import('./pages/admin/AdminAchievements'));
+const AdminNewsletter = lazy(() => import('./pages/admin/AdminNewsletter'));
+const AdminComplaints = lazy(() => import('./pages/admin/AdminComplaints'));
+const AdminMentors = lazy(() => import('./pages/admin/AdminMentors'));
+const AdminDeveloper = lazy(() => import('./pages/admin/AdminDeveloper'));
+const AdminManageAdmins = lazy(() => import('./pages/admin/AdminManageAdmins'));
 
-// A helper component to scroll to top automatically on route changes
+// Scroll to top helper
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
-
   return null;
 };
 
-// Inner wrapper to enable conditional layout isolation based on route paths
+// Layout wrapper separating public navbar/footers from secure admin panels
 const AppContent: React.FC = () => {
   const location = useLocation();
-  
-  // Suppress public header Navbar and footer Footer inside the admin panels
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
@@ -79,63 +77,65 @@ const AppContent: React.FC = () => {
       {!isAdminRoute && <Navbar />}
 
       <main className="flex-grow">
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/council" element={<Council />} />
-          <Route path="/ask" element={<Ask />} />
-          <Route path="/notices" element={<Notices />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/media" element={<Gallery />} />
-          <Route path="/report" element={<ReportBug />} />
-          <Route path="/register/:eventId" element={<EventRegister />} />
-          <Route path="/vote" element={<Vote />} />
-          <Route path="/feedback/:eventId" element={<EventFeedback />} />
-          <Route path="/achievements" element={<Achievements />} />
-          <Route path="/newsletter" element={<Newsletter />} />
-          <Route path="/complaint" element={<Complaint />} />
-          <Route path="/mentors" element={<Mentors />} />
-          <Route path="/profile" element={<StudentProfile />} />
-          <Route path="/calendar" element={<MyCalendar />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/board" element={<MessageBoard />} />
-          <Route path="/store" element={<Store />} />
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <DNALoader />
+          </div>
+        }>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/council" element={<Council />} />
+            <Route path="/ask" element={<Ask />} />
+            <Route path="/notices" element={<Notices />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/media" element={<Gallery />} />
+            <Route path="/report" element={<ReportBug />} />
+            <Route path="/register/:eventId" element={<EventRegister />} />
+            <Route path="/vote" element={<Vote />} />
+            <Route path="/feedback/:eventId" element={<EventFeedback />} />
+            <Route path="/achievements" element={<Achievements />} />
+            <Route path="/newsletter" element={<Newsletter />} />
+            <Route path="/complaint" element={<Complaint />} />
+            <Route path="/mentors" element={<Mentors />} />
+            <Route path="/profile" element={<StudentProfile />} />
+            <Route path="/calendar" element={<MyCalendar />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/board" element={<MessageBoard />} />
+            <Route path="/store" element={<Store />} />
 
-          {/* Secure Admin Routes */}
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route
-            element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/questions" element={<AdminQuestions />} />
-            <Route path="/admin/notices" element={<AdminNotices />} />
-            <Route path="/admin/events" element={<AdminEvents />} />
-            <Route path="/admin/gallery" element={<AdminGallery />} />
-            <Route path="/admin/registrations" element={<AdminRegistrations />} />
-            <Route path="/admin/polls" element={<AdminPolls />} />
-            <Route path="/admin/feedback" element={<AdminFeedback />} />
-            <Route path="/admin/messages" element={<AdminMessages />} />
-            <Route path="/admin/achievements" element={<AdminAchievements />} />
-            <Route path="/admin/newsletter" element={<AdminNewsletter />} />
-            <Route path="/admin/mentors" element={<AdminMentors />} />
-            
-            {/* Super Admin Exclusive Routes */}
-            <Route path="/admin/complaints" element={<AdminComplaints />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/admin/logs" element={<AdminLogs />} />
-            <Route path="/admin/bugs" element={<AdminBugs />} />
-
-            {/* Developer Gated Routes */}
-            <Route path="/admin/developer" element={<AdminDeveloper />} />
-            <Route path="/admin/manage-admins" element={<AdminManageAdmins />} />
-          </Route>
-        </Routes>
+            {/* Secure Admin Routes */}
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/questions" element={<AdminQuestions />} />
+              <Route path="/admin/notices" element={<AdminNotices />} />
+              <Route path="/admin/events" element={<AdminEvents />} />
+              <Route path="/admin/gallery" element={<AdminGallery />} />
+              <Route path="/admin/registrations" element={<AdminRegistrations />} />
+              <Route path="/admin/polls" element={<AdminPolls />} />
+              <Route path="/admin/feedback" element={<AdminFeedback />} />
+              <Route path="/admin/messages" element={<AdminMessages />} />
+              <Route path="/admin/achievements" element={<AdminAchievements />} />
+              <Route path="/admin/newsletter" element={<AdminNewsletter />} />
+              <Route path="/admin/mentors" element={<AdminMentors />} />
+              <Route path="/admin/complaints" element={<AdminComplaints />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/logs" element={<AdminLogs />} />
+              <Route path="/admin/bugs" element={<AdminBugs />} />
+              <Route path="/admin/developer" element={<AdminDeveloper />} />
+              <Route path="/admin/manage-admins" element={<AdminManageAdmins />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </main>
 
       {!isAdminRoute && <Footer />}
@@ -201,7 +201,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 }
 
 export const App: React.FC = () => {
-  // Global dynamic favicon mounting on application load
+  // Load portal configuration settings
   useEffect(() => {
     const loadFavicon = async () => {
       try {
@@ -231,14 +231,19 @@ export const App: React.FC = () => {
 
   // Global Lenis smooth scroll engine initialization
   useEffect(() => {
+    // Completely disable smooth scroll engine on mobile to save GPU cycles and run native scrolls
+    if (isMobile()) return;
+
     const lenis = new Lenis({
-      lerp: 0.08, // Premium physics-based buttery smooth interpolation
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // GPU physics based easing curve
+      orientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 0.8,
+      touchMultiplier: 1.5,
       infinite: false,
-      wheelMultiplier: 1.25, // Optimized responsiveness for mouse wheel scrolls
-      syncTouch: false, // Retain high-refresh rate native touch physics on trackpads/mobile
     });
 
-    // Request Animation Frame loop
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
@@ -246,34 +251,28 @@ export const App: React.FC = () => {
 
     requestAnimationFrame(raf);
 
-    // Clean up scroll instance on unmount
     return () => {
       lenis.destroy();
     };
   }, []);
 
-    return (
-      <ErrorBoundary>
-        <ThemeProvider>
-          <AuthProvider>
-            <StudentAuthProvider>
-              <ToastProvider>
-                <Router>
-                  {/* Reset window viewport coordinate on routing */}
-                  <ScrollToTop />
-                  
-                  {/* Fixed Scroll progress indicator */}
-                  <ScrollProgressBar />
-
-                  {/* Dynamic Content isolated layout */}
-                  <AppContent />
-                </Router>
-              </ToastProvider>
-            </StudentAuthProvider>
-          </AuthProvider>
-        </ThemeProvider>
-      </ErrorBoundary>
-    );
+  return (
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <StudentAuthProvider>
+            <ToastProvider>
+              <Router>
+                <ScrollToTop />
+                <ScrollProgressBar />
+                <AppContent />
+              </Router>
+            </ToastProvider>
+          </StudentAuthProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
+  );
 };
 
 export default App;

@@ -201,6 +201,32 @@ const CustomAudioPlayer: React.FC<{ audioItem: GalleryItem }> = ({ audioItem }) 
   );
 };
 
+const LazyGalleryImage: React.FC<{ src: string; alt: string; className: string }> = ({ src, alt, className }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { rootMargin: '200px' }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="w-full h-full">
+      {isVisible ? (
+        <img src={src} alt={alt} className={className} loading="lazy" decoding="async" />
+      ) : (
+        <div className="w-full h-full bg-navy-dark/5" />
+      )}
+    </div>
+  );
+};
+
 export const GalleryGrid: React.FC = () => {
   const [photos, setPhotos] = useState<GalleryItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<GalleryItem[]>([]);
@@ -378,11 +404,10 @@ export const GalleryGrid: React.FC = () => {
                             className="w-full h-full object-cover group-hover:scale-102 transition-all duration-300"
                           />
                         ) : (
-                          <img
+                          <LazyGalleryImage
                             src={thumbnail}
                             alt={item.title}
                             className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-350"
-                            loading="lazy"
                           />
                         )}
 

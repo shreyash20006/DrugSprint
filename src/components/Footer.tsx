@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GraduationCap, MessageCircle, Heart, ChevronRight } from 'lucide-react';
+import { isMobile } from '../lib/device';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const [mobileMode, setMobileMode] = useState(false);
+
+  useEffect(() => {
+    setMobileMode(isMobile());
+  }, []);
 
   return (
     <footer id="footer" className="bg-[#060D1F] text-white pt-20 pb-0 relative overflow-hidden select-none border-t border-white/5">
@@ -11,28 +17,30 @@ export const Footer: React.FC = () => {
       <div className="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-orange-burnt via-gold-accent to-orange-burnt shadow-[0_0_10px_rgba(200,75,14,0.4)]" />
 
       {/* Decorative slowly rotating mini DNA helix */}
-      <div className="absolute -left-10 top-1/4 opacity-20 text-orange-burnt select-none pointer-events-none animate-[dnaRotate_20s_linear_infinite] hidden lg:block">
-        <svg width="120" height="120" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <style>{`
-            @keyframes dnaRotate {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-          <path d="M30,20 C40,40 60,60 70,80" />
-          <path d="M70,20 C60,40 40,60 30,80" />
-          <line x1="33" y1="26" x2="67" y2="26" stroke="currentColor" strokeDasharray="2,2" />
-          <line x1="38" y1="36" x2="62" y2="36" stroke="currentColor" strokeDasharray="2,2" />
-          <line x1="45" y1="46" x2="55" y2="46" stroke="currentColor" strokeDasharray="2,2" />
-          <line x1="45" y1="54" x2="55" y2="54" stroke="currentColor" strokeDasharray="2,2" />
-          <line x1="38" y1="64" x2="62" y2="64" stroke="currentColor" strokeDasharray="2,2" />
-          <line x1="33" y1="74" x2="67" y2="74" stroke="currentColor" strokeDasharray="2,2" />
-          <circle cx="30" cy="20" r="3.5" fill="currentColor" />
-          <circle cx="70" cy="20" r="3.5" fill="currentColor" />
-          <circle cx="70" cy="80" r="3.5" fill="currentColor" />
-          <circle cx="30" cy="80" r="3.5" fill="currentColor" />
-        </svg>
-      </div>
+      {!mobileMode && (
+        <div className="absolute -left-10 top-1/4 opacity-20 text-orange-burnt select-none pointer-events-none animate-[dnaRotate_20s_linear_infinite] hidden lg:block">
+          <svg width="120" height="120" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <style>{`
+              @keyframes dnaRotate {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+            `}</style>
+            <path d="M30,20 C40,40 60,60 70,80" />
+            <path d="M70,20 C60,40 40,60 30,80" />
+            <line x1="33" y1="26" x2="67" y2="26" stroke="currentColor" strokeDasharray="2,2" />
+            <line x1="38" y1="36" x2="62" y2="36" stroke="currentColor" strokeDasharray="2,2" />
+            <line x1="45" y1="46" x2="55" y2="46" stroke="currentColor" strokeDasharray="2,2" />
+            <line x1="45" y1="54" x2="55" y2="54" stroke="currentColor" strokeDasharray="2,2" />
+            <line x1="38" y1="64" x2="62" y2="64" stroke="currentColor" strokeDasharray="2,2" />
+            <line x1="33" y1="74" x2="67" y2="74" stroke="currentColor" strokeDasharray="2,2" />
+            <circle cx="30" cy="20" r="3.5" fill="currentColor" />
+            <circle cx="70" cy="20" r="3.5" fill="currentColor" />
+            <circle cx="70" cy="80" r="3.5" fill="currentColor" />
+            <circle cx="30" cy="80" r="3.5" fill="currentColor" />
+          </svg>
+        </div>
+      )}
 
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-burnt/5 rounded-full blur-[120px] pointer-events-none" />
 

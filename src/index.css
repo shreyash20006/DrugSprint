@@ -317,3 +317,64 @@ body,
 .glass-panel-dark {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
+
+/* ============================================
+   PERFORMANCE & 120FPS GPU ACCELERATION
+   ============================================ */
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.motion-element {
+  will-change: transform, opacity;
+  transform: translateZ(0); /* force GPU layer */
+}
+
+html {
+  scroll-behavior: auto; /* lenis handles this */
+}
+
+canvas {
+  display: block;
+}
+
+/* Force GPU layers on animated elements */
+.dna-canvas,
+.science-bg,
+.motion-card {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Reduce paint areas */
+.glassmorphism-card {
+  contain: layout style paint;
+}
+
+/* 120fps hint to browser */
+@media (min-resolution: 2dppx) {
+  .dna-canvas {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* ============================================
+   MOBILE PERFORMANCE CARD OVERRIDES (width < 768px)
+   ============================================ */
+@media (max-width: 767px) {
+  .bg-\[\#0D1B3E\]\/85,
+  .glass-panel,
+  .glow-card {
+    background: #0D1B3E !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(200, 75, 14, 0.3) !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    box-shadow: none !important;
+  }
+}
+

@@ -8,7 +8,7 @@ interface CouncilCardProps {
   member: CouncilMember;
 }
 
-export const CouncilCard: React.FC<CouncilCardProps> = ({ member }) => {
+export const CouncilCard: React.FC<CouncilCardProps> = React.memo(({ member }) => {
   const cardVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -39,6 +39,8 @@ export const CouncilCard: React.FC<CouncilCardProps> = ({ member }) => {
                 src={member.avatarUrl}
                 alt={member.name}
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
@@ -95,6 +97,6 @@ export const CouncilCard: React.FC<CouncilCardProps> = ({ member }) => {
       </Link>
     </motion.div>
   );
-};
+});
 
 export default CouncilCard;

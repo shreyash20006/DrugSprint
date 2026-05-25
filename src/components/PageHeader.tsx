@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { isMobile } from '../lib/device';
 
 interface PageHeaderProps {
   icon: React.ReactNode;
@@ -10,6 +11,45 @@ interface PageHeaderProps {
 }
 
 export const PageHeader: React.FC<PageHeaderProps> = ({ icon, title, subtitle, breadcrumb }) => {
+  const [mobileMode, setMobileMode] = useState(false);
+
+  useEffect(() => {
+    setMobileMode(isMobile());
+  }, []);
+
+  if (mobileMode) {
+    return (
+      <div className="relative w-full h-[160px] bg-[#0D1B3E] overflow-hidden flex items-center z-10 border-b border-white/5 pt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col justify-center h-full relative z-10 select-none">
+          {/* Breadcrumb Path */}
+          <div className="mb-2 flex items-center space-x-1.5 text-[10px] font-display font-bold uppercase tracking-wider text-orange-burnt">
+            <Link to="/" className="hover:text-white transition-colors">Home</Link>
+            <span className="opacity-40">/</span>
+            <span className="text-white/60 font-semibold">{breadcrumb || title}</span>
+          </div>
+
+          {/* Title & Icon Header */}
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-orange-burnt/10 flex items-center justify-center text-orange-burnt border border-orange-burnt/25 shrink-0">
+              {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: 'w-5 h-5' })}
+            </div>
+            <div>
+              <h1 className="font-display font-extrabold text-xl text-white uppercase tracking-wide leading-none">
+                {title}
+              </h1>
+              {subtitle && (
+                <p className="text-white/50 text-[10px] font-sans mt-1 max-w-[210px] truncate">
+                  {subtitle}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-orange-burnt via-gold-accent to-orange-burnt shadow-[0_0_8px_rgba(200,75,14,0.4)]" />
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-[210px] md:h-[280px] bg-[#0D1B3E] overflow-hidden flex items-center z-10 border-b border-white/5 pt-10 sm:pt-14 md:pt-16">
       {/* Decorative molecular vectors at background (opacity 0.06) */}
@@ -37,20 +77,15 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ icon, title, subtitle, b
         </svg>
       </div>
 
-      {/* Outer Glow Orb */}
       <div className="absolute bottom-0 right-1/3 w-[350px] h-[150px] bg-orange-burnt/10 rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Main Inner Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col justify-center h-full relative z-10">
-        
-        {/* Breadcrumb Path */}
         <div className="mb-3.5 sm:mb-4 flex items-center space-x-2 text-xs font-display font-bold uppercase tracking-wider text-orange-burnt">
           <Link to="/" className="hover:text-white transition-colors">Home</Link>
           <span className="opacity-40">/</span>
           <span className="text-white/60 font-semibold">{breadcrumb || title}</span>
         </div>
 
-        {/* Title & Icon Header row */}
         <div className="flex items-center space-x-3.5 sm:space-x-5">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-orange-burnt/10 flex items-center justify-center text-orange-burnt border border-orange-burnt/25 shadow-xl shrink-0">
             {icon}
@@ -71,10 +106,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ icon, title, subtitle, b
             )}
           </div>
         </div>
-
       </div>
 
-      {/* bottom 2px Orange Gradient bar strip */}
       <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-orange-burnt via-gold-accent to-orange-burnt shadow-[0_0_10px_rgba(200,75,14,0.4)]" />
     </div>
   );

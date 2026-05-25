@@ -35,8 +35,12 @@ export const Events: React.FC = () => {
   }, []);
 
   // Split database events
-  const timelineEvents = events.filter((e) => e.type === 'event');
-  const competitions = events.filter((e) => e.type === 'competition');
+  const timelineEvents = React.useMemo(() => events.filter((e) => e.type === 'event'), [events]);
+  const competitions = React.useMemo(() => events.filter((e) => e.type === 'competition'), [events]);
+
+  const handleTabChange = React.useCallback((tab: 'events' | 'competitions') => {
+    setActiveTab(tab);
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-[#050B18] overflow-hidden pb-24">
@@ -60,7 +64,7 @@ export const Events: React.FC = () => {
         <div className="flex items-center justify-center mb-16">
           <div className="bg-white/5 p-1.5 rounded-2xl flex space-x-1.5 border border-white/5 backdrop-blur-xl relative">
             <button
-              onClick={() => setActiveTab('events')}
+              onClick={() => handleTabChange('events')}
               className={`flex items-center space-x-2 px-6 py-3.5 rounded-xl font-display text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 relative z-10 ${
                 activeTab === 'events' ? 'text-white' : 'text-white/60 hover:text-white'
               }`}
@@ -76,7 +80,7 @@ export const Events: React.FC = () => {
               )}
             </button>
             <button
-              onClick={() => setActiveTab('competitions')}
+              onClick={() => handleTabChange('competitions')}
               className={`flex items-center space-x-2 px-6 py-3.5 rounded-xl font-display text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 relative z-10 ${
                 activeTab === 'competitions' ? 'text-white' : 'text-white/60 hover:text-white'
               }`}
