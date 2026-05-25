@@ -6,6 +6,16 @@ import { ArrowRight, HelpCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { isMobile } from '../lib/device';
 
+const isVideoUrl = (url: string | null): boolean => {
+  if (!url) return false;
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.m4v'];
+  const lowerUrl = url.toLowerCase();
+  return (
+    videoExtensions.some(ext => lowerUrl.endsWith(ext)) ||
+    lowerUrl.includes('/video/upload/') ||
+    (lowerUrl.includes('res.cloudinary.com/') && lowerUrl.includes('/video/'))
+  );
+};
 
 export const DNAHero: React.FC = () => {
 
@@ -42,12 +52,23 @@ export const DNAHero: React.FC = () => {
   if (mobileMode) {
     return (
       <section className="relative w-full h-screen flex items-center justify-center overflow-hidden z-10">
-        <div 
-          className="absolute inset-0 bg-cover bg-center select-none"
-          style={bannerUrl ? {
-            backgroundImage: `url(${bannerUrl})` 
-          } : undefined}
-        />
+        {isVideoUrl(bannerUrl) ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
+            src={bannerUrl || undefined}
+          />
+        ) : (
+          <div 
+            className="absolute inset-0 bg-cover bg-center select-none"
+            style={bannerUrl ? {
+              backgroundImage: `url(${bannerUrl})` 
+            } : undefined}
+          />
+        )}
         <div className="absolute inset-0 bg-[#0D1B3E] opacity-70 z-0 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-br from-[#0D1B3E] via-[#1a2a5e] to-[#0D1B3E] opacity-85 z-0 pointer-events-none" />
 
@@ -105,12 +126,23 @@ export const DNAHero: React.FC = () => {
     <section className="relative w-full h-screen flex items-center justify-center overflow-hidden z-10">
       
       {/* College Photo Base background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center z-0 pointer-events-none select-none"
-        style={bannerUrl ? {
-          backgroundImage: `url(${bannerUrl})` 
-        } : undefined}
-      />
+      {isVideoUrl(bannerUrl) ? (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
+          src={bannerUrl || undefined}
+        />
+      ) : (
+        <div 
+          className="absolute inset-0 bg-cover bg-center z-0 pointer-events-none select-none"
+          style={bannerUrl ? {
+            backgroundImage: `url(${bannerUrl})` 
+          } : undefined}
+        />
+      )}
 
       <div className="absolute inset-0 bg-[#0D1B3E] opacity-60 z-0 pointer-events-none" />
 
