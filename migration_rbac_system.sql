@@ -81,6 +81,12 @@ RETURNS trigger AS $$
 DECLARE
   updater_role TEXT;
 BEGIN
+  -- If executed via backend/SQL Editor/Service Role (where auth.uid() is null), bypass the security check
+  IF auth.uid() IS NULL THEN
+    NEW.updated_at = now();
+    RETURN NEW;
+  END IF;
+
   -- Fetch updater's role
   updater_role := public.get_my_role();
 
