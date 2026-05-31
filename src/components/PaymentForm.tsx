@@ -7,7 +7,7 @@ import { DNALoader } from './DNALoader';
 import { useToast } from './admin/Toast';
 import { Lock, CreditCard, ChevronDown } from 'lucide-react';
 
-const PURPOSES = [
+const FALLBACK_PURPOSES = [
   { name: 'NSS Fee', defaultAmount: 20 },
   { name: 'DBATU Registration', defaultAmount: 10 },
   { name: 'MSBTE Registration', defaultAmount: 10 },
@@ -37,11 +37,45 @@ export const PaymentForm: React.FC = () => {
   const [studentEmail, setStudentEmail] = useState('');
   const [studentPhone, setStudentPhone] = useState('');
   const [studentYear, setStudentYear] = useState(YEARS[0]);
-  const [purpose, setPurpose] = useState(PURPOSES[0].name);
-  const [amount, setAmount] = useState<number>(PURPOSES[0].defaultAmount);
+  const [purposesList, setPurposesList] = useState<any[]>(FALLBACK_PURPOSES);
+  const [purpose, setPurpose] = useState(FALLBACK_PURPOSES[0].name);
+  const [amount, setAmount] = useState<number>(FALLBACK_PURPOSES[0].defaultAmount);
   
   const [isLocked, setIsLocked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load predefined purposes from Supabase with fallback
+  useEffect(() => {
+    const loadDynamicPurposes = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('payment_purposes')
+          .select('name, amount')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        if (data && data.length > 0) {
+          const mapped = data.map((item: any) => ({
+            name: item.name,
+            defaultAmount: item.amount
+          }));
+          mapped.push({ name: 'Custom (Other Payments)', defaultAmount: 10 });
+          setPurposesList(mapped);
+
+          // Update initial purpose and amount if URL is empty
+          const urlPurpose = searchParams.get('purpose');
+          const urlAmount = searchParams.get('amount');
+          if (!urlPurpose && !urlAmount) {
+            setPurpose(mapped[0].name);
+            setAmount(mapped[0].defaultAmount);
+          }
+        }
+      } catch (err) {
+        console.warn('Using payment purposes hardcoded fallback:', err);
+      }
+    };
+    loadDynamicPurposes();
+  }, [searchParams]);
 
   // Prefill from URL query parameters if present
   useEffect(() => {
@@ -50,7 +84,7 @@ export const PaymentForm: React.FC = () => {
 
     if (urlPurpose) {
       // Find matching standard purpose or set custom
-      const matched = PURPOSES.find(p => p.name.toLowerCase() === urlPurpose.toLowerCase());
+      const matched = purposesList.find(p => p.name.toLowerCase() === urlPurpose.toLowerCase());
       if (matched) {
         setPurpose(matched.name);
       } else {
@@ -66,11 +100,11 @@ export const PaymentForm: React.FC = () => {
       }
       setIsLocked(true);
     }
-  }, [searchParams]);
+  }, [searchParams, purposesList]);
 
   const handlePurposeChange = (selectedPurpose: string) => {
     setPurpose(selectedPurpose);
-    const matched = PURPOSES.find(p => p.name === selectedPurpose);
+    const matched = purposesList.find(p => p.name === selectedPurpose);
     if (matched && selectedPurpose !== 'Custom (Other Payments)') {
       setAmount(matched.defaultAmount);
     }
@@ -252,7 +286,7 @@ export const PaymentForm: React.FC = () => {
               onChange={(e) => handlePurposeChange(e.target.value)}
               className="w-full bg-[#070F25]/90 border border-white/15 rounded-xl px-4 py-3 text-sm font-sans focus:outline-none focus:border-orange-burnt appearance-none cursor-pointer disabled:opacity-65"
             >
-              {PURPOSES.map((p) => (
+              {purposesList.map((p) => (
                 <option key={p.name} value={p.name} className="bg-[#070F25]">
                   {p.name} {p.name !== 'Custom (Other Payments)' ? `— ₹${p.defaultAmount}` : ''}
                 </option>

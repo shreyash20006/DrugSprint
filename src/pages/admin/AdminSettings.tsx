@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../components/admin/ProtectedRoute';
+import QRCode from 'react-qr-code';
 import { useToast } from '../../components/admin/Toast';
 import { logActivity } from '../../lib/logs';
-import { Sliders, Upload, ImageIcon, Loader2, Check, RotateCcw, ExternalLink, Sun, Megaphone } from 'lucide-react';
+import { Sliders, Upload, ImageIcon, Loader2, Check, RotateCcw, ExternalLink, Sun, Megaphone, QrCode, Copy, CreditCard, Trash2 } from 'lucide-react';
 
 const isVideoUrl = (url: string): boolean => {
   if (!url) return false;
@@ -53,6 +54,76 @@ export const AdminSettings: React.FC = () => {
   const faviconImgRef = useRef<HTMLImageElement>(null);
   const profileImgRef = useRef<HTMLImageElement>(null);
 
+  // Payment Purposes State
+  const [purposes, setPurposes] = useState<any[]>([]);
+  const [purposesLoading, setPurposesLoading] = useState(true);
+  const [isPurposesModalOpen, setIsPurposesModalOpen] = useState(false);
+  const [newPurposeName, setNewPurposeName] = useState('');
+  const [newPurposeAmount, setNewPurposeAmount] = useState<number>(10);
+  const [isSavingPurpose, setIsSavingPurpose] = useState(false);
+  const [sharePurpose, setSharePurpose] = useState<any | null>(null);
+  const [copiedPurposeId, setCopiedPurposeId] = useState<string | null>(null);
+
+  const fetchPurposes = async () => {
+    setPurposesLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('payment_purposes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPurposes(data || []);
+    } catch (err: any) {
+      console.warn('Payment purposes table not ready or empty:', err.message);
+    } finally {
+      setPurposesLoading(false);
+    }
+  };
+
+  const handleAddPurpose = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPurposeName.trim()) return;
+
+    setIsSavingPurpose(true);
+    try {
+      const { error } = await supabase
+        .from('payment_purposes')
+        .insert({
+          name: newPurposeName,
+          amount: newPurposeAmount
+        });
+
+      if (error) throw error;
+      toast.success('✅ Predefined purpose added!');
+      setNewPurposeName('');
+      setNewPurposeAmount(10);
+      setIsPurposesModalOpen(false);
+      fetchPurposes();
+    } catch (err: any) {
+      toast.error('❌ Action failed: ' + err.message);
+    } finally {
+      setIsSavingPurpose(false);
+    }
+  };
+
+  const handleDeletePurpose = async (id: string) => {
+    if (!window.confirm('Delete this predefined payment purpose? This will not affect existing payments.')) return;
+
+    try {
+      const { error } = await supabase
+        .from('payment_purposes')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('✅ Predefined purpose deleted!');
+      fetchPurposes();
+    } catch (err: any) {
+      toast.error('❌ Action failed: ' + err.message);
+    }
+  };
+
   const fetchSettings = async () => {
     setIsLoading(true);
     try {
@@ -97,7 +168,10 @@ export const AdminSettings: React.FC = () => {
     }
   };
 
-  useEffect(() => { fetchSettings(); }, []);
+  useEffect(() => { 
+    fetchSettings(); 
+    fetchPurposes();
+  }, []);
 
   const validateUrl = (url: string): boolean => {
     if (!url) return true; // Allow empty (uses fallback)
@@ -792,6 +866,200 @@ export const AdminSettings: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* ── Payment Purposes Manager ────────────────────────────────────── */}
+      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs p-6 space-y-5 select-none">
+        <div className="flex items-center justify-between pb-3 border-b border-navy-dark/5">
+          <div className="flex items-center space-x-2">
+            <CreditCard className="w-4 h-4 text-orange-burnt" />
+            <h4 className="font-display font-bold text-sm text-navy-dark">💳 Predefined Payment Purposes</h4>
+          </div>
+          <button
+            onClick={() => setIsPurposesModalOpen(true)}
+            className="px-3.5 py-1.5 bg-[#0D1B3E] hover:bg-orange-burnt text-white rounded-lg font-display text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+          >
+            ➕ Add New Purpose
+          </button>
+        </div>
+
+        {purposesLoading ? (
+          <div className="py-8 text-center text-navy-dark/40 text-xs">
+            <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-orange-burnt" />
+            <span>Loading active purposes...</span>
+          </div>
+        ) : purposes.length === 0 ? (
+          <div className="py-8 text-center text-navy-dark/30 text-xs italic">
+            No predefined payment purposes configured. Predefined purposes will sync instantly with student Pay page.
+          </div>
+        ) : (
+          <div className="overflow-x-auto border border-navy-dark/10 rounded-xl overflow-hidden">
+            <table className="w-full text-xs">
+              <thead className="bg-navy-dark/[0.02] text-navy-dark/50 font-bold uppercase tracking-wider text-[9px] border-b border-navy-dark/5">
+                <tr>
+                  <th className="text-left px-4 py-2.5">Purpose Name</th>
+                  <th className="text-left px-4 py-2.5">Amount</th>
+                  <th className="text-right px-4 py-2.5">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-navy-dark/5 text-navy-dark/85">
+                {purposes.map((p) => {
+                  const shareUrl = `${window.location.origin}/pay?purpose=${encodeURIComponent(p.name)}&amount=${p.amount}`;
+                  const isCopied = copiedPurposeId === p.id;
+
+                  const handleCopy = () => {
+                    navigator.clipboard.writeText(shareUrl);
+                    setCopiedPurposeId(p.id);
+                    toast.success('📋 Direct link copied!');
+                    setTimeout(() => setCopiedPurposeId(null), 2000);
+                  };
+
+                  return (
+                    <tr key={p.id} className="hover:bg-orange-burnt/[0.01]">
+                      <td className="px-4 py-2.5 font-semibold">{p.name}</td>
+                      <td className="px-4 py-2.5 font-bold text-orange-burnt">₹{p.amount}</td>
+                      <td className="px-4 py-2.5 text-right space-x-1.5 shrink-0">
+                        {/* Copy Link */}
+                        <button
+                          onClick={handleCopy}
+                          title="Copy Direct Payment Link"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-navy-dark/10 hover:border-orange-burnt hover:bg-orange-burnt/5 text-navy-dark/50 hover:text-orange-burnt transition-colors cursor-pointer"
+                        >
+                          {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                        {/* QR Code */}
+                        <button
+                          onClick={() => setSharePurpose(p)}
+                          title="View QR Code Scanner"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-navy-dark/10 hover:border-orange-burnt hover:bg-orange-burnt/5 text-navy-dark/50 hover:text-orange-burnt transition-colors cursor-pointer"
+                        >
+                          <QrCode className="w-3.5 h-3.5" />
+                        </button>
+                        {/* Delete */}
+                        <button
+                          onClick={() => handleDeletePurpose(p.id)}
+                          title="Delete Purpose"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-red-500/10 hover:border-red-500 hover:bg-red-500/5 text-red-500/55 hover:text-red-500 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Add Purpose Modal */}
+      {isPurposesModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div onClick={() => setIsPurposesModalOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-fade-in" />
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 border border-navy-dark/10 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="font-display font-extrabold text-sm text-navy-dark border-b border-navy-dark/10 pb-2 mb-4 uppercase tracking-wide flex items-center space-x-2">
+              <CreditCard className="w-4 h-4 text-orange-burnt" />
+              <span>Add Predefined Purpose</span>
+            </h3>
+            <form onSubmit={handleAddPurpose} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/50 mb-1">Purpose Name*</label>
+                <input
+                  type="text"
+                  value={newPurposeName}
+                  onChange={(e) => setNewPurposeName(e.target.value)}
+                  placeholder="e.g. Pharma Quiz 2026"
+                  className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs font-sans text-navy-dark"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/50 mb-1">Amount (INR)*</label>
+                <input
+                  type="number"
+                  value={newPurposeAmount}
+                  onChange={(e) => setNewPurposeAmount(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                  placeholder="e.g. 50"
+                  className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs font-sans text-navy-dark"
+                  required
+                  min="0"
+                />
+              </div>
+              <div className="flex space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPurposesModalOpen(false)}
+                  className="flex-1 py-2 text-xs font-display font-bold border border-navy-dark/15 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingPurpose}
+                  className="flex-1 py-2 bg-orange-burnt hover:bg-orange-burnt/95 text-white font-display text-xs font-bold rounded-lg cursor-pointer transition-colors flex items-center justify-center space-x-1"
+                >
+                  {isSavingPurpose ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>Save Purpose</span>}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Share Purposes QR Code Modal */}
+      {sharePurpose && (() => {
+        const generatedUrl = `${window.location.origin}/pay?purpose=${encodeURIComponent(sharePurpose.name)}&amount=${sharePurpose.amount}`;
+        const handleCopyLink = () => {
+          navigator.clipboard.writeText(generatedUrl);
+          toast.success('📋 Payment link copied to clipboard!');
+        };
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div onClick={() => setSharePurpose(null)} className="fixed inset-0 bg-black/60 backdrop-blur-xs" />
+            <div className="bg-white rounded-2xl max-w-sm w-full p-6 border border-navy-dark/10 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200 text-navy-dark">
+              <h3 className="font-display font-extrabold text-sm text-navy-dark border-b border-navy-dark/10 pb-2 mb-4 uppercase tracking-wide flex items-center space-x-2">
+                <QrCode className="w-4 h-4 text-orange-burnt" />
+                <span>Predefined QR Code</span>
+              </h3>
+              <div className="space-y-4">
+                <div className="text-center font-display font-bold text-xs text-navy-dark leading-snug">
+                  {sharePurpose.name} — <span className="text-orange-burnt font-extrabold">₹{sharePurpose.amount}</span>
+                </div>
+                <div className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-navy-dark/5 rounded-xl space-y-2">
+                  <div className="p-2 bg-white border border-navy-dark/10 rounded-lg shadow-sm">
+                    <QRCode value={generatedUrl} size={140} />
+                  </div>
+                  <span className="text-[9px] text-navy-dark/40 font-semibold uppercase tracking-wider">
+                    Scan to pay on mobile device
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={generatedUrl}
+                    readOnly
+                    className="flex-1 px-2.5 py-1.5 rounded-lg border border-navy-dark/10 bg-gray-50 text-[10px] font-mono select-all focus:outline-none text-navy-dark"
+                  />
+                  <button
+                    onClick={handleCopyLink}
+                    className="px-3 py-1.5 rounded-lg bg-navy-dark hover:bg-orange-burnt text-white font-display text-[10px] font-bold transition-all cursor-pointer flex items-center space-x-1 shrink-0"
+                  >
+                    <Copy className="w-3 h-3" />
+                    <span>Copy</span>
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={() => setSharePurpose(null)}
+                className="mt-5 w-full py-2 border border-navy-dark/15 hover:bg-navy-dark hover:text-white rounded-lg font-display text-xs font-bold transition-colors uppercase tracking-widest cursor-pointer"
+              >
+                Close QR Box
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );
