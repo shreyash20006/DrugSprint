@@ -95,7 +95,8 @@ export const Footer: React.FC = () => {
                 { name: '🗳️ Live Voting', path: '/vote' },
                 { name: '🤝 Mentorship', path: '/mentors' },
                 { name: '📰 Newsletters', path: '/newsletter' },
-                { name: '📚 Study Store', path: '/store' }
+                { name: '📚 Study Store', path: '/store' },
+                { name: '💳 Pay Fees', path: '/pay' }
               ].map((link) => (
                 <li key={link.path}>
                   <Link 

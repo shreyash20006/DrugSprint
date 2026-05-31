@@ -25,7 +25,8 @@ import {
   Newspaper,
   HeartHandshake,
   AlertTriangle,
-  Wrench
+  Wrench,
+  CreditCard
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -125,6 +126,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       path: '/admin/mentors',
       name: 'Mentorship',
       icon: <HeartHandshake className="w-5 h-5" />,
+    },
+    {
+      path: '/admin/payments',
+      name: 'Payments',
+      icon: <CreditCard className="w-5 h-5" />,
     },
   ];
 

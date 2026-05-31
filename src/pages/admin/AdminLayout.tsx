@@ -12,6 +12,8 @@ export const AdminLayout: React.FC = () => {
 
   const getPageTitle = (path: string) => {
     switch (path) {
+      case '/admin/payments':
+        return 'Payments & Collections Ledger';
       case '/admin/questions':
         return 'Student Questions';
       case '/admin/notices':

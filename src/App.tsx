@@ -34,10 +34,13 @@ const MyCalendar = lazy(() => import('./pages/MyCalendar'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const MessageBoard = lazy(() => import('./pages/MessageBoard'));
 const Store = lazy(() => import('./pages/Store'));
+const Pay = lazy(() => import('./pages/Pay'));
+const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 
 // Lazy load all admin pages
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminPayments = lazy(() => import('./pages/admin/AdminPayments'));
 const AdminQuestions = lazy(() => import('./pages/admin/AdminQuestions'));
 const AdminNotices = lazy(() => import('./pages/admin/AdminNotices'));
 const AdminEvents = lazy(() => import('./pages/admin/AdminEvents'));
@@ -103,6 +106,8 @@ const AppContent: React.FC = () => {
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/board" element={<MessageBoard />} />
             <Route path="/store" element={<Store />} />
+            <Route path="/pay" element={<Pay />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
 
             {/* Secure Admin Routes */}
             <Route path="/admin" element={<AdminLogin />} />
@@ -115,6 +120,7 @@ const AppContent: React.FC = () => {
               }
             >
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/payments" element={<AdminPayments />} />
               <Route path="/admin/questions" element={<AdminQuestions />} />
               <Route path="/admin/notices" element={<AdminNotices />} />
               <Route path="/admin/events" element={<AdminEvents />} />

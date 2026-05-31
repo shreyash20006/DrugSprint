@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { DataTable } from '../../components/admin/DataTable';
 import { EventModal } from '../../components/admin/EventModal';
 import { useToast } from '../../components/admin/Toast';
+import QRCode from 'react-qr-code';
 import { 
   Plus, 
   Trash2, 
@@ -10,7 +11,10 @@ import {
   CalendarDays, 
   Award, 
   ExternalLink,
-  AlertCircle 
+  AlertCircle,
+  QrCode,
+  Copy,
+  Check
 } from 'lucide-react';
 
 /* ========================================================
@@ -20,7 +24,8 @@ const EventCardMobile: React.FC<{
   eventItem: any; 
   onEdit: (e: any) => void; 
   onDelete: (id: string) => void;
-}> = ({ eventItem, onEdit, onDelete }) => {
+  onSharePayment: (e: any) => void;
+}> = ({ eventItem, onEdit, onDelete, onSharePayment }) => {
   const getTypeBadgeColor = (type: string) => {
     switch (type?.toLowerCase()) {
       case 'competition':
@@ -97,13 +102,20 @@ const EventCardMobile: React.FC<{
       </div>
 
       {/* Card CRUD controls */}
-      <div className="flex items-center gap-2 pt-2 border-t border-navy-dark/5">
+      <div className="flex items-center gap-2 pt-2 border-t border-navy-dark/5 flex-wrap">
+        <button
+          onClick={() => onSharePayment(eventItem)}
+          className="inline-flex items-center justify-center space-x-1 py-1.5 px-2.5 rounded-lg bg-orange-burnt/5 text-orange-burnt hover:bg-orange-burnt hover:text-white text-xs font-semibold transition-colors flex-grow"
+        >
+          <QrCode className="w-3.5 h-3.5" />
+          <span>Share QR</span>
+        </button>
         <button
           onClick={() => onEdit(eventItem)}
-          className="flex-grow inline-flex items-center justify-center space-x-1.5 py-1.5 px-3 rounded-lg bg-navy-dark/5 text-navy-dark hover:bg-navy-dark hover:text-white text-xs font-semibold transition-colors"
+          className="inline-flex items-center justify-center space-x-1 py-1.5 px-2.5 rounded-lg bg-navy-dark/5 text-navy-dark hover:bg-navy-dark hover:text-white text-xs font-semibold transition-colors flex-grow"
         >
           <Edit className="w-3.5 h-3.5" />
-          <span>Edit Details</span>
+          <span>Edit</span>
         </button>
         <button
           onClick={() => onDelete(eventItem.id)}
@@ -127,6 +139,12 @@ export const AdminEvents: React.FC = () => {
   // Modal Control
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventToEdit, setEventToEdit] = useState<any>(null);
+
+  // Share Payment State
+  const [sharePaymentEvent, setSharePaymentEvent] = useState<any | null>(null);
+  const [paymentPurpose, setPaymentPurpose] = useState('');
+  const [paymentAmount, setPaymentAmount] = useState<number>(50);
+  const [copied, setCopied] = useState(false);
 
   const fetchEvents = async () => {
     setIsLoading(true);
@@ -339,15 +357,26 @@ export const AdminEvents: React.FC = () => {
               {/* Action column */}
               <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-semibold space-x-2">
                 <button
+                  onClick={() => {
+                    setSharePaymentEvent(item);
+                    setPaymentPurpose(item.name);
+                    setPaymentAmount(50);
+                  }}
+                  className="inline-flex items-center space-x-1 py-1.5 px-3 rounded-lg bg-orange-burnt/5 text-orange-burnt hover:bg-orange-burnt hover:text-white transition-colors cursor-pointer"
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>Share QR</span>
+                </button>
+                <button
                   onClick={() => handleEdit(item)}
-                  className="inline-flex items-center space-x-1 py-1.5 px-3 rounded-lg bg-navy-dark/5 text-navy-dark hover:bg-navy-dark hover:text-white transition-colors"
+                  className="inline-flex items-center space-x-1 py-1.5 px-3 rounded-lg bg-navy-dark/5 text-navy-dark hover:bg-navy-dark hover:text-white transition-colors cursor-pointer"
                 >
                   <Edit className="w-3.5 h-3.5" />
                   <span>Edit</span>
                 </button>
                 <button
                   onClick={() => handleDelete(item.id)}
-                  className="inline-flex items-center p-1.5 rounded-lg text-navy-dark/40 hover:bg-red-50 hover:text-red-600 transition-colors"
+                  className="inline-flex items-center p-1.5 rounded-lg text-navy-dark/40 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -361,6 +390,11 @@ export const AdminEvents: React.FC = () => {
             eventItem={item}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onSharePayment={(ev) => {
+              setSharePaymentEvent(ev);
+              setPaymentPurpose(ev.name);
+              setPaymentAmount(50);
+            }}
           />
         )}
       />
@@ -372,6 +406,105 @@ export const AdminEvents: React.FC = () => {
         onRefresh={fetchEvents}
         eventToEdit={eventToEdit}
       />
+
+      {/* Shareable QR Code Link Modal */}
+      {sharePaymentEvent && (() => {
+        const generatedUrl = `${window.location.origin}/pay?purpose=${encodeURIComponent(paymentPurpose)}&amount=${paymentAmount}`;
+        
+        const handleCopyLink = () => {
+          navigator.clipboard.writeText(generatedUrl);
+          setCopied(true);
+          toast.success('📋 Payment link copied to clipboard!');
+          setTimeout(() => setCopied(false), 2000);
+        };
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none">
+            {/* Backdrop */}
+            <div 
+              onClick={() => setSharePaymentEvent(null)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
+            />
+
+            {/* Modal Box */}
+            <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6 sm:p-8 relative border border-navy-dark/10 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200 text-navy-dark">
+              <h3 className="font-display font-extrabold text-lg text-navy-dark border-b border-navy-dark/10 pb-3 mb-5 uppercase tracking-wide flex items-center space-x-2">
+                <QrCode className="w-5 h-5 text-orange-burnt" />
+                <span>Generate Payment Link</span>
+              </h3>
+
+              <div className="space-y-4">
+                {/* Event Name */}
+                <div>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-1">Source Event</span>
+                  <span className="font-semibold text-navy-dark block leading-snug">{sharePaymentEvent.name}</span>
+                </div>
+
+                {/* Purpose Field */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-1.5">Payment Purpose*</label>
+                  <input
+                    type="text"
+                    value={paymentPurpose}
+                    onChange={(e) => setPaymentPurpose(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-sm font-sans"
+                    required
+                  />
+                </div>
+
+                {/* Amount Field */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-1.5">Ticket Amount (INR)*</label>
+                  <input
+                    type="number"
+                    value={paymentAmount}
+                    onChange={(e) => setPaymentAmount(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                    className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-sm font-sans"
+                    required
+                    min="0"
+                  />
+                </div>
+
+                <hr className="border-navy-dark/10 my-4" />
+
+                {/* QR Code display */}
+                <div className="flex flex-col items-center justify-center space-y-3 bg-gray-50 p-4 rounded-xl border border-navy-dark/5">
+                  <div className="p-2.5 bg-white rounded-lg border border-navy-dark/10 shadow-sm flex items-center justify-center">
+                    <QRCode value={generatedUrl} size={150} />
+                  </div>
+                  <span className="text-[10px] text-navy-dark/40 font-semibold uppercase tracking-wider">
+                    Scan with WhatsApp or UPI camera
+                  </span>
+                </div>
+
+                {/* Share Link Box */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={generatedUrl}
+                    readOnly
+                    className="flex-1 px-3 py-2 rounded-lg border border-navy-dark/10 bg-gray-50 text-xs font-mono select-all focus:outline-none"
+                  />
+                  <button
+                    onClick={handleCopyLink}
+                    className="px-3.5 py-2 rounded-lg bg-navy-dark hover:bg-orange-burnt text-white font-display text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer shrink-0"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copied ? 'Copied' : 'Copy'}</span>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSharePaymentEvent(null)}
+                className="mt-6 w-full py-2.5 rounded-xl border border-navy-dark/15 hover:bg-navy-dark hover:text-white text-navy-dark font-display text-xs font-bold transition-all uppercase tracking-widest cursor-pointer"
+              >
+                Close Panel
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );
