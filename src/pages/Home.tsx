@@ -117,7 +117,7 @@ export const Home: React.FC = () => {
           .from('events')
           .select('*')
           .eq('is_active', true)
-          .order('date', { ascending: true })
+          .order('deadline', { ascending: true })
           .limit(3);
         setUpcomingEvents(events || []);
 
@@ -676,7 +676,7 @@ export const Home: React.FC = () => {
                       <div className="space-y-2.5 text-xs text-white/60 font-sans">
                         <div className="flex items-center space-x-2">
                           <CalendarDays className="w-4 h-4 text-orange-burnt shrink-0" />
-                          <span>{new Date(event.date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+                          <span>{event.deadline ? new Date(event.deadline).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }) : 'TBA'}</span>
                         </div>
                         {event.time && (
                           <div className="flex items-center space-x-2">

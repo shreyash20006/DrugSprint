@@ -68,7 +68,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       const pattern = `%${q}%`;
       const [noticesRes, eventsRes, achievementsRes, membersRes] = await Promise.all([
         supabase.from('notices').select('id,title,category').ilike('title', pattern).limit(4),
-        supabase.from('events').select('id,name,type,date').ilike('name', pattern).limit(4),
+        supabase.from('events').select('id,name,type,deadline').ilike('name', pattern).limit(4),
         supabase.from('achievements').select('id,student_name,title,category').ilike('student_name', pattern).limit(3),
         supabase.from('council_members').select('id,name,role').ilike('name', pattern).limit(3),
       ]);
@@ -81,7 +81,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
         ...(eventsRes.data || []).map((e: any) => ({
           id: e.id, type: 'event' as const,
           title: e.name,
-          subtitle: e.date ? new Date(e.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '',
+          subtitle: e.deadline ? new Date(e.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '',
           badge: e.type, path: '/events',
         })),
         ...(achievementsRes.data || []).map((a: any) => ({
