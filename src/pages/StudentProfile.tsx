@@ -119,14 +119,34 @@ export const StudentProfile: React.FC = () => {
           setAskedQuestions(quests);
         }
 
-        // 4. Fetch payment history by email
-        const { data: pays } = await supabase
+        // 4. Fetch payment history — by student_email OR user_id (auth)
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        
+        // Build OR filter: match by email (case-insensitive) or user_id
+        let payQuery = supabase
           .from('payments')
           .select('*')
-          .eq('student_email', studentProfile.email)
           .order('created_at', { ascending: false });
 
-        setMyPayments(pays || []);
+        if (authUser?.id && authUser?.email) {
+          // Match by email (primary) or by linked user_id
+          payQuery = payQuery.or(
+            `student_email.ilike.${authUser.email},user_id.eq.${authUser.id}`
+          );
+        } else if (studentProfile.email) {
+          payQuery = payQuery.ilike('student_email', studentProfile.email);
+        }
+
+        const { data: pays, error: paysErr } = await payQuery;
+        if (paysErr) {
+          console.error('Payment fetch error:', paysErr.message, paysErr.code);
+        }
+        // Deduplicate by id (in case or filter returns duplicates)
+        const unique = pays
+          ? pays.filter((p, i, arr) => arr.findIndex(x => x.id === p.id) === i)
+          : [];
+        setMyPayments(unique);
+
       } catch (err: any) {
         console.error('Error loading student profile data:', err.message);
       } finally {
