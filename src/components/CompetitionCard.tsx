@@ -7,6 +7,95 @@ interface CompetitionCardProps {
   competition: any;
 }
 
+const renderFormattedDescription = (text: string) => {
+  if (!text) return null;
+
+  const lines = text.split(/\n/);
+
+  const renderTextWithBold = (str: string) => {
+    const parts = str.split(/\*\*([^*]+)\*\*/g);
+    return parts.map((part, partIdx) => {
+      if (partIdx % 2 === 1) {
+        return (
+          <strong key={partIdx} className="font-extrabold text-[#FFA500] drop-shadow-[0_0_6px_rgba(255,165,0,0.25)]">
+            {part}
+          </strong>
+        );
+      }
+      return part;
+    });
+  };
+
+  return (
+    <div className="space-y-2 text-white/80 text-left">
+      {lines.map((line, lineIdx) => {
+        let trimmed = line.trim();
+        if (!trimmed) return <div key={lineIdx} className="h-1.5" />;
+
+        // 1. Numbered or standard bullet items (e.g. "1. ", "- ", "• ")
+        const bulletMatch = trimmed.match(/^(\d+\.|-|•|\*)\s*(.*)/);
+        if (bulletMatch) {
+          const [, bullet, content] = bulletMatch;
+          return (
+            <div key={lineIdx} className="flex items-start space-x-2 pl-1 my-1.5">
+              <span className="text-orange-burnt font-extrabold shrink-0 select-none text-xs sm:text-sm mt-0.5">{bullet}</span>
+              <span className="text-xs sm:text-sm leading-relaxed font-sans">{renderTextWithBold(content)}</span>
+            </div>
+          );
+        }
+
+        // 2. Inline lists written horizontally (e.g. "1.Item A 2.Item B...")
+        const inlineListRegex = /(\d+\.[\s\S]*?)(?=\d+\.|$)/g;
+        const inlineMatches = trimmed.match(inlineListRegex);
+        if (inlineMatches && inlineMatches.length > 1) {
+          return (
+            <div key={lineIdx} className="space-y-1.5 my-2 pl-1">
+              {inlineMatches.map((item, itemIdx) => {
+                const itemMatch = item.trim().match(/^(\d+\.)\s*(.*)/);
+                if (itemMatch) {
+                  const [, num, content] = itemMatch;
+                  return (
+                    <div key={itemIdx} className="flex items-start space-x-2">
+                      <span className="text-orange-burnt font-extrabold shrink-0 select-none text-xs sm:text-sm mt-0.5">{num}</span>
+                      <span className="text-xs sm:text-sm leading-relaxed font-sans">{renderTextWithBold(content)}</span>
+                    </div>
+                  );
+                }
+                return (
+                  <p key={itemIdx} className="text-xs sm:text-sm leading-relaxed font-sans pl-3 text-white/70">
+                    {renderTextWithBold(item)}
+                  </p>
+                );
+              })}
+            </div>
+          );
+        }
+
+        // 3. Style specific visual labels (e.g. "Theme:", "Venue:")
+        const metaFieldMatch = trimmed.match(/^([A-Za-z\s|&]+:)\s*(.*)/);
+        if (metaFieldMatch) {
+          const [, label, content] = metaFieldMatch;
+          const importantLabels = ['venue:', 'theme:', 'date:', 'time:', 'dates:', 'key highlights:', 'important dates:', 'note:', 'registration fees:', 'who can attend:'];
+          if (importantLabels.some(l => label.toLowerCase().includes(l))) {
+            return (
+              <div key={lineIdx} className="text-xs sm:text-sm leading-relaxed font-sans my-2 pl-0.5">
+                <strong className="text-orange-burnt font-extrabold block text-xs uppercase tracking-wider mb-1 select-none border-b border-orange-burnt/10 pb-0.5 max-w-xs">{label}</strong>
+                <span className="text-white/80 block mt-0.5">{renderTextWithBold(content)}</span>
+              </div>
+            );
+          }
+        }
+
+        return (
+          <p key={lineIdx} className="text-xs sm:text-sm leading-relaxed font-sans">
+            {renderTextWithBold(trimmed)}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
+
 export const CompetitionCard: React.FC<CompetitionCardProps> = ({ competition }) => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -117,9 +206,9 @@ export const CompetitionCard: React.FC<CompetitionCardProps> = ({ competition })
           </h3>
 
           {/* Description */}
-          <p className="text-white/70 text-sm leading-relaxed mb-6 font-sans">
-            {competition.description}
-          </p>
+          <div className="text-white/70 text-sm leading-relaxed mb-6 font-sans whitespace-pre-wrap break-words text-left">
+            {renderFormattedDescription(competition.description)}
+          </div>
 
           {/* Prize Info & Eligibility Grid */}
           <div className="space-y-3 mb-6 bg-[#0F1E42]/40 border border-orange-burnt/15 p-4 rounded-xl shadow-inner">
