@@ -44,6 +44,7 @@ export const AdminGallery: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     media_url: '',
+    media_urls: [''] as string[],
     category: 'Events',
     media_type: 'image' as 'image' | 'video' | 'audio',
   });
@@ -79,9 +80,13 @@ export const AdminGallery: React.FC = () => {
 
   useEffect(() => {
     if (photoToEdit) {
+      const urls = Array.isArray(photoToEdit.media_urls) && photoToEdit.media_urls.length > 0
+        ? photoToEdit.media_urls
+        : photoToEdit.media_url ? [photoToEdit.media_url] : [''];
       setFormData({
         title: photoToEdit.title || '',
         media_url: photoToEdit.media_url || '',
+        media_urls: urls,
         category: photoToEdit.category || 'Events',
         media_type: photoToEdit.media_type || 'image',
       });
@@ -89,6 +94,7 @@ export const AdminGallery: React.FC = () => {
       setFormData({
         title: '',
         media_url: '',
+        media_urls: [''],
         category: 'Events',
         media_type: 'image',
       });
@@ -158,46 +164,62 @@ export const AdminGallery: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmedUrl = formData.media_url.trim();
-    if (!formData.title || !trimmedUrl) {
-      toast.error('❌ Title and media URL are required.');
-      return;
+    let finalUrls = formData.media_urls.map(u => u.trim()).filter(Boolean);
+
+    if (formData.media_type !== 'image') {
+      const trimmedUrl = formData.media_url.trim();
+      if (!formData.title || !trimmedUrl) {
+        toast.error('❌ Title and media URL are required.');
+        return;
+      }
+      finalUrls = [trimmedUrl];
+    } else {
+      if (!formData.title || finalUrls.length === 0) {
+        toast.error('❌ Title and at least one image URL are required.');
+        return;
+      }
     }
 
-    const isHttps = trimmedUrl.toLowerCase().startsWith('https://');
-    if (!isHttps) {
-      toast.error('❌ URL must start with https://');
-      return;
+    // Protocol check
+    for (const url of finalUrls) {
+      if (!url.toLowerCase().startsWith('https://')) {
+        toast.error('❌ All URLs must start with https://');
+        return;
+      }
     }
 
-    // Format check only for video/audio (images may not have extension in URL)
+    // Format check only for video/audio
     if (formData.media_type === 'video') {
-      const hasVideoExt = ['.mp4', '.mov', '.avi', '.webm'].some(ext => trimmedUrl.toLowerCase().includes(ext));
+      const hasVideoExt = ['.mp4', '.mov', '.avi', '.webm'].some(ext => finalUrls[0].toLowerCase().includes(ext));
       if (!hasVideoExt) { toast.error('❌ Video URL must be .mp4, .mov, .avi or .webm'); return; }
     } else if (formData.media_type === 'audio') {
-      const hasAudioExt = ['.mp3', '.wav', '.m4a', '.ogg'].some(ext => trimmedUrl.toLowerCase().includes(ext));
+      const hasAudioExt = ['.mp3', '.wav', '.m4a', '.ogg'].some(ext => finalUrls[0].toLowerCase().includes(ext));
       if (!hasAudioExt) { toast.error('❌ Audio URL must be .mp3, .wav, .m4a or .ogg'); return; }
     }
 
     setIsSaving(true);
     try {
       // Auto optimize Cloudinary links on save
-      let optimizedUrl = trimmedUrl;
-      if (optimizedUrl.includes('cloudinary.com')) {
-        if (formData.media_type === 'image') {
-          if (!optimizedUrl.includes('/w_800,q_auto,f_auto/')) {
-            optimizedUrl = optimizedUrl.replace('/upload/', '/upload/w_800,q_auto,f_auto/');
-          }
-        } else if (formData.media_type === 'video') {
-          if (!optimizedUrl.includes('/w_800,q_auto,vc_auto/')) {
-            optimizedUrl = optimizedUrl.replace('/upload/', '/upload/w_800,q_auto,vc_auto/');
+      const optimizedUrls = finalUrls.map((url) => {
+        let optUrl = url;
+        if (optUrl.includes('cloudinary.com')) {
+          if (formData.media_type === 'image') {
+            if (!optUrl.includes('/w_800,q_auto,f_auto/')) {
+              optUrl = optUrl.replace('/upload/', '/upload/w_800,q_auto,f_auto/');
+            }
+          } else if (formData.media_type === 'video') {
+            if (!optUrl.includes('/w_800,q_auto,vc_auto/')) {
+              optUrl = optUrl.replace('/upload/', '/upload/w_800,q_auto,vc_auto/');
+            }
           }
         }
-      }
+        return optUrl;
+      });
 
       const dataPayload = {
         title: formData.title,
-        media_url: optimizedUrl,
+        media_url: optimizedUrls[0] || '',
+        media_urls: optimizedUrls,
         category: formData.category,
         media_type: formData.media_type,
       };
@@ -224,7 +246,7 @@ export const AdminGallery: React.FC = () => {
 
       fetchPhotos();
       // Reset form explicitly so user can immediately add another photo
-      setFormData({ title: '', media_url: '', category: 'Events', media_type: 'image' });
+      setFormData({ title: '', media_url: '', media_urls: [''], category: 'Events', media_type: 'image' });
       setPhotoToEdit(null);
       setIsModalOpen(false);
     } catch (err: any) {
@@ -516,13 +538,77 @@ export const AdminGallery: React.FC = () => {
             </select>
           </div>
 
-          {/* Upgraded MediaPreviewBox linked to Type */}
-          <MediaPreviewBox
-            required
-            mediaType={formData.media_type}
-            value={formData.media_url}
-            onChange={(val) => setFormData({ ...formData, media_url: val })}
-          />
+          {/* Upgraded Multi-Media inputs based on selected media type */}
+          {formData.media_type === 'image' ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70">
+                  Album Photos *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, media_urls: [...formData.media_urls, ''] })}
+                  className="text-xs font-bold text-orange-burnt hover:text-orange-burnt/85 flex items-center space-x-1"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Add Photo</span>
+                </button>
+              </div>
+
+              <div className="space-y-6 max-h-[35vh] overflow-y-auto pr-1">
+                {formData.media_urls.map((url, idx) => (
+                  <div key={idx} className="bg-gray-50 border border-navy-dark/5 p-4 rounded-xl space-y-3 relative">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-navy-dark/40 uppercase tracking-widest">
+                        Photo {idx + 1}
+                      </span>
+                      {formData.media_urls.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newUrls = formData.media_urls.filter((_, i) => i !== idx);
+                            setFormData({
+                              ...formData,
+                              media_urls: newUrls,
+                              media_url: idx === 0 ? (newUrls[0] || '') : formData.media_url
+                            });
+                          }}
+                          className="text-xs text-red-500 hover:text-red-600 flex items-center space-x-1"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          <span>Remove</span>
+                        </button>
+                      )}
+                    </div>
+                    <MediaPreviewBox
+                      mediaType="image"
+                      value={url}
+                      onChange={(val) => {
+                        const newUrls = [...formData.media_urls];
+                        newUrls[idx] = val;
+                        setFormData({
+                          ...formData,
+                          media_urls: newUrls,
+                          media_url: idx === 0 ? val : formData.media_url
+                        });
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <MediaPreviewBox
+              required
+              mediaType={formData.media_type}
+              value={formData.media_url}
+              onChange={(val) => setFormData({ 
+                ...formData, 
+                media_url: val, 
+                media_urls: [val] 
+              })}
+            />
+          )}
 
           {/* Action buttons */}
           <div className="flex space-x-3 pt-3 border-t border-navy-dark/10">

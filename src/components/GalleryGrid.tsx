@@ -19,6 +19,7 @@ interface GalleryItem {
   category: 'Events' | 'Competitions' | 'Campus Life' | 'General';
   title: string;
   media_url: string;
+  media_urls?: string[];
   media_type: 'image' | 'video' | 'audio';
   created_at: string;
 }
@@ -232,7 +233,12 @@ export const GalleryGrid: React.FC = () => {
   const [filteredItems, setFilteredItems] = useState<GalleryItem[]>([]);
   const [activeFilter, setActiveFilter] = useState<'All' | 'Images' | 'Videos' | 'Audio' | 'Events'>('All');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [activePhotoIndex, setActivePhotoIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setActivePhotoIndex(0);
+  }, [lightboxIndex]);
 
   const fetchPhotos = async () => {
     setIsLoading(true);
@@ -411,6 +417,14 @@ export const GalleryGrid: React.FC = () => {
                           />
                         )}
 
+                        {/* Multi-Photo Album Badge */}
+                        {item.media_type === 'image' && item.media_urls && item.media_urls.length > 1 && (
+                          <div className="absolute top-3 right-3 bg-[#050B18]/70 backdrop-blur-md px-2.5 py-1 rounded-full text-white border border-white/10 text-[9px] font-extrabold tracking-widest uppercase flex items-center gap-1 shadow-sm select-none z-10">
+                            <span className="text-orange-burnt font-sans text-xs">📸</span>
+                            <span>{item.media_urls.length} Photos</span>
+                          </div>
+                        )}
+
                         {/* Video Play Circle Overlay */}
                         {item.media_type === 'video' && (
                           <div className="absolute inset-0 bg-black/25 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-0 pointer-events-none">
@@ -533,6 +547,68 @@ export const GalleryGrid: React.FC = () => {
                     autoPlay
                     className="w-full h-full object-contain bg-black"
                   />
+                ) : filteredItems[lightboxIndex].media_urls && filteredItems[lightboxIndex].media_urls.length > 1 ? (
+                  /* Slide-based Image Carousel */
+                  <div className="w-full h-full flex items-center justify-center relative bg-black">
+                    {/* Inner Prev arrow */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActivePhotoIndex((prev) => (prev === 0 ? filteredItems[lightboxIndex].media_urls!.length - 1 : prev - 1));
+                      }}
+                      className="absolute left-4 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-orange-burnt text-white flex items-center justify-center transition-colors shadow-lg cursor-pointer backdrop-blur-xs border border-white/10"
+                      aria-label="Previous Photo"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+
+                    {/* Image frame */}
+                    <div className="w-full h-full flex items-center justify-center p-6 select-none">
+                      <AnimatePresence mode="wait">
+                        <motion.img
+                          key={activePhotoIndex}
+                          src={getCloudinaryMediaUrl(filteredItems[lightboxIndex].media_urls[activePhotoIndex], 'image')}
+                          alt={`${filteredItems[lightboxIndex].title} - Photo ${activePhotoIndex + 1}`}
+                          initial={{ opacity: 0, scale: 0.98 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.98 }}
+                          transition={{ duration: 0.2 }}
+                          className="max-w-full max-h-full object-contain rounded-lg"
+                        />
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Inner Next arrow */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActivePhotoIndex((prev) => (prev === filteredItems[lightboxIndex].media_urls!.length - 1 ? 0 : prev + 1));
+                      }}
+                      className="absolute right-4 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-orange-burnt text-white flex items-center justify-center transition-colors shadow-lg cursor-pointer backdrop-blur-xs border border-white/10"
+                      aria-label="Next Photo"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+
+                    {/* Carousel bullet navigator */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-1.5 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-md z-20 border border-white/10">
+                      {filteredItems[lightboxIndex].media_urls.map((_, dotIdx) => (
+                        <button
+                          key={dotIdx}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActivePhotoIndex(dotIdx);
+                          }}
+                          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                            activePhotoIndex === dotIdx 
+                              ? 'bg-orange-burnt w-3' 
+                              : 'bg-white/40 hover:bg-white/70'
+                          }`}
+                          aria-label={`Photo ${dotIdx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 ) : (
                   <img
                     src={getCloudinaryMediaUrl(filteredItems[lightboxIndex].media_url, 'image')}
@@ -557,6 +633,13 @@ export const GalleryGrid: React.FC = () => {
               <h4 className="font-display font-extrabold text-base sm:text-xl mb-1 text-orange-burnt uppercase tracking-wide">
                 {filteredItems[lightboxIndex].title}
               </h4>
+              {filteredItems[lightboxIndex].media_type === 'image' && 
+               filteredItems[lightboxIndex].media_urls && 
+               filteredItems[lightboxIndex].media_urls.length > 1 && (
+                <p className="text-xs text-white/55 font-semibold font-sans tracking-wide mt-1 select-none">
+                  Viewing Image {activePhotoIndex + 1} of {filteredItems[lightboxIndex].media_urls.length}
+                </p>
+              )}
             </div>
           </motion.div>
         )}
