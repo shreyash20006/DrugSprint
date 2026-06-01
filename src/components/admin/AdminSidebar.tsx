@@ -11,7 +11,6 @@ import {
   Image as ImageIcon, 
   Globe, 
   LogOut, 
-  GraduationCap,
   Users,
   Sliders,
   ClipboardList,
@@ -202,15 +201,15 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     <div className="w-[240px] bg-navy-dark text-white flex flex-col justify-between h-full border-r border-white/5 shrink-0 overflow-y-auto">
       <div>
         {/* Top Branding Section */}
-        <div className="p-6 border-b border-white/10 flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-orange-burnt flex items-center justify-center text-white shadow-lg shrink-0">
-            <GraduationCap className="w-6 h-6" />
+        <div className="p-5 border-b border-white/10 flex items-center space-x-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-burnt to-[#E06D2B] flex items-center justify-center text-white font-display font-extrabold text-xs shadow-lg shrink-0 shadow-orange-burnt/20">
+            SC
           </div>
-          <div>
-            <span className="font-display font-extrabold text-lg tracking-tight block leading-none">
+          <div className="min-w-0">
+            <span className="font-display font-extrabold text-sm tracking-tight block leading-none truncate">
               TGPCOP
             </span>
-            <span className="text-[9px] text-orange-burnt block tracking-widest uppercase font-bold mt-1">
+            <span className="text-[9px] text-orange-burnt block tracking-widest uppercase font-bold mt-0.5">
               Admin Panel
             </span>
           </div>

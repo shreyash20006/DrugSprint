@@ -73,14 +73,23 @@ const ScrollToTop: React.FC = () => {
   return null;
 };
 
+// All paths that belong to the secure admin panel (some don't use /admin prefix)
+const ADMIN_PATHS = [
+  '/super-admin', '/developer', '/president',
+  '/vice-president', '/general-secretary', '/secretary', '/treasurer',
+];
+
 // Layout wrapper separating public navbar/footers from secure admin panels
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminRoute =
+    location.pathname.startsWith('/admin') ||
+    ADMIN_PATHS.includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-light font-sans text-navy-dark antialiased">
       {!isAdminRoute && <Navbar />}
+      {!isAdminRoute && <ScrollProgressBar />}
 
       <main className="flex-grow">
         <Suspense fallback={
@@ -288,7 +297,6 @@ export const App: React.FC = () => {
             <ToastProvider>
               <Router>
                 <ScrollToTop />
-                <ScrollProgressBar />
                 <AppContent />
               </Router>
             </ToastProvider>
