@@ -83,10 +83,18 @@ export default async function handler(req, res) {
     } else if (action === 'sendAdminNotification') {
       const { subject, title, bodyHtml } = payload;
 
-      const adminEmail = "contact@tgpcopcouncil.online";
+      // Direct complaints to President, other alerts to Super Admin
+      let recipientEmail = "contact@tgpcopcouncil.online";
+      let recipientName = "TGPCOP Super Admin";
+
+      if (subject && subject.includes("Complaint")) {
+        recipientEmail = "president@tgpcopcouncil.online";
+        recipientName = "TGPCOP Student Council President";
+      }
+
       emailBody = {
         sender: { name: "TGPCOP Alert System", email: "contact@tgpcopcouncil.online" },
-        to: [{ email: adminEmail, name: "TGPCOP Super Admin" }],
+        to: [{ email: recipientEmail, name: recipientName }],
         subject: subject,
         htmlContent: `
           <div style="font-family:sans-serif;max-width:600px;margin:auto;
