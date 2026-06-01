@@ -15,8 +15,11 @@ import {
   Tag,
   Video,
   Music,
-  Play
+  Play,
+  Images,
+  X
 } from 'lucide-react';
+
 
 export const AdminGallery: React.FC = () => {
   const [photos, setPhotos] = useState<any[]>([]);
@@ -29,6 +32,13 @@ export const AdminGallery: React.FC = () => {
   const [photoToEdit, setPhotoToEdit] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
   const toast = useToast();
+
+  // Bulk Add Modal
+  type BulkRow = { title: string; media_url: string; category: string; media_type: 'image' | 'video' | 'audio' };
+  const emptyRow = (): BulkRow => ({ title: '', media_url: '', category: 'Events', media_type: 'image' });
+  const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [bulkRows, setBulkRows] = useState<BulkRow[]>([emptyRow(), emptyRow()]);
+  const [isBulkSaving, setIsBulkSaving] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -108,6 +118,42 @@ export const AdminGallery: React.FC = () => {
   const handleAddNew = () => {
     setPhotoToEdit(null);
     setIsModalOpen(true);
+  };
+
+  // Bulk row helpers
+  const updateBulkRow = (idx: number, field: keyof BulkRow, value: string) => {
+    setBulkRows(rows => rows.map((r, i) => i === idx ? { ...r, [field]: value } : r));
+  };
+  const addBulkRow = () => setBulkRows(rows => [...rows, emptyRow()]);
+  const removeBulkRow = (idx: number) => setBulkRows(rows => rows.length > 1 ? rows.filter((_, i) => i !== idx) : rows);
+
+  const handleBulkSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const validRows = bulkRows.filter(r => r.title.trim() && r.media_url.trim().startsWith('https://'));
+    if (validRows.length === 0) {
+      toast.error('❌ At least one row needs a title and https:// URL.');
+      return;
+    }
+    setIsBulkSaving(true);
+    try {
+      const payload = validRows.map(r => ({
+        title: r.title.trim(),
+        media_url: r.media_url.trim(),
+        category: r.category,
+        media_type: r.media_type,
+      }));
+      const { error } = await supabase.from('gallery').insert(payload);
+      if (error) throw error;
+      logAction('BULK_UPLOADED_MEDIA', `${payload.length} items`);
+      toast.success(`✅ ${payload.length} media item(s) added successfully!`);
+      fetchPhotos();
+      setBulkRows([emptyRow(), emptyRow()]);
+      setIsBulkOpen(false);
+    } catch (err: any) {
+      toast.error(`❌ Bulk save failed: ${err?.message || 'Unknown error'}`);
+    } finally {
+      setIsBulkSaving(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -248,13 +294,22 @@ export const AdminGallery: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={handleAddNew}
-          className="flex items-center space-x-1.5 px-4.5 py-2.5 bg-orange-burnt hover:bg-orange-burnt/95 text-white rounded-lg font-display text-xs font-bold shadow-md shadow-orange-burnt/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Media</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => { setBulkRows([emptyRow(), emptyRow()]); setIsBulkOpen(true); }}
+            className="flex items-center space-x-1.5 px-4 py-2.5 bg-navy-dark hover:bg-navy-dark/90 text-white rounded-lg font-display text-xs font-bold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            <Images className="w-4 h-4" />
+            <span>Bulk Add</span>
+          </button>
+          <button
+            onClick={handleAddNew}
+            className="flex items-center space-x-1.5 px-4 py-2.5 bg-orange-burnt hover:bg-orange-burnt/95 text-white rounded-lg font-display text-xs font-bold shadow-md shadow-orange-burnt/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Media</span>
+          </button>
+        </div>
       </div>
 
       {/* Category Filter tabs */}
@@ -494,6 +549,115 @@ export const AdminGallery: React.FC = () => {
                 </>
               ) : (
                 <span>Publish Media</span>
+              )}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* ── Bulk Add Modal ── */}
+      <Modal
+        isOpen={isBulkOpen}
+        onClose={() => setIsBulkOpen(false)}
+        title="Bulk Add Media"
+        icon={<Images className="w-5 h-5" />}
+      >
+        <form onSubmit={handleBulkSubmit} className="space-y-4">
+          <p className="text-xs text-navy-dark/50 font-sans">
+            Fill in as many rows as you like. Empty rows (no title or URL) are skipped automatically.
+          </p>
+
+          <div className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
+            {bulkRows.map((row, idx) => (
+              <div key={idx} className="bg-gray-light/60 rounded-xl p-3 space-y-2 border border-navy-dark/8 relative">
+                {/* Row number + remove button */}
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] font-bold text-navy-dark/40 uppercase tracking-widest">Item {idx + 1}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeBulkRow(idx)}
+                    className="w-5 h-5 flex items-center justify-center rounded-full text-navy-dark/30 hover:bg-red-100 hover:text-red-500 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+
+                {/* Title */}
+                <input
+                  type="text"
+                  placeholder="Title *"
+                  value={row.title}
+                  onChange={e => updateBulkRow(idx, 'title', e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-xs bg-white transition-colors"
+                />
+
+                {/* URL */}
+                <input
+                  type="url"
+                  placeholder="https:// media URL *"
+                  value={row.media_url}
+                  onChange={e => updateBulkRow(idx, 'media_url', e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-xs bg-white transition-colors"
+                />
+
+                {/* Category + Type row */}
+                <div className="flex gap-2">
+                  <select
+                    value={row.category}
+                    onChange={e => updateBulkRow(idx, 'category', e.target.value)}
+                    className="flex-1 px-2 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs bg-white cursor-pointer"
+                  >
+                    <option>Events</option>
+                    <option>Competitions</option>
+                    <option>Campus Life</option>
+                    <option>General</option>
+                  </select>
+                  <select
+                    value={row.media_type}
+                    onChange={e => updateBulkRow(idx, 'media_type', e.target.value as 'image' | 'video' | 'audio')}
+                    className="flex-1 px-2 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs bg-white cursor-pointer"
+                  >
+                    <option value="image">🖼️ Image</option>
+                    <option value="video">🎬 Video</option>
+                    <option value="audio">🎵 Audio</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Add row button */}
+          <button
+            type="button"
+            onClick={addBulkRow}
+            className="w-full py-2 border-2 border-dashed border-navy-dark/20 hover:border-orange-burnt/40 hover:bg-orange-burnt/5 text-navy-dark/50 hover:text-orange-burnt rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Another Row</span>
+          </button>
+
+          {/* Actions */}
+          <div className="flex space-x-3 pt-3 border-t border-navy-dark/10">
+            <button
+              type="button"
+              onClick={() => setIsBulkOpen(false)}
+              className="flex-1 py-2.5 border border-navy-dark/15 hover:bg-navy-dark/5 text-navy-dark font-display text-sm font-semibold rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isBulkSaving}
+              className={`flex-1 py-2.5 text-white font-display text-sm font-semibold rounded-lg shadow-md transition-all flex items-center justify-center space-x-1.5 ${
+                isBulkSaving
+                  ? 'bg-orange-burnt animate-pulse cursor-not-allowed'
+                  : 'bg-orange-burnt hover:bg-orange-burnt/95 hover:scale-[1.01] active:scale-[0.99]'
+              }`}
+            >
+              {isBulkSaving ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /><span>Saving...</span></>
+              ) : (
+                <><Images className="w-4 h-4" /><span>Publish All</span></>
               )}
             </button>
           </div>
