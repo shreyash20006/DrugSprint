@@ -56,6 +56,10 @@ export const AdminLogin: React.FC = () => {
         provider: 'google',
         options: {
           redirectTo: window.location.origin + '/admin',
+          queryParams: {
+            prompt: 'select_account',
+            access_type: 'offline',
+          },
         },
       });
       if (error) throw error;

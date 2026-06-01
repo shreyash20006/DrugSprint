@@ -155,6 +155,13 @@ export const StudentAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
       provider: 'google',
       options: {
         redirectTo: window.location.origin + '/profile',
+        queryParams: {
+          // Show account picker every time
+          prompt: 'select_account',
+          // Allow both Gmail AND Google Workspace accounts
+          // No 'hd' restriction — accept all Google accounts
+          access_type: 'offline',
+        },
       },
     });
     if (error) {
