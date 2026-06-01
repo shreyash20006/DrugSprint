@@ -26,6 +26,26 @@ export default async function handler(req, res) {
       return res.status(200).json({ configured: isBrevoConfigured });
     }
 
+    // Trigger Pabbly Connect Webhook immediately for new complaints (Pre-flight to bypass key checks)
+    if (action === 'sendAdminNotification' && payload && payload.subject && payload.subject.includes('Complaint')) {
+      try {
+        await fetch("https://connect.pabbly.com/webhook-listener/webhook/IjU3NjMwNTZkMDYzNzA0MzU1MjZjNTUzNiI_3D_pc/IjU3NjcwNTZlMDYzZjA0MzQ1MjZmNTUzNjUxMzIi_pc", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event: "new_complaint",
+            subject: payload.subject,
+            title: payload.title,
+            bodyHtml: payload.bodyHtml,
+            timestamp: new Date().toISOString()
+          })
+        });
+        console.log("✅ Successfully dispatched complaint alert to Pabbly webhook (Pre-flight).");
+      } catch (webhookErr) {
+        console.error("⚠️ Pabbly Connect webhook dispatch failed:", webhookErr);
+      }
+    }
+
     if (!brevoApiKey) {
       console.warn("⚠️ Server-side Brevo API key is not configured. Simulating dispatch.");
       return res.status(200).json({ success: true, message: 'Mock email dispatch succeeded' });
@@ -62,26 +82,6 @@ export default async function handler(req, res) {
       };
     } else if (action === 'sendAdminNotification') {
       const { subject, title, bodyHtml } = payload;
-      
-      // Dispatch alert to Pabbly Connect Webhook for complaints
-      if (subject && subject.includes('Complaint')) {
-        try {
-          await fetch("https://connect.pabbly.com/webhook-listener/webhook/IjU3NjMwNTZkMDYzNzA0MzU1MjZjNTUzNiI_3D_pc/IjU3NjcwNTZlMDYzZjA0MzQ1MjZmNTUzNjUxMzIi_pc", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              event: "new_complaint",
-              subject,
-              title,
-              bodyHtml,
-              timestamp: new Date().toISOString()
-            })
-          });
-          console.log("✅ Successfully dispatched complaint alert to Pabbly webhook.");
-        } catch (webhookErr) {
-          console.error("⚠️ Pabbly Connect webhook dispatch failed:", webhookErr);
-        }
-      }
 
       const adminEmail = "contact@tgpcopcouncil.online";
       emailBody = {
