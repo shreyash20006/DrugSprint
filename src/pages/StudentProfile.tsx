@@ -20,7 +20,12 @@ const getRoleBadgeClasses = (role: string): string => {
     general_secretary: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
     secretary: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
     treasurer: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    coordinator: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+    events: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+    cultural: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    nss: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+    anti_ragging: 'bg-red-500/10 text-red-400 border-red-500/20',
+    social_media: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+    college_issues: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
     student: 'bg-slate-500/10 text-slate-400 border-slate-500/20'
   };
   return badgeMap[role] || badgeMap.student;
@@ -29,14 +34,19 @@ const getRoleBadgeClasses = (role: string): string => {
 const getRoleLabel = (role: string): string => {
   const labelMap: Record<string, string> = {
     super_admin: 'Super Admin',
-    admin: 'Council Admin',
+    admin: 'Overall Secretary (Admin)',
     developer: 'Developer',
     president: 'President',
     vice_president: 'Vice President',
     general_secretary: 'General Secretary',
     secretary: 'Secretary',
     treasurer: 'Treasurer',
-    coordinator: 'Coordinator',
+    events: 'Events & Workshop Coordinator',
+    cultural: 'Cultural Secretary',
+    nss: 'NSS Incharge',
+    anti_ragging: 'Anti-Ragging Incharge',
+    social_media: 'Social Media Incharge',
+    college_issues: 'College Issues Representative',
     student: 'Student'
   };
   return labelMap[role] || 'Student';

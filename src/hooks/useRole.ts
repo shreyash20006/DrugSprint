@@ -4,26 +4,36 @@ import { supabase } from '../lib/supabase';
 export type Role =
   | 'super_admin'
   | 'admin'
-  | 'developer'
   | 'president'
   | 'vice_president'
   | 'general_secretary'
   | 'secretary'
   | 'treasurer'
-  | 'coordinator'
-  | 'student';
+  | 'events'
+  | 'cultural'
+  | 'nss'
+  | 'anti_ragging'
+  | 'social_media'
+  | 'college_issues'
+  | 'student'
+  | 'developer'; // Retained for developer panel integrity
 
 export const ASSIGNABLE_ROLES: Role[] = [
   'super_admin',
   'admin',
-  'developer',
   'president',
   'vice_president',
   'general_secretary',
   'secretary',
   'treasurer',
-  'coordinator',
+  'events',
+  'cultural',
+  'nss',
+  'anti_ragging',
+  'social_media',
+  'college_issues',
   'student',
+  'developer'
 ];
 
 export interface AdminUser {
@@ -39,15 +49,20 @@ export function isDeveloper(role?: Role | null): boolean {
 export function getRoleDisplayName(role: Role): string {
   const labels: Record<Role, string> = {
     super_admin: 'Super Admin',
-    admin: 'Admin',
-    developer: 'Developer',
+    admin: 'Overall Secretary (Admin)',
     president: 'President',
     vice_president: 'Vice President',
     general_secretary: 'General Secretary',
     secretary: 'Secretary',
     treasurer: 'Treasurer',
-    coordinator: 'Coordinator',
+    events: 'Events & Workshop Coordinator',
+    cultural: 'Cultural Secretary',
+    nss: 'NSS Incharge',
+    anti_ragging: 'Anti-Ragging Incharge',
+    social_media: 'Social Media Incharge',
+    college_issues: 'College Issues Representative',
     student: 'Student',
+    developer: 'Developer',
   };
   return labels[role] || 'Student';
 }
@@ -55,17 +70,22 @@ export function getRoleDisplayName(role: Role): string {
 export function getPositionTitle(role: Role): string {
   const titles: Record<Role, string> = {
     super_admin: 'President Emeritus',
-    admin: 'Executive Administrator',
-    developer: 'Lead Systems Developer',
+    admin: 'Overall Secretary',
     president: 'Student Council President',
     vice_president: 'Council Vice President',
     general_secretary: 'General Secretary',
     secretary: 'Executive Secretary',
     treasurer: 'Council Treasurer',
-    coordinator: 'Events Coordinator',
-    student: 'Student Pioneer',
+    events: 'Events & Workshop Coordinator',
+    cultural: 'Cultural Secretary',
+    nss: 'NSS Incharge',
+    anti_ragging: 'Anti-Ragging Committee Head',
+    social_media: 'Social Media Officer',
+    college_issues: 'College Issues Representative',
+    student: 'Student Member',
+    developer: 'Lead Systems Developer',
   };
-  return titles[role] || 'Student';
+  return titles[role] || 'Student Member';
 }
 
 export function useRole() {
@@ -115,64 +135,73 @@ export function useRole() {
     
     const role = adminUser.role;
     
-    // super_admin gets full access
-    if (role === 'super_admin') return true;
+    // Super Admins & Developers bypass all checks and get full access
+    if (role === 'super_admin' || role === 'developer') return true;
 
-    // developer gets most access except changing other admins' roles
-    if (role === 'developer') {
-      const devRestricted = ['manage_all_roles'];
-      if (devRestricted.includes(action)) return false;
-      return true; 
-    }
-
-    // Role-specific actions matching specified permissions
+    // Granular RBAC Permissions Matching Specification
     switch (action) {
       case 'view_dashboard':
-        return role !== 'student';
+        // President, Vice President, Treasurer, and Admins can view leadership dashboard
+        return ['admin', 'president', 'vice_president', 'treasurer', 'events', 'cultural', 'nss', 'anti_ragging', 'social_media', 'college_issues', 'general_secretary', 'secretary'].includes(role);
+      
       case 'add_notices':
       case 'edit_notices':
-        return ['admin', 'developer', 'president', 'general_secretary'].includes(role);
+        return ['admin', 'general_secretary', 'secretary', 'social_media'].includes(role);
+      
       case 'delete_notices':
-        return ['admin', 'developer', 'president'].includes(role);
+        return ['admin', 'general_secretary'].includes(role);
+      
+      case 'approve_notices':
+        return ['president', 'vice_president'].includes(role);
+
       case 'add_events':
       case 'edit_events':
-        return ['admin', 'developer', 'vice_president', 'coordinator'].includes(role);
       case 'delete_events':
-        return ['admin', 'developer'].includes(role);
+        return ['admin', 'events', 'cultural', 'nss'].includes(role);
+
       case 'upload_gallery':
-        return ['admin', 'developer', 'vice_president', 'coordinator'].includes(role);
       case 'delete_gallery':
-        return ['admin', 'developer'].includes(role);
+        return ['admin', 'cultural', 'social_media'].includes(role);
+
       case 'view_registrations':
-        return ['admin', 'developer', 'vice_president', 'general_secretary', 'coordinator'].includes(role);
-      case 'manage_polls':
-        return ['admin', 'developer', 'president', 'vice_president'].includes(role);
-      case 'view_feedback':
-        return ['admin', 'developer', 'president', 'vice_president'].includes(role);
-      case 'manage_achievements':
-        return ['admin', 'developer', 'president'].includes(role);
-      case 'manage_newsletter':
-        return ['admin', 'developer', 'president', 'general_secretary', 'secretary'].includes(role);
+      case 'manage_registrations':
+        return ['admin', 'events', 'cultural', 'nss', 'general_secretary'].includes(role);
+      
+      case 'generate_event_passes':
+        return ['admin', 'events'].includes(role);
+
       case 'view_complaints':
-        return ['president'].includes(role);
-      case 'manage_mentors':
-        return ['admin', 'developer', 'president', 'vice_president'].includes(role);
+      case 'resolve_complaints':
+        return ['admin', 'president', 'vice_president', 'anti_ragging', 'college_issues'].includes(role);
+
+      case 'view_payments':
+      case 'view_reports':
+        return ['admin', 'president', 'vice_president', 'treasurer', 'general_secretary', 'secretary'].includes(role);
+
+      case 'manage_payments':
+      case 'download_receipts':
+      case 'financial_analytics':
+        return ['treasurer'].includes(role);
+
+      case 'manage_student_activities':
+        return ['admin', 'general_secretary'].includes(role);
+
       case 'view_questions':
       case 'reply_questions':
-        return ['admin', 'developer', 'president', 'general_secretary', 'secretary'].includes(role);
+        return ['admin', 'president', 'vice_president', 'general_secretary', 'secretary'].includes(role);
+
       case 'delete_questions':
-        return ['admin', 'developer', 'president'].includes(role);
+        return ['admin'].includes(role);
+
+      case 'view_feedback':
+        return ['admin', 'president', 'vice_president', 'college_issues'].includes(role);
+
+      case 'manage_banners':
+        return ['social_media'].includes(role);
+
       case 'manage_settings':
-        return ['admin', 'developer', 'president'].includes(role);
-      case 'view_payments':
-      case 'manage_payments':
-        return ['admin', 'developer', 'treasurer'].includes(role);
-      case 'view_reports':
-        return ['president', 'treasurer'].includes(role);
-      case 'view_database':
-      case 'manage_admins':
-      case 'developer_settings':
-        return ['developer'].includes(role);
+        return ['admin'].includes(role);
+
       default:
         return false;
     }

@@ -19,7 +19,12 @@ const getPortalPath = (role?: string | null): string => {
     general_secretary: '/general-secretary',
     secretary: '/secretary',
     treasurer: '/treasurer',
-    coordinator: '/admin/dashboard',
+    events: '/admin/dashboard',
+    cultural: '/admin/dashboard',
+    nss: '/admin/dashboard',
+    anti_ragging: '/admin/dashboard',
+    social_media: '/admin/dashboard',
+    college_issues: '/admin/dashboard',
     student: '/dashboard'
   };
   return rolePaths[role] || '/dashboard';
