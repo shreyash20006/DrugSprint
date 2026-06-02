@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
 import { AdminSidebar } from '../../components/admin/AdminSidebar';
 import { AdminHeader } from '../../components/admin/AdminHeader';
 import { supabase } from '../../lib/supabase';
 import { ToastProvider } from '../../components/admin/Toast';
-import { PageTransition } from '../../components/PageTransition';
 
 export const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -115,11 +113,7 @@ export const AdminLayout: React.FC = () => {
 
           {/* Scrollable Contents Pane */}
           <main className="flex-grow overflow-y-auto p-6 md:p-8">
-            <AnimatePresence mode="wait">
-              <PageTransition key={location.pathname}>
-                <Outlet context={{ refreshBadge: fetchPendingQuestions }} />
-              </PageTransition>
-            </AnimatePresence>
+            <Outlet context={{ refreshBadge: fetchPendingQuestions }} />
           </main>
 
         </div>

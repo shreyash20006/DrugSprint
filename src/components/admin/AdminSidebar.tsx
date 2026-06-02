@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from './ProtectedRoute';
-import { getRoleDisplayName, getPositionTitle, useRole } from '../../hooks/useRole';
+import { getRoleDisplayName, getPositionTitle } from '../../hooks/useRole';
 import { 
   LayoutDashboard, 
   Mail, 
@@ -42,12 +42,7 @@ const RoleSidebarBadgeMap: Record<string, string> = {
   general_secretary: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
   secretary: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
   treasurer: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  events: 'bg-orange-600/20 text-orange-300 border-orange-600/30',
-  cultural: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
-  nss: 'bg-teal-500/20 text-teal-300 border-teal-500/30',
-  anti_ragging: 'bg-red-500/20 text-red-300 border-red-500/30',
-  social_media: 'bg-pink-600/20 text-pink-300 border-pink-600/30',
-  college_issues: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
+  coordinator: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
   student: 'bg-slate-500/20 text-slate-300 border-slate-500/30'
 };
 
@@ -58,7 +53,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { role, fullName, avatarUrl } = useAuth();
-  const { can } = useRole();
   const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
 
   const toggleDarkMode = () => {
@@ -88,85 +82,72 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       path: '/admin/dashboard',
       name: 'Dashboard',
       icon: <LayoutDashboard className="w-5 h-5" />,
-      show: true
     },
     {
       path: '/admin/questions',
       name: 'Questions',
       icon: <Mail className="w-5 h-5" />,
       badge: pendingQuestionsCount > 0 ? pendingQuestionsCount : null,
-      show: can('view_questions')
     },
     {
       path: '/admin/notices',
       name: 'Notices',
       icon: <Megaphone className="w-5 h-5" />,
-      show: can('add_notices') || can('approve_notices')
     },
     {
       path: '/admin/events',
       name: 'Events',
       icon: <Calendar className="w-5 h-5" />,
-      show: can('add_events')
     },
     {
       path: '/admin/gallery',
       name: 'Gallery',
       icon: <ImageIcon className="w-5 h-5" />,
-      show: can('upload_gallery')
     },
     {
       path: '/admin/registrations',
       name: 'Registrations',
       icon: <ClipboardList className="w-5 h-5" />,
-      show: can('view_registrations')
     },
     {
       path: '/admin/polls',
       name: 'Polls',
       icon: <CheckSquare className="w-5 h-5" />,
-      show: can('view_dashboard')
     },
     {
       path: '/admin/feedback',
       name: 'Feedback',
       icon: <MessageSquare className="w-5 h-5" />,
-      show: can('view_feedback')
     },
     {
       path: '/admin/messages',
       name: 'Messages Board',
       icon: <MessageCircle className="w-5 h-5 text-orange-burnt animate-pulse" />,
-      show: can('view_dashboard')
     },
     {
       path: '/admin/achievements',
       name: 'Achievements',
       icon: <Award className="w-5 h-5" />,
-      show: can('view_dashboard')
     },
     {
       path: '/admin/newsletter',
       name: 'Newsletter',
       icon: <Newspaper className="w-5 h-5" />,
-      show: can('view_dashboard')
     },
     {
       path: '/admin/mentors',
       name: 'Mentorship',
       icon: <HeartHandshake className="w-5 h-5" />,
-      show: can('view_dashboard')
     },
     {
       path: '/admin/payments',
       name: 'Payments',
       icon: <CreditCard className="w-5 h-5" />,
-      show: can('view_payments')
     },
   ];
 
   const navItems: any[] = [];
-  if (role === 'developer' || role === 'super_admin') {
+  if (role === 'developer') {
     navItems.push({
       path: '/admin/developer',
       name: 'Dev Dashboard',
@@ -174,16 +155,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       badgeText: 'DEV'
     });
   }
+  navItems.push(...baseNavItems);
 
-  // Push permitted base navigation items
-  baseNavItems.forEach(item => {
-    if (item.show) {
-      navItems.push(item);
-    }
-  });
-
-  // Append specialized role tabs dynamically based on permissions
-  if (can('view_complaints')) {
+  // Append specialized role tabs
+  if (role === 'super_admin' || role === 'developer') {
     navItems.push({
       path: '/admin/complaints',
       name: 'Complaints',
@@ -199,7 +174,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     });
   }
 
-  if (can('manage_settings')) {
+  if (role === 'super_admin' || role === 'developer' || role === 'admin') {
     navItems.push({
       path: '/admin/settings',
       name: 'Portal Settings',

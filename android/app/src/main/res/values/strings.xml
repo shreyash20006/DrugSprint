@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">TGPCOP Council</string>
-    <string name="title_activity_main">TGPCOP Council</string>
-    <string name="package_name">com.tgpcop.council</string>
-    <string name="custom_url_scheme">com.tgpcop.council</string>
-</resources>

@@ -24,12 +24,7 @@ const RoleBadgeMap: Record<Role, string> = {
   general_secretary: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
   secretary: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
   treasurer: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  events: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  cultural: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  nss: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
-  anti_ragging: 'bg-red-500/10 text-red-400 border-red-500/20',
-  social_media: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
-  college_issues: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  coordinator: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
   student: 'bg-slate-500/10 text-slate-400 border-slate-500/20'
 };
 
@@ -47,12 +42,9 @@ const WORKSPACE_SUGGESTIONS = [
   { email: 'general-secretary@tgpcopcouncil.online',  role: 'general_secretary' as Role,  label: 'General Secretary' },
   { email: 'secretary@tgpcopcouncil.online',          role: 'secretary' as Role,          label: 'Secretary' },
   { email: 'treasurer@tgpcopcouncil.online',          role: 'treasurer' as Role,          label: 'Treasurer' },
-  { email: 'events-coordinator@tgpcopcouncil.online', role: 'events' as Role,             label: 'Events Coordinator' },
-  { email: 'cultural-secretary@tgpcopcouncil.online', role: 'cultural' as Role,           label: 'Cultural Secretary' },
-  { email: 'nss-incharge@tgpcopcouncil.online',       role: 'nss' as Role,                label: 'NSS Incharge' },
-  { email: 'anti-ragging@tgpcopcouncil.online',       role: 'anti_ragging' as Role,       label: 'Anti-Ragging Incharge' },
-  { email: 'socialmedia@tgpcopcouncil.online',        role: 'social_media' as Role,       label: 'Social Media Incharge' },
-  { email: 'college-issues@tgpcopcouncil.online',     role: 'college_issues' as Role,     label: 'College Issues Rep' },
+  { email: 'events-coordinator@tgpcopcouncil.online', role: 'coordinator' as Role,        label: 'Events Coordinator' },
+  { email: 'cultural-secretary@tgpcopcouncil.online', role: 'coordinator' as Role,        label: 'Cultural Secretary' },
+  { email: 'nss-incharge@tgpcopcouncil.online',       role: 'coordinator' as Role,        label: 'NSS Incharge' },
   { email: 'admin@tgpcopcouncil.online',              role: 'admin' as Role,              label: 'Admin' },
 ];
 

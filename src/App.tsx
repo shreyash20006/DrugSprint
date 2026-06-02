@@ -1,7 +1,6 @@
 import React, { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
-import { AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import { AuthProvider } from './lib/AuthProvider';
 import { ThemeProvider } from './lib/ThemeProvider';
@@ -15,7 +14,6 @@ import { ScrollProgressBar } from './components/ScrollProgressBar';
 import { ProtectedRoute } from './components/admin/ProtectedRoute';
 import { DNALoader } from './components/DNALoader';
 import { DesktopOnlyWrapper } from './components/DesktopOnlyWrapper';
-import { PageTransition } from './components/PageTransition';
 
 // Lazy load ALL pages for dynamic bundle code-splitting & minimal first-paint loading times
 const Home = lazy(() => import('./pages/Home'));
@@ -82,18 +80,6 @@ const ADMIN_PATHS = [
   '/vice-president', '/general-secretary', '/secretary', '/treasurer',
 ];
 
-// Helper component to wrap public pages with Framer Motion transitions
-const PublicTransitionLayout: React.FC = () => {
-  const location = useLocation();
-  return (
-    <AnimatePresence mode="wait">
-      <PageTransition key={location.pathname}>
-        <Outlet />
-      </PageTransition>
-    </AnimatePresence>
-  );
-};
-
 // Layout wrapper separating public navbar/footers from secure admin panels
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -113,42 +99,39 @@ const AppContent: React.FC = () => {
           </div>
         }>
           <Routes>
-            <Route element={<PublicTransitionLayout />}>
-              {/* Public Routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/council" element={<Council />} />
-              <Route path="/ask" element={<Ask />} />
-              <Route path="/notices" element={<Notices />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/media" element={<Gallery />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/report" element={<ReportBug />} />
-              <Route path="/register/:eventId" element={<EventRegister />} />
-              <Route path="/vote" element={<Vote />} />
-              <Route path="/feedback/:eventId" element={<EventFeedback />} />
-              <Route path="/achievements" element={<Achievements />} />
-              <Route path="/newsletter" element={<Newsletter />} />
-              <Route path="/complaint" element={<Complaint />} />
-              <Route path="/mentors" element={<Mentors />} />
-              <Route path="/profile" element={<StudentProfile />} />
-              <Route path="/dashboard" element={<StudentProfile />} />
-              <Route path="/calendar" element={<DesktopOnlyWrapper><MyCalendar /></DesktopOnlyWrapper>} />
-              <Route path="/leaderboard" element={<DesktopOnlyWrapper><Leaderboard /></DesktopOnlyWrapper>} />
-              <Route path="/board" element={<MessageBoard />} />
-              <Route path="/store" element={<DesktopOnlyWrapper><Store /></DesktopOnlyWrapper>} />
-              <Route path="/pay" element={<Pay />} />
-              <Route path="/payment-success" element={<PaymentSuccess />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/terms-and-conditions" element={<Terms />} />
-              <Route path="/refunds" element={<Refunds />} />
-              <Route path="/refunds-and-cancellations" element={<Refunds />} />
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/council" element={<Council />} />
+            <Route path="/ask" element={<Ask />} />
+            <Route path="/notices" element={<Notices />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/media" element={<Gallery />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/report" element={<ReportBug />} />
+            <Route path="/register/:eventId" element={<EventRegister />} />
+            <Route path="/vote" element={<Vote />} />
+            <Route path="/feedback/:eventId" element={<EventFeedback />} />
+            <Route path="/achievements" element={<Achievements />} />
+            <Route path="/newsletter" element={<Newsletter />} />
+            <Route path="/complaint" element={<Complaint />} />
+            <Route path="/mentors" element={<Mentors />} />
+            <Route path="/profile" element={<StudentProfile />} />
+            <Route path="/dashboard" element={<StudentProfile />} />
+            <Route path="/calendar" element={<DesktopOnlyWrapper><MyCalendar /></DesktopOnlyWrapper>} />
+            <Route path="/leaderboard" element={<DesktopOnlyWrapper><Leaderboard /></DesktopOnlyWrapper>} />
+            <Route path="/board" element={<MessageBoard />} />
+            <Route path="/store" element={<DesktopOnlyWrapper><Store /></DesktopOnlyWrapper>} />
+            <Route path="/pay" element={<Pay />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/terms-and-conditions" element={<Terms />} />
+            <Route path="/refunds" element={<Refunds />} />
+            <Route path="/refunds-and-cancellations" element={<Refunds />} />
 
-              {/* Secure Admin Routes */}
-              <Route path="/admin" element={<AdminLogin />} />
-              <Route path="/admin/login" element={<AdminLogin />} />
-            </Route>
-
+            {/* Secure Admin Routes */}
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route
               element={
                 <ProtectedRoute>

@@ -17,12 +17,7 @@ const ROLE_REDIRECT: Record<string, string> = {
   general_secretary: '/general-secretary',
   secretary:         '/secretary',
   treasurer:         '/treasurer',
-  events:            '/admin/dashboard',
-  cultural:          '/admin/dashboard',
-  nss:               '/admin/dashboard',
-  anti_ragging:      '/admin/dashboard',
-  social_media:      '/admin/dashboard',
-  college_issues:    '/admin/dashboard',
+  coordinator:       '/admin/dashboard',
   student:           '/dashboard',
 };
 
