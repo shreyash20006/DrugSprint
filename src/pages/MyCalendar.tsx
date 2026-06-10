@@ -8,13 +8,16 @@ import {
 } from 'lucide-react';
 import { useToast } from '../components/admin/Toast';
 import { FeaturedExamBanner } from '../components/FeaturedExamBanner';
+import { examsData, Exam } from '../data/exams';
 
 export const MyCalendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'all' | 'bookmarks'>('all');
+  const [examFilter, setExamFilter] = useState<string>('all');
   const [selectedDateEvents, setSelectedDateEvents] = useState<any[]>([]);
+  const [selectedDateExams, setSelectedDateExams] = useState<Exam[]>([]);
   const [selectedDateStr, setSelectedDateStr] = useState<string>('');
   const [bookmarks, setBookmarks] = useState<string[]>([]);
   const toast = useToast();
@@ -64,6 +67,17 @@ export const MyCalendar: React.FC = () => {
     });
   };
 
+  const getExamsForDay = (day: Date) => {
+    return examsData.filter(exam => {
+      const examDate = new Date(exam.date);
+      const matchesDay = isSameDay(examDate, day);
+      if (examFilter !== 'all') {
+        return matchesDay && exam.year === examFilter;
+      }
+      return matchesDay;
+    });
+  };
+
   // Calendar math helpers
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -90,7 +104,9 @@ export const MyCalendar: React.FC = () => {
   const handleDayClick = (day: number) => {
     const clickedDate = new Date(year, month, day);
     const dayEvents = getEventsForDay(clickedDate);
+    const dayExams = getExamsForDay(clickedDate);
     setSelectedDateEvents(dayEvents);
+    setSelectedDateExams(dayExams);
     setSelectedDateStr(clickedDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }));
   };
 
@@ -122,7 +138,7 @@ export const MyCalendar: React.FC = () => {
         handleDayClick(1);
       }
     }
-  }, [events, viewMode, currentDate]);
+  }, [events, viewMode, examFilter, currentDate]);
 
   return (
     <div className="relative min-h-screen bg-[#050B18] pt-32 pb-24 overflow-hidden">
@@ -179,6 +195,31 @@ export const MyCalendar: React.FC = () => {
               <Heart className="w-3.5 h-3.5" />
               <span>My Shortlist ({bookmarks.length})</span>
             </button>
+          </div>
+        </div>
+
+        {/* Exam Year Filters */}
+        <div className="flex justify-center mb-8">
+          <div className="flex flex-wrap items-center justify-center gap-2 bg-[#080F25]/60 border border-white/5 p-2 rounded-2xl shadow-xl">
+            {[
+              { id: 'all', label: 'All Exams' },
+              { id: '1st-year', label: 'First Year' },
+              { id: '2nd-year', label: 'Second Year' },
+              { id: '3rd-year', label: 'Third Year' },
+              { id: 'final-year', label: 'Final Year' }
+            ].map(filter => (
+              <button
+                key={filter.id}
+                onClick={() => setExamFilter(filter.id)}
+                className={`px-4 py-1.5 rounded-xl text-[10px] sm:text-xs font-display font-bold uppercase tracking-wider transition-all ${
+                  examFilter === filter.id
+                    ? 'bg-orange-burnt/10 border border-orange-burnt/30 text-orange-burnt'
+                    : 'text-white/40 hover:text-white/80 border border-transparent'
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -249,24 +290,29 @@ export const MyCalendar: React.FC = () => {
                     const day = idx + 1;
                     const dayDate = new Date(year, month, day);
                     const dayEvents = getEventsForDay(dayDate);
+                    const dayExams = getExamsForDay(dayDate);
                     const isToday = isSameDay(new Date(), dayDate);
                     
                     return (
                       <button
                         key={`day-${day}`}
                         onClick={() => handleDayClick(day)}
+                        title={dayExams.length > 0 ? "Examination Scheduled" : undefined}
                         className={`aspect-square border rounded-xl flex flex-col items-center justify-between p-1.5 sm:p-2.5 transition-all relative ${
                           isToday 
-                            ? 'border-orange-burnt bg-orange-burnt/10 text-white font-extrabold shadow-md'
+                            ? 'border-blue-500 bg-blue-500/10 text-white font-extrabold shadow-md'
                             : 'border-white/10 bg-white/5 hover:border-orange-burnt/40 text-white/90'
                         }`}
                       >
                         <span className="text-xs font-bold">{day}</span>
                         
                         {/* Event Dot Indicators */}
-                        {dayEvents.length > 0 && (
+                        {(dayEvents.length > 0 || dayExams.length > 0) && (
                           <div className="flex justify-center space-x-1 w-full pb-0.5">
-                            {dayEvents.slice(0, 3).map((ev) => (
+                            {dayExams.length > 0 && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-orange-burnt shadow-glow-orange" />
+                            )}
+                            {dayEvents.slice(0, dayExams.length > 0 ? 2 : 3).map((ev) => (
                               <span 
                                 key={ev.id} 
                                 className={`w-1.5 h-1.5 rounded-full ${
@@ -274,7 +320,7 @@ export const MyCalendar: React.FC = () => {
                                     ? 'bg-gold-accent shadow-glow' 
                                     : ev.type === 'competition' 
                                       ? 'bg-red-400' 
-                                      : 'bg-orange-burnt'
+                                      : 'bg-white/50'
                                 }`} 
                               />
                             ))}
@@ -288,16 +334,16 @@ export const MyCalendar: React.FC = () => {
                 {/* Legends explanation */}
                 <div className="mt-8 flex flex-wrap items-center gap-4 text-[10px] font-bold text-white/40 uppercase tracking-widest border-t border-white/5 pt-4">
                   <span className="flex items-center space-x-1.5">
-                    <span className="w-2.5 h-2.5 rounded bg-orange-burnt" />
-                    <span>Workshop/Seminars</span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-orange-burnt" />
+                    <span>Exam Day</span>
                   </span>
                   <span className="flex items-center space-x-1.5">
-                    <span className="w-2.5 h-2.5 rounded bg-red-400" />
-                    <span>Competitions</span>
+                    <span className="w-2.5 h-2.5 rounded bg-blue-500" />
+                    <span>Today</span>
                   </span>
                   <span className="flex items-center space-x-1.5">
-                    <span className="w-2.5 h-2.5 rounded bg-gold-accent" />
-                    <span>Saved Shortlist</span>
+                    <span className="w-2.5 h-2.5 rounded bg-white/20 border border-white/40" />
+                    <span>No Event</span>
                   </span>
                 </div>
               </motion.div>
@@ -318,77 +364,114 @@ export const MyCalendar: React.FC = () => {
                   </h3>
 
                   <div className="space-y-4">
-                    {selectedDateEvents.length === 0 ? (
+                    {selectedDateEvents.length === 0 && selectedDateExams.length === 0 ? (
                       <div className="flex flex-col gap-6">
                         <div className="text-center py-10 border border-dashed border-white/10 rounded-2xl bg-white/5">
                           <Info className="w-8 h-8 mx-auto text-white/20 mb-2" />
-                          <p className="text-xs text-white/40 leading-relaxed font-sans">No regular events scheduled on this date.</p>
+                          <p className="text-xs text-white/40 leading-relaxed font-sans">No examination or regular event scheduled on this date.</p>
                         </div>
                         {/* Display Featured Banner here instead */}
                         <FeaturedExamBanner />
                       </div>
                     ) : (
-                      selectedDateEvents.map((ev) => {
-                        const isSaved = bookmarks.includes(ev.id);
-                        return (
+                      <>
+                        {selectedDateExams.map((exam) => (
                           <div 
-                            key={ev.id} 
-                            className="border border-white/10 bg-white/5 rounded-2xl p-4 space-y-3 hover:border-orange-burnt/20 transition-colors"
+                            key={exam.id} 
+                            className="bg-gradient-to-br from-orange-burnt/10 to-[#050B18] border border-orange-burnt/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-orange-burnt/50 transition-colors"
                           >
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <span className={`text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
-                                  ev.type === 'competition' 
-                                    ? 'bg-red-500/10 border border-red-500/20 text-red-400' 
-                                    : 'bg-orange-burnt/10 border border-orange-burnt/20 text-orange-burnt'
-                                }`}>
-                                  {ev.type || 'Event'}
-                                </span>
-                                <h4 className="font-display font-bold text-white text-sm mt-1.5 leading-snug">{ev.name}</h4>
-                              </div>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-burnt/10 rounded-full blur-[40px] pointer-events-none group-hover:bg-orange-burnt/20 transition-all duration-700" />
+                            
+                            <div className="flex items-center justify-between mb-3 relative z-10">
+                              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-orange-burnt text-white tracking-widest shadow-md">
+                                Examination
+                              </span>
+                              <span className="text-[11px] font-bold text-white/60 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
+                                {exam.semester}
+                              </span>
+                            </div>
+
+                            <div className="relative z-10 space-y-2">
+                              <h4 className="font-display font-bold text-white text-base leading-snug">
+                                {exam.subjectName}
+                              </h4>
                               
-                              <button
-                                onClick={() => toggleBookmark(ev.id, ev.name)}
-                                className="text-white/50 hover:text-white p-1"
-                                title={isSaved ? "Remove from shortlist" : "Add to shortlist"}
-                              >
-                                <Heart className={`w-4 h-4 transition-colors ${isSaved ? 'text-red-400 fill-red-400' : 'hover:scale-115'}`} />
-                              </button>
-                            </div>
-
-                            <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{ev.description || 'Join us for college event!'}</p>
-
-                            <div className="space-y-1.5 border-t border-white/5 pt-2 text-[10px] text-white/60">
-                              <div className="flex items-center space-x-2">
-                                <MapPin className="w-3.5 h-3.5 text-orange-burnt" />
-                                <span>{ev.location || 'Campus Seminar Hall'}</span>
+                              <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2 mt-1 border-t border-white/5">
+                                <div className="flex items-center space-x-1.5 text-xs pt-1">
+                                  <span className="text-white/40 uppercase tracking-widest text-[9px] font-bold">Code:</span>
+                                  <span className="text-orange-burnt font-mono font-bold tracking-wider">{exam.subjectCode}</span>
+                                </div>
+                                <div className="flex items-center space-x-1.5 text-xs text-white/60 pt-1">
+                                  <Clock className="w-3.5 h-3.5 text-orange-burnt" />
+                                  <span>{exam.time} (3 Hrs)</span>
+                                </div>
                               </div>
-                              <div className="flex items-center space-x-2">
-                                <Clock className="w-3.5 h-3.5 text-orange-burnt" />
-                                <span>{ev.date ? new Date(ev.date).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }) : '10:00 AM'} onwards</span>
-                              </div>
-                            </div>
-
-                            <div className="flex gap-2 pt-2">
-                              <button
-                                onClick={() => downloadICS(ev.name, ev.description || '', ev.date, ev.location)}
-                                className="flex-1 flex items-center justify-center space-x-1 py-1.5 rounded-xl bg-white/5 hover:bg-orange-burnt/10 border border-white/10 hover:border-orange-burnt/20 text-white text-[10px] font-display font-bold uppercase transition-all"
-                              >
-                                <Download className="w-3 h-3" />
-                                <span>Sync Phone</span>
-                              </button>
-                              <a
-                                href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.name)}&dates=${encodeURIComponent(new Date(ev.date).toISOString().replace(/-|:|\.\d+/g, ''))}/${encodeURIComponent(new Date(new Date(ev.date).getTime() + 2 * 3600000).toISOString().replace(/-|:|\.\d+/g, ''))}&details=${encodeURIComponent(ev.description || '')}&location=${encodeURIComponent(ev.location || '')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex-1 py-1.5 text-center rounded-xl bg-orange-burnt text-white text-[10px] font-display font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md shadow-orange-burnt/15"
-                              >
-                                Google Cal
-                              </a>
                             </div>
                           </div>
-                        );
-                      })
+                        ))}
+
+                        {selectedDateEvents.map((ev) => {
+                          const isSaved = bookmarks.includes(ev.id);
+                          return (
+                            <div 
+                              key={ev.id} 
+                              className="border border-white/10 bg-white/5 rounded-2xl p-4 space-y-3 hover:border-white/20 transition-colors"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <span className={`text-[8px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                                    ev.type === 'competition' 
+                                      ? 'bg-red-500/10 border border-red-500/20 text-red-400' 
+                                      : 'bg-white/10 border border-white/20 text-white/70'
+                                  }`}>
+                                    {ev.type || 'Event'}
+                                  </span>
+                                  <h4 className="font-display font-bold text-white text-sm mt-1.5 leading-snug">{ev.name}</h4>
+                                </div>
+                                
+                                <button
+                                  onClick={() => toggleBookmark(ev.id, ev.name)}
+                                  className="text-white/50 hover:text-white p-1"
+                                  title={isSaved ? "Remove from shortlist" : "Add to shortlist"}
+                                >
+                                  <Heart className={`w-4 h-4 transition-colors ${isSaved ? 'text-red-400 fill-red-400' : 'hover:scale-115'}`} />
+                                </button>
+                              </div>
+
+                              <p className="text-[11px] text-white/50 leading-relaxed line-clamp-2">{ev.description || 'Join us for college event!'}</p>
+
+                              <div className="space-y-1.5 border-t border-white/5 pt-2 text-[10px] text-white/60">
+                                <div className="flex items-center space-x-2">
+                                  <MapPin className="w-3.5 h-3.5 text-orange-burnt" />
+                                  <span>{ev.location || 'Campus Seminar Hall'}</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <Clock className="w-3.5 h-3.5 text-orange-burnt" />
+                                  <span>{ev.date ? new Date(ev.date).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }) : '10:00 AM'} onwards</span>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-2 pt-2">
+                                <button
+                                  onClick={() => downloadICS(ev.name, ev.description || '', ev.date, ev.location)}
+                                  className="flex-1 flex items-center justify-center space-x-1 py-1.5 rounded-xl bg-white/5 hover:bg-orange-burnt/10 border border-white/10 hover:border-orange-burnt/20 text-white text-[10px] font-display font-bold uppercase transition-all"
+                                >
+                                  <Download className="w-3 h-3" />
+                                  <span>Sync Phone</span>
+                                </button>
+                                <a
+                                  href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(ev.name)}&dates=${encodeURIComponent(new Date(ev.date).toISOString().replace(/-|:|\.\d+/g, ''))}/${encodeURIComponent(new Date(new Date(ev.date).getTime() + 2 * 3600000).toISOString().replace(/-|:|\.\d+/g, ''))}&details=${encodeURIComponent(ev.description || '')}&location=${encodeURIComponent(ev.location || '')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex-1 py-1.5 text-center rounded-xl bg-orange-burnt text-white text-[10px] font-display font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-md shadow-orange-burnt/15"
+                                >
+                                  Google Cal
+                                </a>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </>
                     )}
                   </div>
                 </div>
