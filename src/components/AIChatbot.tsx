@@ -34,37 +34,43 @@ export const AIChatbot: React.FC = () => {
     setIsTyping(true);
 
     try {
-      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!geminiKey) {
-        throw new Error("AI is not configured. Missing API Key.");
+      const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+      if (!groqKey) {
+        throw new Error("AI is not configured. Missing GROQ API Key.");
       }
 
-      // Convert history for Gemini
-      // Gemini roles: "user" or "model"
+      // Convert history for Groq (OpenAI format)
       const apiMessages = [
+        { role: "system", content: "You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. Keep answers concise, helpful, and polite. Do not use markdown." },
         ...messages.filter(m => m.content !== 'Hi there! I am the TGPCOP Council AI Assistant. How can I help you today?').map(m => ({ 
-          role: m.role === 'assistant' ? 'model' : 'user', 
-          parts: [{ text: m.content }] 
+          role: m.role, 
+          content: m.content 
         })),
-        { role: "user", parts: [{ text: userMessage }] }
+        { role: "user", content: userMessage }
       ];
 
-      const { GoogleGenerativeAI } = await import('@google/generative-ai');
-      const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash-latest",
-        systemInstruction: "You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. Keep answers concise, helpful, and polite. Do not use markdown."
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${groqKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama3-8b-8192",
+          messages: apiMessages,
+          temperature: 0.5,
+          max_tokens: 200
+        })
       });
 
-      const result = await model.generateContent({
-        contents: apiMessages,
-        generationConfig: {
-          maxOutputTokens: 200,
-          temperature: 0.5
-        }
-      });
-
-      const generatedText = result.response.text().trim();
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("Groq API Error:", errText);
+        throw new Error(`API request failed: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      const generatedText = result.choices?.[0]?.message?.content?.trim();
 
       if (generatedText) {
         setMessages(prev => [...prev, { role: 'assistant', content: generatedText }]);

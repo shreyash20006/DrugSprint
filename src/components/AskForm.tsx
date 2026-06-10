@@ -85,8 +85,8 @@ export const AskForm: React.FC = () => {
     setIsGeneratingAiAnswer(true);
     setAiAnswer(null);
     try {
-      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!geminiKey) {
+      const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+      if (!groqKey) {
         setAiAnswer("AI is not configured. Please submit your question directly to the council.");
         setIsGeneratingAiAnswer(false);
         return;
@@ -94,22 +94,31 @@ export const AskForm: React.FC = () => {
       
       const faqContext = faqs.map(f => `Q: ${f.question}\nA: ${f.answer}`).join("\n\n");
       
-      const { GoogleGenerativeAI } = await import('@google/generative-ai');
-      const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash-latest",
-        systemInstruction: `You are the TGPCOP Council AI Assistant. Answer the student's question based ONLY on this context:\n\n${faqContext}\n\nIf the answer is not in the context, say "I couldn't find an exact answer. Please submit your question to the council for a direct reply." Keep answers short and friendly. No markdown.` 
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${groqKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama3-8b-8192",
+          messages: [
+            { role: "system", content: `You are the TGPCOP Council AI Assistant. Answer the student's question based ONLY on this context:\n\n${faqContext}\n\nIf the answer is not in the context, say "I couldn't find an exact answer. Please submit your question to the council for a direct reply." Keep answers short and friendly. No markdown.` },
+            { role: "user", content: formData.question }
+          ],
+          temperature: 0.3,
+          max_tokens: 150
+        })
       });
 
-      const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: formData.question }] }],
-        generationConfig: {
-          maxOutputTokens: 150,
-          temperature: 0.3
-        }
-      });
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("Groq API Error:", errText);
+        throw new Error(`API request failed: ${response.statusText}`);
+      }
       
-      const generatedText = result.response.text().trim();
+      const result = await response.json();
+      const generatedText = result.choices?.[0]?.message?.content?.trim();
       setAiAnswer(generatedText || "Sorry, I couldn't process that. Please submit your question.");
     } catch (err: any) {
       setAiAnswer("AI service is currently unavailable. Please submit your question to the council.");

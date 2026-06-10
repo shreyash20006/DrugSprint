@@ -48,25 +48,34 @@ export const AdminFeedback: React.FC = () => {
 
     setIsSummarizing(true);
     try {
-      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!geminiKey) throw new Error("Gemini API key is missing. Add VITE_GEMINI_API_KEY to your .env.local file.");
+      const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+      if (!groqKey) throw new Error("GROQ API key is missing. Add VITE_GROQ_API_KEY to your .env.local file.");
       
-      const { GoogleGenerativeAI } = await import('@google/generative-ai');
-      const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash-latest",
-        systemInstruction: "You are an analytical assistant. Summarize the following event feedback into exactly 3 concise bullet points: 1. Overall Sentiment 2. Key Strengths 3. Areas for Improvement. Do not use markdown bolding." 
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${groqKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama3-8b-8192",
+          messages: [
+            { role: "system", content: "You are an analytical assistant. Summarize the following event feedback into exactly 3 concise bullet points: 1. Overall Sentiment 2. Key Strengths 3. Areas for Improvement. Do not use markdown bolding." },
+            { role: "user", content: `Here is the feedback:\n${textComments}` }
+          ],
+          temperature: 0.3,
+          max_tokens: 300
+        })
       });
 
-      const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: `Here is the feedback:\n${textComments}` }] }],
-        generationConfig: {
-          maxOutputTokens: 300,
-          temperature: 0.3
-        }
-      });
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("Groq API Error:", errText);
+        throw new Error(`API request failed`);
+      }
       
-      setSummary(result.response.text().trim() || "Failed to generate summary.");
+      const result = await response.json();
+      setSummary(result.choices?.[0]?.message?.content?.trim() || "Failed to generate summary.");
       toast.success("✨ AI Summary Generated!");
     } catch (err: any) {
       toast.error(`❌ AI Summarization failed: ${err.message}`);

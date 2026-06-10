@@ -39,25 +39,33 @@ export const EventModal: React.FC<EventModalProps> = ({
     
     setIsGenerating(true);
     try {
-      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!geminiKey) throw new Error("Gemini API key is missing. Add VITE_GEMINI_API_KEY to your .env.local file.");
+      const groqKey = import.meta.env.VITE_GROQ_API_KEY;
+      if (!groqKey) throw new Error("GROQ API key is missing. Add VITE_GROQ_API_KEY to your .env.local file.");
       
-      const { GoogleGenerativeAI } = await import('@google/generative-ai');
-      const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash-latest",
-        systemInstruction: "You are a helpful college event coordinator assistant. You write punchy, exciting event descriptions. Output ONLY the description. No intro, no reasoning, no markdown." 
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${groqKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama3-8b-8192",
+          messages: [
+            { role: "system", content: "You are a helpful college event coordinator assistant. You write punchy, exciting event descriptions. Output ONLY the description. No intro, no reasoning, no markdown." },
+            { role: "user", content: `Write an engaging, exciting 3-sentence description for a college ${formData.type} named "${formData.name}". Make it sound professional yet fun for college students.` }
+          ],
+          temperature: 0.7,
+          max_tokens: 150
+        })
       });
 
-      const result = await model.generateContent({
-        contents: [{ role: "user", parts: [{ text: `Write an engaging, exciting 3-sentence description for a college ${formData.type} named "${formData.name}". Make it sound professional yet fun for college students.` }] }],
-        generationConfig: {
-          maxOutputTokens: 150,
-          temperature: 0.7
-        }
-      });
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(errText);
+      }
       
-      const generatedText = result.response.text().trim();
+      const result = await response.json();
+      const generatedText = result.choices?.[0]?.message?.content?.trim();
       
       if (generatedText) {
         setFormData(prev => ({ ...prev, description: generatedText }));
