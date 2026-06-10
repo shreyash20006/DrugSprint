@@ -151,6 +151,7 @@ export const MyCalendar: React.FC = () => {
           </h1>
           <p className="text-white/60 text-xs sm:text-sm max-w-xl leading-relaxed">
             Stay aligned with all college workshops, competitions, cultural events, and seminars. Book and sync them straight to your phone.
+          </p>
         </div>
 
         {/* View Mode Switcher */}
