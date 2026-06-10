@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Sparkles, Loader2, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { bPharmSyllabus } from '../data/syllabus';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -64,9 +65,10 @@ You have access to the following website pages. If a student asks for informatio
 - Voting & Elections: /vote
 - Pay Fees / Payments: /pay
 
-If a student asks about the syllabus, inform them: "The official syllabus can be found on the Pharmacy Council of India (PCI) / Shivaji University website, or you can get a copy from the college library or academic office."
-
 If a student asks about university exams, results, ERP, or the DBATU portal, provide this direct link: [DBATU ERP Portal](https://mis.dbatu.ac.in/erp/).
+
+Here is the official B.Pharm Syllabus. If a student asks about the syllabus or subjects for a specific semester, use this to answer their query:
+${bPharmSyllabus}
 
 When providing links, use markdown format like this: [Click here for Notices](/notices).`;
 
