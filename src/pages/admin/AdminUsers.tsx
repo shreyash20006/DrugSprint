@@ -498,9 +498,9 @@ export const AdminUsers: React.FC = () => {
       {/* ── Add Workspace User Modal ─────────────────────────────────────────── */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-navy-dark/10">
+            <div className="flex items-center justify-between p-6 border-b border-navy-dark/10 shrink-0">
               <div className="flex items-center space-x-3">
                 <div className="w-9 h-9 rounded-xl bg-orange-burnt/10 flex items-center justify-center">
                   <UserPlus className="w-5 h-5 text-orange-burnt" />
@@ -518,7 +518,7 @@ export const AdminUsers: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleAddWorkspaceUser} className="p-6 space-y-4">
+            <form onSubmit={handleAddWorkspaceUser} className="p-6 space-y-4 overflow-y-auto scrollbar-thin">
 
               {/* Quick Suggestions */}
               <div>
@@ -538,7 +538,7 @@ export const AdminUsers: React.FC = () => {
                 </button>
 
                 {showSuggestions && (
-                  <div className="mt-1 border border-navy-dark/10 rounded-xl overflow-hidden shadow-lg bg-white">
+                  <div className="mt-1 border border-navy-dark/10 rounded-xl shadow-lg bg-white max-h-56 overflow-y-auto scrollbar-thin">
                     {filteredSuggestions.length === 0 ? (
                       <p className="text-center text-xs text-navy-dark/40 py-4 font-display">All workspace emails already added ✓</p>
                     ) : (

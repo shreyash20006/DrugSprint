@@ -7,6 +7,7 @@ import { useThemeContext } from '../lib/ThemeProvider';
 import { useStudentAuth } from '../lib/StudentAuthProvider';
 import { CommandPalette } from './CommandPalette';
 import { NotificationBell } from './NotificationBell';
+import { DNALoader } from './DNALoader';
 
 const getPortalPath = (role?: string | null): string => {
   if (!role) return '/admin';
@@ -37,6 +38,18 @@ export const Navbar: React.FC = () => {
   const location = useLocation();
   const { theme, toggleTheme } = useThemeContext();
   const { studentProfile, signInWithGoogle } = useStudentAuth();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const handleLogin = async () => {
+    setIsLoggingIn(true);
+    try {
+      await signInWithGoogle();
+      // We don't set false on success because the browser redirects to Google OAuth
+    } catch (e) {
+      console.error(e);
+      setIsLoggingIn(false);
+    }
+  };
 
   // Listen for Ctrl+K globally
   useEffect(() => {
@@ -304,7 +317,7 @@ export const Navbar: React.FC = () => {
               </Link>
             ) : (
               <button
-                onClick={signInWithGoogle}
+                onClick={handleLogin}
                 className="ml-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-[10px] font-display font-bold uppercase tracking-widest text-white transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-1 shrink-0 cursor-pointer"
               >
                 <User className="w-3 h-3 text-orange-burnt" />
@@ -464,7 +477,7 @@ export const Navbar: React.FC = () => {
             </Link>
           ) : (
             <button
-              onClick={() => { signInWithGoogle(); setIsMobileMenuOpen(false); }}
+              onClick={() => { handleLogin(); setIsMobileMenuOpen(false); }}
               className="w-full flex items-center justify-center space-x-2 py-3 px-4 mb-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-display text-xs font-bold uppercase tracking-wider cursor-pointer"
             >
               <User className="w-4 h-4 text-orange-burnt" />
@@ -505,6 +518,28 @@ export const Navbar: React.FC = () => {
 
       {/* Global Command Palette Search */}
       <CommandPalette isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+
+      {/* Global Login Loader Overlay */}
+      <AnimatePresence>
+        {isLoggingIn && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#050B18]/90 backdrop-blur-md"
+          >
+            <DNALoader />
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mt-6 font-display font-bold text-white tracking-widest uppercase text-sm"
+            >
+              Authorizing via Google...
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
