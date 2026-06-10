@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '../components/admin/Toast';
 import { FeaturedExamBanner } from '../components/FeaturedExamBanner';
-import { examsData, Exam } from '../data/exams';
+import { examsData, type Exam } from '../data/exams';
 
 export const MyCalendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
