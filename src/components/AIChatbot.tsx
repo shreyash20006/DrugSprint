@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Sparkles, Loader2, Bot } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, Bot } from 'lucide-react';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
