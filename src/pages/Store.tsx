@@ -31,7 +31,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1532187643603-ba119ca4109e?q=80&w=600&auto=format&fit=crop',
       rating: '4.8',
       pages: 340,
-      checkoutUrl: 'https://your-shopify-store.com/products/organic-chemistry',
+      checkoutUrl: 'https://tgpcop-pharma.myshopify.com/',
     },
     {
       id: '2',
@@ -42,7 +42,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=600&auto=format&fit=crop',
       rating: '4.9',
       pages: 420,
-      checkoutUrl: 'https://your-shopify-store.com/products/pathophysiology',
+      checkoutUrl: 'https://tgpcop-pharma.myshopify.com/',
     },
     {
       id: '3',
@@ -53,7 +53,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop',
       rating: '5.0',
       pages: 510,
-      checkoutUrl: 'https://your-shopify-store.com/products/ndds',
+      checkoutUrl: 'https://tgpcop-pharma.myshopify.com/',
     },
     {
       id: '4',
@@ -64,7 +64,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=600&auto=format&fit=crop',
       rating: '4.7',
       pages: 380,
-      checkoutUrl: 'https://your-shopify-store.com/products/biopharmaceutics',
+      checkoutUrl: 'https://tgpcop-pharma.myshopify.com/',
     },
     {
       id: '5',
@@ -75,7 +75,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1617155093730-a8bf47be792d?q=80&w=600&auto=format&fit=crop',
       rating: '4.8',
       pages: 460,
-      checkoutUrl: 'https://your-shopify-store.com/products/medicinal-chemistry',
+      checkoutUrl: 'https://tgpcop-pharma.myshopify.com/',
     },
     {
       id: '6',
@@ -86,7 +86,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop',
       rating: '4.6',
       pages: 295,
-      checkoutUrl: 'https://your-shopify-store.com/products/pharmacognosy',
+      checkoutUrl: 'https://tgpcop-pharma.myshopify.com/',
     },
   ];
 
