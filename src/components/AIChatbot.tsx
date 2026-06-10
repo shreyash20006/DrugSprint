@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Sparkles, Loader2, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import { bPharmSyllabus } from '../data/syllabus';
 
 interface ChatMessage {
@@ -179,21 +180,22 @@ When providing links, use markdown format like this: [Click here for Notices](/n
                     className={`max-w-[85%] p-3 rounded-2xl text-sm font-sans leading-relaxed ${
                       msg.role === 'user' 
                         ? 'bg-orange-burnt text-white rounded-tr-sm shadow-md shadow-orange-burnt/10' 
-                        : 'bg-white text-navy-dark border border-navy-dark/10 rounded-tl-sm shadow-sm'
+                        : 'bg-white text-navy-dark border border-navy-dark/10 rounded-tl-sm shadow-sm prose prose-sm prose-orange max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0'
                     }`}
                   >
                     {msg.role === 'assistant' ? (
-                      msg.content.split(/(\[[^\]]+\]\([^)]+\))/g).map((part, i) => {
-                        const match = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
-                        if (match) {
-                          return (
-                            <Link key={i} to={match[2]} className="text-[#E06D2B] font-bold hover:underline" onClick={() => setIsOpen(false)}>
-                              {match[1]}
-                            </Link>
-                          );
-                        }
-                        return <span key={i}>{part}</span>;
-                      })
+                      <ReactMarkdown
+                        components={{
+                          a: ({ node, ...props }) => {
+                            if (props.href?.startsWith('/')) {
+                              return <Link to={props.href} className="text-[#E06D2B] font-bold hover:underline" onClick={() => setIsOpen(false)}>{props.children}</Link>;
+                            }
+                            return <a {...props} className="text-[#E06D2B] font-bold hover:underline" target="_blank" rel="noopener noreferrer">{props.children}</a>;
+                          }
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
                     ) : (
                       msg.content
                     )}
