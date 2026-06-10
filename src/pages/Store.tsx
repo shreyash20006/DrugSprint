@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { BookOpen, Search, ShoppingBag } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { BookOpen, Search, ShoppingBag, X } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { ScienceBackground } from '../components/ScienceBackground';
 
@@ -15,13 +15,15 @@ interface StudyBook {
   rating: string;
   pages: number;
   checkoutUrl: string;
+  descriptionHtml?: string;
 }
 
 export const Store: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedYear, setSelectedYear] = useState('all');
+  const [selectedBook, setSelectedBook] = useState<StudyBook | null>(null);
 
-    const studyBooks: StudyBook[] = [
+      const studyBooks: StudyBook[] = [
     {
       id: '1',
       title: `Human Anatomy & Physiology II Handwritten Notes | B.Pharm 1st Year 2nd Semester | TGPCOP NOTES`,
@@ -32,6 +34,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/human-anatomy-physiology-ii-b-pharm-sem-2-tgpcop',
+      descriptionHtml: "<p>TGPCOP NOTES presents premium handwritten Human Anatomy &amp; Physiology II notes specially designed for B.Pharm 1st Year 2nd Semester students.</p>\n<p>These notes are prepared in an easy-to-understand format with colorful diagrams, flowcharts, important university questions, and quick revision points to help students score better in exams.</p>\n<p>What You Will Get:</p>\n<p>Detailed handwritten notes</p>\n<p>Important diagrams &amp; labeled figures</p>\n<p>Exam-oriented content</p>\n<p>PYQs &amp; viva questions</p>\n<p>Quick revision format</p>\n<p>Easy language for fast learning</p>\n<p>Mobile &amp; PDF friendly notes</p>\n<p>Format:</p>\n<p>Digital PDF Download</p>\n<p>Instant Access After Purchase</p>\n<p><br>Prepared By: TGPCOP NOTES — Learn • Grow • Succeed<br></p>",
     },
     {
       id: '2',
@@ -43,6 +46,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmaceutical-marketing-management-b-pharm-sem-8',
+      descriptionHtml: "<p><strong>Premium handwritten Pharmaceutical Marketing Management notes covering pharmaceutical sales, marketing strategies, product management and healthcare marketing concepts.</strong></p>\n<ul>\n<li>✅ Pharmaceutical Sales – detailing, territory management</li>\n<li>✅ Marketing Strategies – segmentation, targeting &amp; positioning</li>\n<li>✅ Product Management – product life cycle &amp; brand management</li>\n<li>✅ Healthcare Marketing – hospital &amp; OTC marketing</li>\n<li>✅ Pricing &amp; Distribution in Pharma sector</li>\n<li>✅ Regulatory aspects of Pharma Advertising</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul>\n<p> </p>\n<p>📄 PDF Ebook Variant<br>• Instant Download<br>• Lifetime Access</p>\n<p>🖨️ Black &amp; White Printed Notes<br>• Printed Notes + FREE PDF<br>• Spiral Bound<br>• Delivery Across India</p>\n<p>🌈 Premium Color Printed Notes<br>• Premium Color Printing + FREE PDF<br>• Spiral Bound<br>• Delivery Across India</p>\n<p>🎁 Every Printed Notes Order Includes Complimentary PDF Access.</p>",
     },
     {
       id: '3',
@@ -54,6 +58,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/social-preventive-pharmacy-b-pharm-sem-8',
+      descriptionHtml: "<p><strong>Comprehensive handwritten Social &amp; Preventive Pharmacy notes including public health, epidemiology, national health programs and preventive healthcare concepts.</strong></p><ul>\n<li>✅ Public Health – concepts, determinants &amp; indicators</li>\n<li>✅ Epidemiology – disease patterns, incidence &amp; prevalence</li>\n<li>✅ National Health Programs – NHM, immunization &amp; TB control</li>\n<li>✅ Preventive Healthcare – primary, secondary &amp; tertiary</li>\n<li>✅ Health Education &amp; Communication</li>\n<li>✅ Healthcare System in India – structure &amp; functions</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '4',
@@ -65,6 +70,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/biostatistics-research-methodology-b-pharm-sem-8',
+      descriptionHtml: "<p><strong>Easy handwritten Biostatistics &amp; Research Methodology notes covering sampling, probability, hypothesis testing and pharmaceutical research concepts in simple language.</strong></p><ul>\n<li>✅ Sampling – types, methods &amp; sample size calculation</li>\n<li>✅ Probability – distributions, normal &amp; binomial</li>\n<li>✅ Hypothesis Testing – t-test, chi-square, ANOVA</li>\n<li>✅ Pharmaceutical Research Design – clinical trials &amp; study types</li>\n<li>✅ Data Presentation – graphs, tables &amp; statistical software</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '5',
@@ -76,6 +82,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/novel-drug-delivery-system-b-pharm-sem-7',
+      descriptionHtml: "<p><strong>Premium handwritten NDDS notes including liposomes, nanoparticles, transdermal systems and advanced drug delivery technologies with exam-oriented explanations.</strong></p><ul>\n<li>✅ Liposomes – preparation, types &amp; pharmaceutical uses</li>\n<li>✅ Nanoparticles – polymeric, solid lipid &amp; dendrimers</li>\n<li>✅ Transdermal Drug Delivery – patches &amp; penetration enhancers</li>\n<li>✅ Controlled Release Systems – matrix &amp; reservoir types</li>\n<li>✅ Targeted Drug Delivery – passive &amp; active targeting</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '6',
@@ -87,6 +94,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmacy-practice-b-pharm-sem-7',
+      descriptionHtml: "<p><strong>Complete handwritten Pharmacy Practice notes covering clinical pharmacy, patient counseling, hospital pharmacy and prescription handling in simplified format.</strong></p><ul>\n<li>✅ Clinical Pharmacy – drug therapy monitoring &amp; rational use</li>\n<li>✅ Patient Counseling – communication skills &amp; medication advice</li>\n<li>✅ Hospital Pharmacy – dispensing, procurement &amp; store management</li>\n<li>✅ Prescription Handling – reading, checking &amp; dispensing</li>\n<li>✅ Drug Information Services &amp; Medication errors</li>\n<li>✅ Pharmacoeconomics – basics &amp; health outcome</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '7',
@@ -98,6 +106,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/industrial-pharmacy-ii-b-pharm-sem-7',
+      descriptionHtml: "<p><strong>Detailed handwritten Industrial Pharmacy II notes including scale-up techniques, technology transfer, validation and pharmaceutical production concepts for exams and viva preparation.</strong></p><ul>\n<li>✅ Scale-up Techniques – pilot to commercial scale</li>\n<li>✅ Technology Transfer – process &amp; documentation</li>\n<li>✅ Validation – equipment, process &amp; cleaning</li>\n<li>✅ Regulatory Affairs – FDA, WHO &amp; ICH guidelines</li>\n<li>✅ Pharmaceutical Production &amp; Plant design</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '8',
@@ -109,6 +118,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/instrumental-methods-analysis-b-pharm-sem-7',
+      descriptionHtml: "<p><strong>Premium handwritten Instrumental Methods of Analysis notes covering spectroscopy, chromatography and analytical techniques with simplified explanations and diagrams.</strong></p><ul>\n<li>✅ Spectroscopy – UV-Visible, IR, NMR &amp; Mass Spectrometry</li>\n<li>✅ Chromatography – TLC, HPLC, GC &amp; column chromatography</li>\n<li>✅ Analytical Techniques – flame photometry, AAS &amp; more</li>\n<li>✅ Instrumentation principles &amp; working diagrams</li>\n<li>✅ Pharmaceutical analysis applications</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '9',
@@ -120,6 +130,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/quality-assurance-b-pharm-sem-6',
+      descriptionHtml: "<p><strong>Complete handwritten Quality Assurance notes covering GMP, validation, QA systems, SOPs and pharmaceutical quality control concepts in easy language.</strong></p><ul>\n<li>✅ GMP – Good Manufacturing Practices (Schedule M)</li>\n<li>✅ Validation – process, cleaning, equipment &amp; analytical</li>\n<li>✅ QA Systems – ISO, ICH guidelines overview</li>\n<li>✅ SOPs – writing, implementation &amp; review</li>\n<li>✅ Quality Control – in-process &amp; finished product testing</li>\n<li>✅ Pharmaceutical Documentation &amp; Audits</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '10',
@@ -131,6 +142,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/biopharmaceutics-pharmacokinetics-b-pharm-sem-6',
+      descriptionHtml: "<p><strong>Detailed handwritten Biopharmaceutics &amp; Pharmacokinetics notes including ADME, compartment models, bioavailability and pharmacokinetic calculations with simplified diagrams.</strong></p><ul>\n<li>✅ ADME – absorption, distribution, metabolism &amp; excretion</li>\n<li>✅ One &amp; Two Compartment Models – equations &amp; graphs</li>\n<li>✅ Bioavailability – factors &amp; bioequivalence</li>\n<li>✅ Pharmacokinetic Calculations – half-life, Vd, clearance</li>\n<li>✅ Non-linear Pharmacokinetics</li>\n<li>✅ Simplified diagrams &amp; solved numericals</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '11',
@@ -142,6 +154,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/herbal-drug-technology-b-pharm-sem-6',
+      descriptionHtml: "<p><strong>Premium handwritten Herbal Drug Technology notes covering herbal formulations, standardization, extraction techniques and herbal product development with important exam questions.</strong></p><ul>\n<li>✅ Herbal Formulations – types &amp; development process</li>\n<li>✅ Standardization – physical, chemical &amp; biological methods</li>\n<li>✅ Extraction Techniques – modern &amp; traditional methods</li>\n<li>✅ Herbal Product Development – WHO guidelines</li>\n<li>✅ Quality Control of Herbal Drugs</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '12',
@@ -153,6 +166,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmacology-iii-b-pharm-sem-6',
+      descriptionHtml: "<p><strong>Easy handwritten Pharmacology III notes including toxicology, immunopharmacology and advanced pharmacology topics prepared for semester exams and GPAT preparation.</strong></p><ul>\n<li>✅ Toxicology – general principles, antidotes &amp; poison management</li>\n<li>✅ Immunopharmacology – immunosuppressants &amp; immunostimulants</li>\n<li>✅ Advanced Pharmacology – emerging drug targets</li>\n<li>✅ Chronopharmacology &amp; Drug Interactions</li>\n<li>✅ Simplified explanations with diagrams</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '13',
@@ -164,6 +178,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/medicinal-chemistry-iii-b-pharm-sem-6',
+      descriptionHtml: "<p><strong>Comprehensive handwritten Medicinal Chemistry III notes covering antibiotics, antimalarials, antivirals and medicinal compounds with SAR and mechanism-based explanations.</strong></p><ul>\n<li>✅ Antibiotics – penicillins, cephalosporins, tetracyclines &amp; more</li>\n<li>✅ Antimalarials – classification, SAR &amp; drug profiles</li>\n<li>✅ Antivirals – mechanisms &amp; medicinal compounds</li>\n<li>✅ Structure-Activity Relationship (SAR) – simplified</li>\n<li>✅ Mechanism-based explanations with diagrams</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '14',
@@ -175,6 +190,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmaceutical-jurisprudence-b-pharm-sem-5',
+      descriptionHtml: "<p><strong>Premium handwritten Pharmaceutical Jurisprudence notes covering pharmacy laws, Drug &amp; Cosmetic Act, schedules, ethics and legal requirements with simplified explanations.</strong></p><ul>\n<li>✅ Drugs &amp; Cosmetics Act – sections, rules &amp; schedules</li>\n<li>✅ Pharmacy Act – registration &amp; licensing</li>\n<li>✅ Schedules – H, H1, X, G, C &amp; others explained</li>\n<li>✅ Narcotic Drugs &amp; Psychotropic Substances Act</li>\n<li>✅ Pharmacy Ethics &amp; Professional conduct</li>\n<li>✅ Legal Requirements for Pharmacy Practice</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '15',
@@ -186,6 +202,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmacognosy-phytochemistry-ii-b-pharm-sem-5',
+      descriptionHtml: "<p><strong>Well-structured handwritten Pharmacognosy &amp; Phytochemistry II notes covering herbal drugs, phytoconstituents, extraction methods and medicinal plants for semester exams and GPAT preparation.</strong></p><ul>\n<li>✅ Herbal Drugs – classification &amp; identification</li>\n<li>✅ Phytoconstituents – alkaloids, glycosides, terpenes &amp; more</li>\n<li>✅ Extraction Methods – maceration, percolation, Soxhlet</li>\n<li>✅ Medicinal Plants – uses &amp; active constituents</li>\n<li>✅ Standardization of Herbal Preparations</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '16',
@@ -197,6 +214,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmacology-ii-b-pharm-sem-5',
+      descriptionHtml: "<p><strong>Detailed handwritten Pharmacology II notes covering endocrine pharmacology, chemotherapy, CNS drugs and important pharmacological mechanisms with simplified diagrams and explanations.</strong></p><ul>\n<li>✅ Endocrine Pharmacology – hormones, insulin &amp; thyroid drugs</li>\n<li>✅ Chemotherapy – antibacterials, antifungals &amp; antivirals</li>\n<li>✅ CNS Drugs – sedatives, hypnotics &amp; antidepressants</li>\n<li>✅ Pharmacological Mechanisms – receptor-level diagrams</li>\n<li>✅ Simplified explanations with flowcharts</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '17',
@@ -208,6 +226,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/industrial-pharmacy-i-b-pharm-sem-5',
+      descriptionHtml: "<p><strong>Complete handwritten Industrial Pharmacy I notes including tablet manufacturing, capsules, GMP, validation, production processes and pharmaceutical industry concepts in easy exam-oriented language.</strong></p><ul>\n<li>✅ Tablet Manufacturing – granulation, compression &amp; coating</li>\n<li>✅ Capsules – hard &amp; soft gelatin formulations</li>\n<li>✅ GMP – Good Manufacturing Practices guidelines</li>\n<li>✅ Validation – process, cleaning &amp; analytical</li>\n<li>✅ Production Processes – industrial scale concepts</li>\n<li>✅ Pharmaceutical Industry Standards</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '18',
@@ -219,6 +238,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/medicinal-chemistry-ii-b-pharm-sem-5',
+      descriptionHtml: "<p><strong>Premium handwritten Medicinal Chemistry II notes covering antihistamines, anticonvulsants, antipsychotics, diuretics and medicinal drug synthesis with simplified explanations and exam-focused content.</strong></p><ul>\n<li>✅ Antihistamines – classification, SAR &amp; uses</li>\n<li>✅ Anticonvulsants – mechanisms &amp; drug profiles</li>\n<li>✅ Antipsychotics – typical &amp; atypical agents</li>\n<li>✅ Diuretics – types, mechanisms &amp; structures</li>\n<li>✅ Medicinal Drug Synthesis – step-by-step</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '19',
@@ -230,6 +250,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmacognosy-phytochemistry-ii-b-pharm-sem-4',
+      descriptionHtml: "<p><strong>Comprehensive handwritten notes for Pharmacognosy &amp; Phytochemistry II covering traditional medicines, phytoconstituents, natural products and herbal drug studies with exam-focused content and diagrams.</strong></p><ul>\n<li>✅ Traditional Medicines – Ayurveda, Unani &amp; Siddha overview</li>\n<li>✅ Phytoconstituents – alkaloids, flavonoids, terpenoids &amp; more</li>\n<li>✅ Natural Products – extraction &amp; isolation techniques</li>\n<li>✅ Herbal Drug Studies – monographs &amp; standardization</li>\n<li>✅ Exam-focused content with diagrams</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ GPAT aligned coverage</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '20',
@@ -241,6 +262,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmacology-i-b-pharm-sem-4',
+      descriptionHtml: "<p><strong>Easy handwritten Pharmacology I notes covering ANS drugs, cardiovascular drugs, pharmacodynamics, pharmacokinetics and drug mechanisms with simplified explanations for university exams and GPAT preparation.</strong></p><ul>\n<li>✅ Autonomic Nervous System (ANS) Drugs – adrenergic &amp; cholinergic</li>\n<li>✅ Cardiovascular Drugs – antihypertensives, antiarrhythmics</li>\n<li>✅ Pharmacodynamics – receptor theories &amp; drug action</li>\n<li>✅ Pharmacokinetics – ADME principles</li>\n<li>✅ Drug Mechanisms – simplified with diagrams</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '21',
@@ -252,6 +274,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/physical-pharmaceutics-ii-b-pharm-sem-4',
+      descriptionHtml: "<p><strong>Premium handwritten notes for Physical Pharmaceutics II with unit-wise concepts on colloids, kinetics, buffers, isotonicity and stability studies.</strong></p><p>Includes diagrams, formulas and important exam questions in simplified format.</p><ul>\n<li>✅ Colloids – types, properties &amp; pharmaceutical use</li>\n<li>✅ Chemical Kinetics – orders &amp; shelf-life calculations</li>\n<li>✅ Buffers – Henderson-Hasselbalch &amp; capacity</li>\n<li>✅ Isotonicity – calculations &amp; significance</li>\n<li>✅ Stability Studies – ICH guidelines overview</li>\n<li>✅ Diagrams, formulas &amp; solved examples</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '22',
@@ -263,6 +286,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/medicinal-chemistry-i-b-pharm-sem-4',
+      descriptionHtml: "<p><strong>Complete handwritten Medicinal Chemistry I notes including drug classification, SAR, medicinal compounds, mechanism of action and important medicinal chemistry concepts prepared for semester exams and GPAT preparation.</strong></p><ul>\n<li>✅ Drug Classification – systematic &amp; pharmacological</li>\n<li>✅ Structure-Activity Relationship (SAR) – simplified</li>\n<li>✅ Medicinal Compounds – structures &amp; uses</li>\n<li>✅ Mechanism of Action – receptor-level explanations</li>\n<li>✅ Key Medicinal Chemistry Concepts</li>\n<li>✅ GPAT &amp; University Exam focused</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '23',
@@ -274,6 +298,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmaceutical-organic-chemistry-iii-b-pharm-sem-4',
+      descriptionHtml: "<p><strong>Detailed handwritten Pharmaceutical Organic Chemistry III notes covering heterocyclic compounds, medicinal compounds, reaction mechanisms and synthesis topics with easy explanations and exam-focused content for B.Pharmacy students.</strong></p><ul>\n<li>✅ Heterocyclic Compounds – classification &amp; properties</li>\n<li>✅ Reaction Mechanisms – step-by-step breakdowns</li>\n<li>✅ Medicinal Compounds – structure &amp; significance</li>\n<li>✅ Synthesis Topics – unit-wise coverage</li>\n<li>✅ Exam-focused content – GPAT aligned</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '24',
@@ -285,6 +310,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmacognosy-phytochemistry-i-b-pharm-sem-3',
+      descriptionHtml: "<p><strong>Premium handwritten Pharmacognosy &amp; Phytochemistry I notes covering crude drugs, plant morphology, microscopy, cultivation, phytoconstituents and herbal medicines.</strong></p><p>Includes unit-wise important topics and simplified explanations for exam preparation.</p><ul>\n<li>✅ Crude Drugs – identification &amp; classification</li>\n<li>✅ Plant Morphology – root, stem, leaf &amp; flower</li>\n<li>✅ Microscopy – cell types &amp; histology</li>\n<li>✅ Cultivation &amp; Collection of Medicinal Plants</li>\n<li>✅ Phytoconstituents – alkaloids, glycosides &amp; tannins</li>\n<li>✅ Herbal Medicines – applications &amp; monographs</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '25',
@@ -296,6 +322,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmaceutical-engineering-b-pharm-sem-3',
+      descriptionHtml: "<p><strong>Well-structured handwritten Pharmaceutical Engineering notes including heat transfer, evaporation, distillation, filtration, size reduction, drying and industrial pharmacy concepts.</strong></p><p>Prepared in easy language with diagrams and unit-wise important questions.</p><ul>\n<li>✅ Heat Transfer – conduction, convection &amp; radiation</li>\n<li>✅ Evaporation &amp; Distillation – types &amp; equipment</li>\n<li>✅ Filtration – mechanisms &amp; pharmaceutical filtration</li>\n<li>✅ Size Reduction – laws, mills &amp; equipment</li>\n<li>✅ Drying – methods &amp; dryer types</li>\n<li>✅ Industrial Pharmacy Concepts</li>\n<li>✅ Unit-wise Important Questions &amp; Diagrams</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '26',
@@ -307,6 +334,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmaceutical-microbiology-b-pharm-sem-3',
+      descriptionHtml: "<p><strong>Complete handwritten Pharmaceutical Microbiology notes with sterilization methods, microbial growth, immunity, antibiotics, culture media and pharmaceutical applications.</strong></p><p>Ideal for university exams, viva and GPAT preparation with simplified handwritten explanations.</p><ul>\n<li>✅ Sterilization Methods – moist heat, dry heat, filtration</li>\n<li>✅ Microbial Growth – curves, factors &amp; media</li>\n<li>✅ Immunity – innate &amp; adaptive mechanisms</li>\n<li>✅ Antibiotics – classification &amp; mechanism of action</li>\n<li>✅ Culture Media – types &amp; pharmaceutical use</li>\n<li>✅ GPAT &amp; Viva focused content</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '27',
@@ -318,6 +346,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/physical-pharmaceutics-i-b-pharm-sem-3',
+      descriptionHtml: "<p><strong>Premium handwritten notes for Physical Pharmaceutics I covering micromeritics, rheology, surface chemistry, viscosity, complexes and pharmaceutical calculations.</strong></p><p>Easy-to-understand explanations with exam-oriented answers, diagrams and important questions for B.Pharmacy students.</p><ul>\n<li>✅ Micromeritics – particle size, flow properties</li>\n<li>✅ Rheology – viscosity &amp; flow behaviour</li>\n<li>✅ Surface Chemistry – adsorption &amp; surfactants</li>\n<li>✅ Complexes &amp; Pharmaceutical Calculations</li>\n<li>✅ Exam-oriented answers &amp; diagrams</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '28',
@@ -329,6 +358,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/pharmaceutical-organic-chemistry-ii-b-pharm-sem-3',
+      descriptionHtml: "<p><strong>Premium handwritten B.Pharmacy notes for Pharmaceutical Organic Chemistry II designed for semester exam preparation, GPAT revision, viva preparation and quick concept learning.</strong></p><p>Includes reaction mechanisms, stereochemistry concepts, medicinal compounds and unit-wise important questions in simple language with diagrams and clean formatting.</p><ul>\n<li>✅ Reaction Mechanisms – detailed step-by-step</li>\n<li>✅ Stereochemistry – isomers, chirality &amp; configurations</li>\n<li>✅ Medicinal Compounds – structure &amp; pharmacy relevance</li>\n<li>✅ Unit-wise Important Questions</li>\n<li>✅ Diagrams &amp; clean formatting</li>\n<li>✅ GPAT &amp; Viva focused content</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '29',
@@ -340,6 +370,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/environmental-sciences-b-pharm-sem-2',
+      descriptionHtml: "<p><strong>Easy-to-understand handwritten environmental science notes covering ecosystem, pollution, biodiversity, environmental protection and sustainability concepts for B.Pharmacy students.</strong></p><ul>\n<li>✅ Ecosystem – structure, types &amp; functions</li>\n<li>✅ Pollution – air, water, soil &amp; noise</li>\n<li>✅ Biodiversity – conservation &amp; hotspots</li>\n<li>✅ Environmental Protection &amp; Laws</li>\n<li>✅ Sustainability &amp; Green Pharmacy concepts</li>\n<li>✅ Exam-focused – PCI syllabus aligned</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
     {
       id: '30',
@@ -351,6 +382,7 @@ export const Store: React.FC = () => {
       rating: '4.8',
       pages: 150,
       checkoutUrl: 'https://tgpcop-pharma.myshopify.com/products/computer-applications-pharmacy-b-pharm-sem-2',
+      descriptionHtml: "<p><strong>Exam-focused handwritten notes covering pharmacy software, MS Office, databases, digital healthcare systems and computer applications used in pharmaceutical studies.</strong></p><ul>\n<li>✅ MS Office – Word, Excel, PowerPoint for Pharmacy</li>\n<li>✅ Pharmacy Software &amp; Digital Tools</li>\n<li>✅ Databases – basics and pharmacy applications</li>\n<li>✅ Digital Healthcare Systems overview</li>\n<li>✅ Internet &amp; Computer Fundamentals</li>\n<li>✅ Exam-focused – PCI syllabus aligned</li>\n<li>✅ Instant PDF Download</li>\n</ul><p><em>Format: PDF Ebook | Digital Download | No physical product will be shipped.</em></p>",
     },
   ];
 
@@ -429,6 +461,7 @@ export const Store: React.FC = () => {
             {filteredBooks.map((book, idx) => (
               <motion.div
                 key={book.id}
+                onClick={() => setSelectedBook(book)}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -438,7 +471,7 @@ export const Store: React.FC = () => {
                   borderColor: 'rgba(214, 90, 30, 0.45)',
                   boxShadow: '0 20px 40px -15px rgba(214, 90, 30, 0.35)',
                 }}
-                className="bg-[#0D1B3E]/85 border border-orange-burnt/25 rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 relative group h-full shadow-lg"
+                className="bg-[#0D1B3E]/85 border border-orange-burnt/25 rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 relative group h-full shadow-lg cursor-pointer"
               >
                 <div>
                   {/* Zooming Book Cover Banner */}
@@ -446,7 +479,7 @@ export const Store: React.FC = () => {
                     <img 
                       src={book.image} 
                       alt={book.title} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-contain p-4 bg-white/5 transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                       decoding="async"
                     />
@@ -486,7 +519,8 @@ export const Store: React.FC = () => {
                     href={book.checkoutUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full py-3 bg-[#060D1F] hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-xl transition-all duration-300 border border-orange-burnt/35 hover:border-transparent active:scale-95 shadow-md flex items-center justify-center space-x-1.5 cursor-pointer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full py-3 bg-[#060D1F] hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-xl transition-all duration-300 border border-orange-burnt/35 hover:border-transparent active:scale-95 shadow-md flex items-center justify-center space-x-1.5"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     <span>Buy Handbook</span>
@@ -497,6 +531,79 @@ export const Store: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Product Details Modal */}
+      <AnimatePresence>
+        {selectedBook && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setSelectedBook(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-3xl max-h-[90vh] bg-[#050B18] border border-orange-burnt/30 rounded-2xl shadow-2xl overflow-y-auto flex flex-col md:flex-row"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedBook(null)}
+                className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-orange-burnt/80 text-white rounded-full backdrop-blur-md transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Image Section */}
+              <div className="w-full md:w-2/5 bg-white/5 border-b md:border-b-0 md:border-r border-orange-burnt/20 p-6 flex flex-col items-center justify-center min-h-[300px]">
+                <img 
+                  src={selectedBook.image} 
+                  alt={selectedBook.title}
+                  className="w-full max-h-[400px] object-contain drop-shadow-2xl" 
+                />
+              </div>
+
+              {/* Details Section */}
+              <div className="w-full md:w-3/5 p-6 sm:p-8 flex flex-col">
+                <span className="text-xs font-bold uppercase tracking-widest text-[#F5A623] mb-2">
+                  {selectedBook.subject} • {selectedBook.year}
+                </span>
+                <h2 className="font-display font-bold text-white text-2xl sm:text-3xl leading-tight mb-4">
+                  {selectedBook.title}
+                </h2>
+                
+                <div className="flex items-center space-x-6 text-sm text-white/60 font-sans mb-6 pb-6 border-b border-white/10">
+                  <span>📖 {selectedBook.pages} pages</span>
+                  <span>⭐ {selectedBook.rating} Rating</span>
+                  <span className="text-orange-burnt font-extrabold text-lg">{selectedBook.price}</span>
+                </div>
+
+                {/* Description Content */}
+                <div 
+                  className="prose prose-invert prose-sm max-w-none text-white/80 overflow-y-auto pr-2 custom-scrollbar flex-1 space-y-4 marker:text-orange-burnt"
+                  dangerouslySetInnerHTML={{ __html: selectedBook.descriptionHtml || '<p>No description available.</p>' }}
+                />
+
+                {/* Action Area */}
+                <div className="mt-8 pt-6 border-t border-white/10">
+                  <a
+                    href={selectedBook.checkoutUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-4 bg-gradient-to-r from-orange-burnt to-[#E06D2B] hover:shadow-lg hover:shadow-orange-burnt/30 text-white font-display text-sm font-bold uppercase tracking-widest rounded-xl transition-all duration-300 active:scale-95 flex items-center justify-center space-x-2"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                    <span>Proceed to Checkout</span>
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
