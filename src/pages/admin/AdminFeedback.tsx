@@ -51,30 +51,22 @@ export const AdminFeedback: React.FC = () => {
       const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
       if (!geminiKey) throw new Error("Gemini API key is missing. Add VITE_GEMINI_API_KEY to your .env.local file.");
       
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
-        {
-          headers: { "Content-Type": "application/json" },
-          method: "POST",
-          body: JSON.stringify({ 
-            systemInstruction: {
-              role: "user",
-              parts: [{ text: "You are an analytical assistant. Summarize the following event feedback into exactly 3 concise bullet points: 1. Overall Sentiment 2. Key Strengths 3. Areas for Improvement. Do not use markdown bolding." }]
-            },
-            contents: [
-              { role: "user", parts: [{ text: `Here is the feedback:\n${textComments}` }] }
-            ],
-            generationConfig: {
-              maxOutputTokens: 300,
-              temperature: 0.3
-            }
-          }),
+      const { GoogleGenerativeAI } = await import('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(geminiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: "You are an analytical assistant. Summarize the following event feedback into exactly 3 concise bullet points: 1. Overall Sentiment 2. Key Strengths 3. Areas for Improvement. Do not use markdown bolding." 
+      });
+
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: `Here is the feedback:\n${textComments}` }] }],
+        generationConfig: {
+          maxOutputTokens: 300,
+          temperature: 0.3
         }
-      );
+      });
       
-      if (!response.ok) throw new Error("API request failed");
-      const result = await response.json();
-      setSummary(result.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Failed to generate summary.");
+      setSummary(result.response.text().trim() || "Failed to generate summary.");
       toast.success("✨ AI Summary Generated!");
     } catch (err: any) {
       toast.error(`❌ AI Summarization failed: ${err.message}`);

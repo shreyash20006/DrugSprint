@@ -49,28 +49,22 @@ export const AIChatbot: React.FC = () => {
         { role: "user", parts: [{ text: userMessage }] }
       ];
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
-        {
-          headers: { "Content-Type": "application/json" },
-          method: "POST",
-          body: JSON.stringify({ 
-            systemInstruction: {
-              role: "user",
-              parts: [{ text: "You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. Keep answers concise, helpful, and polite. Do not use markdown." }]
-            },
-            contents: apiMessages,
-            generationConfig: {
-              maxOutputTokens: 200,
-              temperature: 0.5
-            }
-          }),
-        }
-      );
+      const { GoogleGenerativeAI } = await import('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(geminiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: "You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. Keep answers concise, helpful, and polite. Do not use markdown."
+      });
 
-      if (!response.ok) throw new Error("API request failed");
-      const result = await response.json();
-      const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      const result = await model.generateContent({
+        contents: apiMessages,
+        generationConfig: {
+          maxOutputTokens: 200,
+          temperature: 0.5
+        }
+      });
+
+      const generatedText = result.response.text().trim();
 
       if (generatedText) {
         setMessages(prev => [...prev, { role: 'assistant', content: generatedText }]);

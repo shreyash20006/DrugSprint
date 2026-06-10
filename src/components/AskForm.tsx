@@ -94,30 +94,22 @@ export const AskForm: React.FC = () => {
       
       const faqContext = faqs.map(f => `Q: ${f.question}\nA: ${f.answer}`).join("\n\n");
       
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
-        {
-          headers: { "Content-Type": "application/json" },
-          method: "POST",
-          body: JSON.stringify({ 
-            systemInstruction: {
-              role: "user",
-              parts: [{ text: `You are the TGPCOP Council AI Assistant. Answer the student's question based ONLY on this context:\n\n${faqContext}\n\nIf the answer is not in the context, say "I couldn't find an exact answer. Please submit your question to the council for a direct reply." Keep answers short and friendly. No markdown.` }]
-            },
-            contents: [
-              { role: "user", parts: [{ text: formData.question }] }
-            ],
-            generationConfig: {
-              maxOutputTokens: 150,
-              temperature: 0.3
-            }
-          }),
+      const { GoogleGenerativeAI } = await import('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(geminiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: `You are the TGPCOP Council AI Assistant. Answer the student's question based ONLY on this context:\n\n${faqContext}\n\nIf the answer is not in the context, say "I couldn't find an exact answer. Please submit your question to the council for a direct reply." Keep answers short and friendly. No markdown.` 
+      });
+
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: formData.question }] }],
+        generationConfig: {
+          maxOutputTokens: 150,
+          temperature: 0.3
         }
-      );
+      });
       
-      if (!response.ok) throw new Error("API Error");
-      const result = await response.json();
-      const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      const generatedText = result.response.text().trim();
       setAiAnswer(generatedText || "Sorry, I couldn't process that. Please submit your question.");
     } catch (err: any) {
       setAiAnswer("AI service is currently unavailable. Please submit your question to the council.");

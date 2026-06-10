@@ -42,34 +42,22 @@ export const EventModal: React.FC<EventModalProps> = ({
       const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
       if (!geminiKey) throw new Error("Gemini API key is missing. Add VITE_GEMINI_API_KEY to your .env.local file.");
       
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
-        {
-          headers: { "Content-Type": "application/json" },
-          method: "POST",
-          body: JSON.stringify({ 
-            systemInstruction: {
-              role: "user",
-              parts: [{ text: "You are a helpful college event coordinator assistant. You write punchy, exciting event descriptions. Output ONLY the description. No intro, no reasoning, no markdown." }]
-            },
-            contents: [
-              { role: "user", parts: [{ text: `Write an engaging, exciting 3-sentence description for a college ${formData.type} named "${formData.name}". Make it sound professional yet fun for college students.` }] }
-            ],
-            generationConfig: {
-              maxOutputTokens: 150,
-              temperature: 0.7
-            }
-          }),
+      const { GoogleGenerativeAI } = await import('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(geminiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: "You are a helpful college event coordinator assistant. You write punchy, exciting event descriptions. Output ONLY the description. No intro, no reasoning, no markdown." 
+      });
+
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: `Write an engaging, exciting 3-sentence description for a college ${formData.type} named "${formData.name}". Make it sound professional yet fun for college students.` }] }],
+        generationConfig: {
+          maxOutputTokens: 150,
+          temperature: 0.7
         }
-      );
+      });
       
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(errText);
-      }
-      
-      const result = await response.json();
-      const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      const generatedText = result.response.text().trim();
       
       if (generatedText) {
         setFormData(prev => ({ ...prev, description: generatedText }));
