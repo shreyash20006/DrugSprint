@@ -62,6 +62,7 @@ You have access to the following website pages. If a student asks for informatio
 - Contact Us: /contact
 - Report a Bug: /report
 - Voting & Elections: /vote
+- Pay Fees / Payments: /pay
 
 If a student asks about the syllabus, inform them: "The official syllabus can be found on the Pharmacy Council of India (PCI) / Shivaji University website, or you can get a copy from the college library or academic office."
 
