@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { BookOpen, Search, ShoppingBag } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { ScienceBackground } from '../components/ScienceBackground';
-import { useToast } from '../components/admin/Toast';
+
 
 interface StudyBook {
   id: string;
@@ -497,10 +497,6 @@ export const Store: React.FC = () => {
           </div>
         )}
       </div>
-
-      </div>
-
-
     </div>
   );
 };
