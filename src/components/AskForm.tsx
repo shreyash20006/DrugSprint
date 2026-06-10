@@ -97,7 +97,7 @@ export const AskForm: React.FC = () => {
       const { GoogleGenerativeAI } = await import('@google/generative-ai');
       const genAI = new GoogleGenerativeAI(geminiKey);
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
+        model: "gemini-1.5-flash-latest",
         systemInstruction: `You are the TGPCOP Council AI Assistant. Answer the student's question based ONLY on this context:\n\n${faqContext}\n\nIf the answer is not in the context, say "I couldn't find an exact answer. Please submit your question to the council for a direct reply." Keep answers short and friendly. No markdown.` 
       });
 
