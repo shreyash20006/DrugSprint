@@ -1,11 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { BadgeCheck, Users, Upload, Search, Download, Clock, XCircle, FileSpreadsheet } from 'lucide-react';
+import { BadgeCheck, Users, Upload, Search, Clock, XCircle, FileSpreadsheet } from 'lucide-react';
 import { useAuth } from '../../components/admin/ProtectedRoute';
 
 export const AdminStudentVerification: React.FC = () => {
-  const { role } = useAuth();
-
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
