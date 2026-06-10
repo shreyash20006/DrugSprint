@@ -134,9 +134,18 @@ export const Navbar: React.FC = () => {
       >
         {/* Dynamic Announcement Bar - upgraded with sleek glow */}
         {announcementEnabled && announcementText && (
-          <div className="w-full bg-gradient-to-r from-orange-burnt to-[#E06D2B] py-2 px-4 text-white text-center text-[10px] sm:text-xs font-display font-bold tracking-wide flex items-center justify-center space-x-2 shadow-inner border-b border-white/5 relative overflow-hidden">
-            <span className="bg-white/20 border border-white/30 px-2 py-0.5 rounded text-[8px] sm:text-[9px] uppercase tracking-wider animate-pulse shrink-0">LATEST</span>
-            <span className="truncate">{announcementText}</span>
+          <div className="w-full bg-gradient-to-r from-orange-burnt to-[#E06D2B] py-2 px-4 text-white text-[10px] sm:text-xs font-display font-bold tracking-wide flex items-center space-x-2 shadow-inner border-b border-white/5 relative overflow-hidden">
+            <div className="bg-white/20 border border-white/30 px-2 py-0.5 rounded text-[8px] sm:text-[9px] uppercase tracking-wider animate-pulse shrink-0 relative z-10 shadow-md">
+              LATEST
+            </div>
+            <div className="flex-1 overflow-hidden relative flex items-center">
+              <div className="animate-marquee hover:opacity-90 cursor-default">
+                <span className="pr-12">{announcementText}</span>
+                <span className="pr-12">{announcementText}</span>
+                <span className="pr-12">{announcementText}</span>
+                <span className="pr-12">{announcementText}</span>
+              </div>
+            </div>
           </div>
         )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">

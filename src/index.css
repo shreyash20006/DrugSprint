@@ -184,6 +184,26 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* ============================================
+   MARQUEE ANIMATION
+   ============================================ */
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ============================================
    LIGHT MODE — COMPREHENSIVE OVERRIDES
    These use CSS attribute substring selectors
    to override ALL hardcoded Tailwind classes
