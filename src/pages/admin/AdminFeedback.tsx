@@ -48,29 +48,33 @@ export const AdminFeedback: React.FC = () => {
 
     setIsSummarizing(true);
     try {
-      const hfKey = import.meta.env.VITE_HF_API_KEY;
-      if (!hfKey) throw new Error("Hugging Face API key is missing. Add VITE_HF_API_KEY to your .env file.");
+      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!geminiKey) throw new Error("Gemini API key is missing. Add VITE_GEMINI_API_KEY to your .env.local file.");
       
       const response = await fetch(
-        "https://api-inference.huggingface.co/models/google/gemma-4-12B-it/v1/chat/completions",
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
         {
-          headers: { Authorization: `Bearer ${hfKey}`, "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
           method: "POST",
           body: JSON.stringify({ 
-            model: "google/gemma-4-12B-it",
-            messages: [
-              { role: "system", content: "You are an analytical assistant. Summarize the following event feedback into exactly 3 concise bullet points: 1. Overall Sentiment 2. Key Strengths 3. Areas for Improvement. Do not use markdown bolding." },
-              { role: "user", content: `Here is the feedback:\n${textComments}` }
+            systemInstruction: {
+              role: "user",
+              parts: [{ text: "You are an analytical assistant. Summarize the following event feedback into exactly 3 concise bullet points: 1. Overall Sentiment 2. Key Strengths 3. Areas for Improvement. Do not use markdown bolding." }]
+            },
+            contents: [
+              { role: "user", parts: [{ text: `Here is the feedback:\n${textComments}` }] }
             ],
-            max_tokens: 300,
-            temperature: 0.3
+            generationConfig: {
+              maxOutputTokens: 300,
+              temperature: 0.3
+            }
           }),
         }
       );
       
       if (!response.ok) throw new Error("API request failed");
       const result = await response.json();
-      setSummary(result.choices?.[0]?.message?.content?.trim() || "Failed to generate summary.");
+      setSummary(result.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Failed to generate summary.");
       toast.success("✨ AI Summary Generated!");
     } catch (err: any) {
       toast.error(`❌ AI Summarization failed: ${err.message}`);

@@ -85,8 +85,8 @@ export const AskForm: React.FC = () => {
     setIsGeneratingAiAnswer(true);
     setAiAnswer(null);
     try {
-      const hfKey = import.meta.env.VITE_HF_API_KEY;
-      if (!hfKey) {
+      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!geminiKey) {
         setAiAnswer("AI is not configured. Please submit your question directly to the council.");
         setIsGeneratingAiAnswer(false);
         return;
@@ -95,28 +95,29 @@ export const AskForm: React.FC = () => {
       const faqContext = faqs.map(f => `Q: ${f.question}\nA: ${f.answer}`).join("\n\n");
       
       const response = await fetch(
-        "https://api-inference.huggingface.co/models/google/gemma-4-12B-it/v1/chat/completions",
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
         {
-          headers: { Authorization: `Bearer ${hfKey}`, "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
           method: "POST",
           body: JSON.stringify({ 
-            model: "google/gemma-4-12B-it",
-            messages: [
-              { 
-                role: "system", 
-                content: `You are the TGPCOP Council AI Assistant. Answer the student's question based ONLY on this context:\n\n${faqContext}\n\nIf the answer is not in the context, say "I couldn't find an exact answer. Please submit your question to the council for a direct reply." Keep answers short and friendly. No markdown.` 
-              },
-              { role: "user", content: formData.question }
+            systemInstruction: {
+              role: "user",
+              parts: [{ text: `You are the TGPCOP Council AI Assistant. Answer the student's question based ONLY on this context:\n\n${faqContext}\n\nIf the answer is not in the context, say "I couldn't find an exact answer. Please submit your question to the council for a direct reply." Keep answers short and friendly. No markdown.` }]
+            },
+            contents: [
+              { role: "user", parts: [{ text: formData.question }] }
             ],
-            max_tokens: 150,
-            temperature: 0.3
+            generationConfig: {
+              maxOutputTokens: 150,
+              temperature: 0.3
+            }
           }),
         }
       );
       
       if (!response.ok) throw new Error("API Error");
       const result = await response.json();
-      const generatedText = result.choices?.[0]?.message?.content?.trim();
+      const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
       setAiAnswer(generatedText || "Sorry, I couldn't process that. Please submit your question.");
     } catch (err: any) {
       setAiAnswer("AI service is currently unavailable. Please submit your question to the council.");

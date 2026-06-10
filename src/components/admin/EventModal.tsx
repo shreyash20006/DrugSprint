@@ -39,22 +39,26 @@ export const EventModal: React.FC<EventModalProps> = ({
     
     setIsGenerating(true);
     try {
-      const hfKey = import.meta.env.VITE_HF_API_KEY;
-      if (!hfKey) throw new Error("Hugging Face API key is missing. Add VITE_HF_API_KEY to your .env file.");
+      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!geminiKey) throw new Error("Gemini API key is missing. Add VITE_GEMINI_API_KEY to your .env.local file.");
       
       const response = await fetch(
-        "https://api-inference.huggingface.co/models/google/gemma-4-12B-it/v1/chat/completions",
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
         {
-          headers: { Authorization: `Bearer ${hfKey}`, "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json" },
           method: "POST",
           body: JSON.stringify({ 
-            model: "google/gemma-4-12B-it",
-            messages: [
-              { role: "system", content: "You are a helpful college event coordinator assistant. You write punchy, exciting event descriptions. Output ONLY the description. No intro, no reasoning, no markdown." },
-              { role: "user", content: `Write an engaging, exciting 3-sentence description for a college ${formData.type} named "${formData.name}". Make it sound professional yet fun for college students.` }
+            systemInstruction: {
+              role: "user",
+              parts: [{ text: "You are a helpful college event coordinator assistant. You write punchy, exciting event descriptions. Output ONLY the description. No intro, no reasoning, no markdown." }]
+            },
+            contents: [
+              { role: "user", parts: [{ text: `Write an engaging, exciting 3-sentence description for a college ${formData.type} named "${formData.name}". Make it sound professional yet fun for college students.` }] }
             ],
-            max_tokens: 150,
-            temperature: 0.7
+            generationConfig: {
+              maxOutputTokens: 150,
+              temperature: 0.7
+            }
           }),
         }
       );
@@ -65,7 +69,7 @@ export const EventModal: React.FC<EventModalProps> = ({
       }
       
       const result = await response.json();
-      const generatedText = result.choices?.[0]?.message?.content?.trim();
+      const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
       
       if (generatedText) {
         setFormData(prev => ({ ...prev, description: generatedText }));

@@ -34,41 +34,43 @@ export const AIChatbot: React.FC = () => {
     setIsTyping(true);
 
     try {
-      const hfKey = import.meta.env.VITE_HF_API_KEY;
-      if (!hfKey) {
+      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!geminiKey) {
         throw new Error("AI is not configured. Missing API Key.");
       }
 
-      // Convert history for the model
+      // Convert history for Gemini
+      // Gemini roles: "user" or "model"
       const apiMessages = [
-        { 
-          role: "system", 
-          content: "You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. Keep answers concise, helpful, and polite. Do not use markdown." 
-        },
-        ...messages.map(m => ({ role: m.role, content: m.content })),
-        { role: "user", content: userMessage }
+        ...messages.filter(m => m.content !== 'Hi there! I am the TGPCOP Council AI Assistant. How can I help you today?').map(m => ({ 
+          role: m.role === 'assistant' ? 'model' : 'user', 
+          parts: [{ text: m.content }] 
+        })),
+        { role: "user", parts: [{ text: userMessage }] }
       ];
 
       const response = await fetch(
-        "https://api-inference.huggingface.co/models/google/gemma-4-12B-it/v1/chat/completions",
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
         {
-          headers: { 
-            Authorization: `Bearer ${hfKey}`, 
-            "Content-Type": "application/json" 
-          },
+          headers: { "Content-Type": "application/json" },
           method: "POST",
           body: JSON.stringify({ 
-            model: "google/gemma-4-12B-it",
-            messages: apiMessages,
-            max_tokens: 200,
-            temperature: 0.5
+            systemInstruction: {
+              role: "user",
+              parts: [{ text: "You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. Keep answers concise, helpful, and polite. Do not use markdown." }]
+            },
+            contents: apiMessages,
+            generationConfig: {
+              maxOutputTokens: 200,
+              temperature: 0.5
+            }
           }),
         }
       );
 
       if (!response.ok) throw new Error("API request failed");
       const result = await response.json();
-      const generatedText = result.choices?.[0]?.message?.content?.trim();
+      const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
       if (generatedText) {
         setMessages(prev => [...prev, { role: 'assistant', content: generatedText }]);
