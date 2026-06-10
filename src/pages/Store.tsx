@@ -14,13 +14,12 @@ interface StudyBook {
   image: string;
   rating: string;
   pages: number;
+  checkoutUrl: string;
 }
 
 export const Store: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedYear, setSelectedYear] = useState('all');
-  const [purchaseBook, setPurchaseBook] = useState<StudyBook | null>(null);
-  const toast = useToast();
 
   const studyBooks: StudyBook[] = [
     {
@@ -32,6 +31,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1532187643603-ba119ca4109e?q=80&w=600&auto=format&fit=crop',
       rating: '4.8',
       pages: 340,
+      checkoutUrl: 'https://your-shopify-store.com/products/organic-chemistry',
     },
     {
       id: '2',
@@ -42,6 +42,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=600&auto=format&fit=crop',
       rating: '4.9',
       pages: 420,
+      checkoutUrl: 'https://your-shopify-store.com/products/pathophysiology',
     },
     {
       id: '3',
@@ -52,6 +53,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=600&auto=format&fit=crop',
       rating: '5.0',
       pages: 510,
+      checkoutUrl: 'https://your-shopify-store.com/products/ndds',
     },
     {
       id: '4',
@@ -62,6 +64,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=600&auto=format&fit=crop',
       rating: '4.7',
       pages: 380,
+      checkoutUrl: 'https://your-shopify-store.com/products/biopharmaceutics',
     },
     {
       id: '5',
@@ -72,6 +75,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1617155093730-a8bf47be792d?q=80&w=600&auto=format&fit=crop',
       rating: '4.8',
       pages: 460,
+      checkoutUrl: 'https://your-shopify-store.com/products/medicinal-chemistry',
     },
     {
       id: '6',
@@ -82,6 +86,7 @@ export const Store: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=600&auto=format&fit=crop',
       rating: '4.6',
       pages: 295,
+      checkoutUrl: 'https://your-shopify-store.com/products/pharmacognosy',
     },
   ];
 
@@ -95,15 +100,6 @@ export const Store: React.FC = () => {
   const handleYearSelect = React.useCallback((yearOpt: string) => {
     setSelectedYear(yearOpt === 'All' ? 'all' : yearOpt);
   }, []);
-
-  const handleBuy = (book: StudyBook) => {
-    setPurchaseBook(book);
-  };
-
-  const confirmPurchase = () => {
-    toast.success(`Order placed successfully for ${purchaseBook?.title}! Material sent to your email.`);
-    setPurchaseBook(null);
-  };
 
   return (
     <div className="relative min-h-screen bg-[#050B18] overflow-hidden pb-24">
@@ -222,13 +218,15 @@ export const Store: React.FC = () => {
 
                 {/* Purchase Button row */}
                 <div className="p-6 pt-0 mt-auto">
-                  <button
-                    onClick={() => handleBuy(book)}
+                  <a
+                    href={book.checkoutUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-full py-3 bg-[#060D1F] hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-xl transition-all duration-300 border border-orange-burnt/35 hover:border-transparent active:scale-95 shadow-md flex items-center justify-center space-x-1.5 cursor-pointer"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     <span>Buy Handbook</span>
-                  </button>
+                  </a>
                 </div>
               </motion.div>
             ))}
@@ -236,71 +234,8 @@ export const Store: React.FC = () => {
         )}
       </div>
 
-      {/* Elegant Checkout Modal dialog */}
-      <AnimatePresence>
-        {purchaseBook && (
-          <>
-            {/* Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setPurchaseBook(null)}
-              className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 pointer-events-auto"
-            />
+      </div>
 
-            {/* Modal card */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 30 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 30 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md px-4 z-[51] pointer-events-auto"
-            >
-              <div className="bg-[#0D1B3E] border border-orange-burnt/35 rounded-3xl p-6 sm:p-8 shadow-2xl text-center space-y-6">
-                
-                {/* Visual Icon */}
-                <div className="w-14 h-14 bg-orange-burnt/10 rounded-full border border-orange-burnt/25 flex items-center justify-center text-orange-burnt mx-auto animate-pulse">
-                  <ShoppingBag className="w-7 h-7" />
-                </div>
-
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#F5A623]">Confirm Checkout</span>
-                  <h3 className="font-display font-extrabold text-white text-xl leading-tight">
-                    {purchaseBook.title}
-                  </h3>
-                  <p className="text-white/50 text-xs font-sans max-w-sm mx-auto">
-                    The premium reference material package will be securely dispatched to your registered student email address.
-                  </p>
-                </div>
-
-                {/* Amount strip */}
-                <div className="bg-[#050B18] rounded-2xl p-4 flex items-center justify-between border border-white/5 text-xs sm:text-sm font-semibold">
-                  <span className="text-white/60">Handbook price:</span>
-                  <span className="text-orange-burnt font-display font-extrabold text-base">{purchaseBook.price}</span>
-                </div>
-
-                {/* Buttons row */}
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setPurchaseBook(null)}
-                    className="flex-1 py-3.5 bg-white/5 hover:bg-white/10 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 border border-white/5 active:scale-95 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={confirmPurchase}
-                    className="flex-1 py-3.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg shadow-orange-burnt/15 active:scale-95 transition-all cursor-pointer"
-                  >
-                    Complete
-                  </button>
-                </div>
-
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
     </div>
   );
