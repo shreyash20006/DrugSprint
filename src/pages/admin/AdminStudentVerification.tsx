@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BadgeCheck, Users, Upload, Search, Clock, XCircle, FileSpreadsheet } from 'lucide-react';
-import { useAuth } from '../../components/admin/ProtectedRoute';
 
 export const AdminStudentVerification: React.FC = () => {
   return (
