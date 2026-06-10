@@ -63,6 +63,8 @@ You have access to the following website pages. If a student asks for informatio
 - Report a Bug: /report
 - Voting & Elections: /vote
 
+If a student asks about the syllabus, inform them: "The official syllabus can be found on the Pharmacy Council of India (PCI) / Shivaji University website, or you can get a copy from the college library or academic office."
+
 When providing links, use markdown format like this: [Click here for Notices](/notices).`;
 
       const apiMessages = [
