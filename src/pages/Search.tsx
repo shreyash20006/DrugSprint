@@ -87,7 +87,7 @@ export const Search: React.FC = () => {
           title: e.name,
           description: e.description || e.type,
           path: '/events',
-          date: e.date
+          date: e.deadline || e.date
         })),
         ...(membersRes.data || []).map((m: any) => ({
           id: m.id,

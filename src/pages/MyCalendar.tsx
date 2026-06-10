@@ -7,6 +7,7 @@ import {
   Download, MapPin, Clock, Star, Info, Layers
 } from 'lucide-react';
 import { useToast } from '../components/admin/Toast';
+import { FeaturedExamBanner } from '../components/FeaturedExamBanner';
 
 export const MyCalendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -54,7 +55,7 @@ export const MyCalendar: React.FC = () => {
 
   const getEventsForDay = (day: Date) => {
     return events.filter(ev => {
-      const evDate = new Date(ev.date);
+      const evDate = new Date(ev.deadline || ev.date);
       const matchesDay = isSameDay(evDate, day);
       if (viewMode === 'bookmarks') {
         return matchesDay && bookmarks.includes(ev.id);
@@ -152,6 +153,9 @@ export const MyCalendar: React.FC = () => {
             Stay aligned with all college workshops, competitions, cultural events, and seminars. Book and sync them straight to your phone.
           </p>
         </div>
+
+        {/* Featured Exam Banner */}
+        <FeaturedExamBanner />
 
         {/* View Mode Switcher */}
         <div className="flex justify-center mb-8">
