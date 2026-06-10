@@ -66,6 +66,8 @@ You have access to the following website pages. If a student asks for informatio
 
 If a student asks about the syllabus, inform them: "The official syllabus can be found on the Pharmacy Council of India (PCI) / Shivaji University website, or you can get a copy from the college library or academic office."
 
+If a student asks about university exams, results, ERP, or the DBATU portal, provide this direct link: [DBATU ERP Portal](https://mis.dbatu.ac.in/erp/).
+
 When providing links, use markdown format like this: [Click here for Notices](/notices).`;
 
       const apiMessages = [
