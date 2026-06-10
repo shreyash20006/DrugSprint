@@ -17,10 +17,10 @@ import {
   CheckCircle2,
   CalendarDays,
   MapPin,
-  Clock,
   Sparkles,
   TrendingUp,
-  Megaphone
+  Megaphone,
+  Eye
 } from 'lucide-react';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -69,6 +69,7 @@ export const Home: React.FC = () => {
 
   const [recentAchievements, setRecentAchievements] = useState<any[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+  const [trendingNotices, setTrendingNotices] = useState<any[]>([]);
   
   // Real-time counter metrics
   const [noticesCount, setNoticesCount] = useState<number>(14);
@@ -127,6 +128,18 @@ export const Home: React.FC = () => {
 
         const { count: eVal } = await supabase.from('events').select('*', { count: 'exact', head: true });
         if (eVal !== null) setEventsCount(eVal);
+
+        // Fetch Trending Notices safely (fallback if views column not yet created)
+        try {
+          const { data: trending } = await supabase
+            .from('notices')
+            .select('*')
+            .order('views', { ascending: false })
+            .limit(3);
+          if (trending) setTrendingNotices(trending);
+        } catch (e) {
+          console.warn("Views column may not exist yet, skipping trending notices fetch.");
+        }
 
       } catch (err) {
         console.error('Error fetching home achievements/events:', err);
@@ -539,6 +552,58 @@ export const Home: React.FC = () => {
                 )}
               </div>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Trending Notices Section */}
+      {trendingNotices.length > 0 && (
+        <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-b border-white/5">
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2 text-orange-burnt text-xs font-extrabold uppercase tracking-widest">
+                <span className="w-6 h-[1.5px] bg-orange-burnt" />
+                <span>Most Viewed</span>
+              </div>
+              <h2 className="font-display font-extrabold text-2xl sm:text-4xl text-white flex items-center space-x-3">
+                <span>Trending Notices</span>
+                <span className="text-orange-burnt animate-pulse">🔥</span>
+              </h2>
+            </div>
+            <Link
+              to="/notices"
+              className="inline-flex items-center space-x-2 text-orange-burnt font-display font-extrabold hover:text-white transition-colors group mt-4 md:mt-0"
+            >
+              <span>View All Notices</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {trendingNotices.map((notice) => (
+              <Link
+                key={notice.id}
+                to="/notices"
+                className="bg-[#0D1B3E]/85 border border-orange-burnt/15 hover:border-orange-burnt/40 backdrop-blur-[16px] rounded-2xl p-6 flex flex-col transition-all duration-300 shadow-lg hover:-translate-y-1 group"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border bg-orange-burnt/10 text-orange-burnt border-orange-burnt/25">
+                    {notice.category}
+                  </span>
+                  <div className="flex items-center space-x-1 text-orange-burnt/80 text-xs">
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>{notice.views || 0}</span>
+                  </div>
+                </div>
+                <h3 className="font-display font-bold text-base text-white mb-2 group-hover:text-orange-burnt transition-colors line-clamp-2">
+                  {notice.title}
+                </h3>
+                <div className="flex items-center space-x-2 text-white/40 text-[10px] uppercase tracking-wider font-bold mt-auto pt-4 border-t border-white/5">
+                  <Calendar className="w-3 h-3" />
+                  <span>{new Date(notice.created_at).toLocaleDateString()}</span>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
       )}

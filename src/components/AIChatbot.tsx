@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Sparkles, Loader2, Bot } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, Bot, FileUp, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import * as pdfjsLib from 'pdfjs-dist';
 import { bPharmSyllabus } from '../data/syllabus';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -17,7 +20,11 @@ export const AIChatbot: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [pdfContext, setPdfContext] = useState<string>('');
+  const [pdfName, setPdfName] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -42,13 +49,17 @@ export const AIChatbot: React.FC = () => {
         throw new Error("AI is not configured. Missing GROQ API Key.");
       }
 
-      const systemInstruction = `You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. 
+      let systemInstruction = `You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. 
       
 Additionally, you are a highly knowledgeable academic tutor. If a student asks you an educational or syllabus-related question (for example, "what is a bone", "explain pharmacology", etc.), you must provide a clear, accurate, and helpful academic explanation.
 
-Keep answers concise, helpful, and polite. 
+Keep answers concise, helpful, and polite.`;
+
+      if (pdfContext) {
+        systemInstruction += `\n\nThe student has uploaded a PDF document named "${pdfName}". Here is the extracted text from the PDF to help you answer their questions accurately:\n\n---\n${pdfContext.substring(0, 30000)}\n---\n\nIf their question is about the PDF, use this text to answer.`;
+      }
       
-You have access to the following website pages. If a student asks for information related to these, provide them with the direct link:
+      systemInstruction += `\n\nYou have access to the following website pages. If a student asks for information related to these, provide them with the direct link:
 - Home: /
 - Council Members: /council
 - Ask a Question / FAQ: /ask
@@ -117,6 +128,42 @@ When providing links, use markdown format like this: [Click here for Notices](/n
       setMessages(prev => [...prev, { role: 'assistant', content: `Oops! I couldn't process that: ${error.message}` }]);
     } finally {
       setIsTyping(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      alert("Please upload a valid PDF file.");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+      
+      const maxPages = Math.min(pdf.numPages, 30); // Limit to 30 pages to prevent memory issues
+      
+      for (let i = 1; i <= maxPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str).join(' ');
+        fullText += pageText + '\\n';
+      }
+
+      setPdfContext(fullText);
+      setPdfName(file.name);
+      setMessages(prev => [...prev, { role: 'assistant', content: `I have successfully read your PDF: **${file.name}**. What would you like to know about it?` }]);
+    } catch (error) {
+      console.error("PDF Extraction Error:", error);
+      alert("Failed to read the PDF. It might be corrupted or scanned/image-based.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -214,8 +261,37 @@ When providing links, use markdown format like this: [Click here for Notices](/n
               <div ref={messagesEndRef} />
             </div>
 
+            {/* Context Badge */}
+            {pdfName && (
+              <div className="bg-purple-50 border-t border-purple-100 px-3 py-1.5 flex items-center justify-between shrink-0">
+                <div className="flex items-center space-x-2 text-purple-700">
+                  <FileText className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-bold font-sans truncate max-w-[200px]">Context: {pdfName}</span>
+                </div>
+                <button onClick={() => { setPdfName(''); setPdfContext(''); }} className="text-purple-400 hover:text-red-500 transition-colors">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
             {/* Input Area */}
             <form onSubmit={handleSend} className="p-3 bg-white border-t border-navy-dark/10 flex items-center space-x-2 shrink-0">
+              <input
+                type="file"
+                accept="application/pdf"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                title="Upload PDF to Chat"
+                className="w-10 h-10 flex items-center justify-center bg-gray-50 text-navy-dark/60 rounded-xl border border-navy-dark/10 hover:bg-gray-100 transition-colors shrink-0 disabled:opacity-50"
+              >
+                {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileUp className="w-4 h-4" />}
+              </button>
               <input
                 type="text"
                 value={input}

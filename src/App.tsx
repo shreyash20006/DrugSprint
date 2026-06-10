@@ -6,6 +6,7 @@ import { AuthProvider } from './lib/AuthProvider';
 import { ThemeProvider } from './lib/ThemeProvider';
 import { StudentAuthProvider } from './lib/StudentAuthProvider';
 import { isMobile } from './lib/device';
+import OneSignal from 'react-onesignal';
 
 // Import core static layout components
 import { Navbar } from './components/Navbar';
@@ -41,6 +42,7 @@ const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Refunds = lazy(() => import('./pages/Refunds'));
+const Search = lazy(() => import('./pages/Search'));
 
 // Lazy load all admin pages
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
@@ -88,6 +90,30 @@ const AppContent: React.FC = () => {
     location.pathname.startsWith('/admin') ||
     ADMIN_PATHS.includes(location.pathname);
 
+  useEffect(() => {
+    // Initialize OneSignal Push Notifications
+    try {
+      OneSignal.init({
+        appId: 'c9422105-aceb-4d9b-8e4f-9c7e7c49958b',
+        allowLocalhostAsSecureOrigin: true,
+        notifyButton: {
+          enable: true,
+          theme: 'default',
+          position: 'bottom-right',
+          colors: {
+            'circle.background': 'var(--orange-burnt, #E06D2B)',
+            'circle.foreground': 'white',
+          }
+        },
+      }).then(() => {
+        // Show the subscription prompt after initialization
+        OneSignal.Slidedown.promptPush();
+      });
+    } catch (error) {
+      console.warn("OneSignal initialization failed:", error);
+    }
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-light font-sans text-navy-dark antialiased">
       {!isAdminRoute && <Navbar />}
@@ -129,6 +155,7 @@ const AppContent: React.FC = () => {
             <Route path="/terms-and-conditions" element={<Terms />} />
             <Route path="/refunds" element={<Refunds />} />
             <Route path="/refunds-and-cancellations" element={<Refunds />} />
+            <Route path="/search" element={<Search />} />
 
             {/* Secure Admin Routes */}
             <Route path="/admin" element={<AdminLogin />} />

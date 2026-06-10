@@ -112,9 +112,16 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     if (!isOpen) return;
     const items = query.trim() ? results : QUICK_LINKS;
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown') { e.preventDefault(); setSelectedIdx(i => Math.min(i + 1, items.length - 1)); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); setSelectedIdx(i => Math.min(i + 1, items.length)); }
       if (e.key === 'ArrowUp')   { e.preventDefault(); setSelectedIdx(i => Math.max(i - 1, 0)); }
-      if (e.key === 'Enter')     { e.preventDefault(); if (items[selectedIdx]) handleSelect(items[selectedIdx].path); }
+      if (e.key === 'Enter')     { 
+        e.preventDefault(); 
+        if (selectedIdx === items.length && query.trim()) {
+          handleSelect(`/search?q=${encodeURIComponent(query)}`);
+        } else if (items[selectedIdx]) {
+          handleSelect(items[selectedIdx].path); 
+        }
+      }
       if (e.key === 'Escape')    { onClose(); }
     };
     window.addEventListener('keydown', handleKey);
@@ -250,6 +257,20 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
                         </div>
                       );
                     })}
+                    
+                    {/* View All Results Button */}
+                    <div className="mt-2 pt-2 border-t border-orange-burnt/10">
+                      <button
+                        onClick={() => handleSelect(`/search?q=${encodeURIComponent(query)}`)}
+                        onMouseEnter={() => setSelectedIdx(results.length)}
+                        className={`w-full flex items-center justify-center space-x-2 px-3 py-3 rounded-xl transition-all text-center ${
+                          selectedIdx === results.length ? 'bg-orange-burnt text-white shadow-lg shadow-orange-burnt/20' : 'bg-orange-burnt/10 text-orange-burnt hover:bg-orange-burnt hover:text-white'
+                        }`}
+                      >
+                        <Search className="w-4 h-4" />
+                        <span className="text-sm font-display font-bold">See all results for "{query}"</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

@@ -42,6 +42,7 @@ async function run() {
       rating: '4.8',
       pages: 150,
       checkoutUrl: '${checkoutUrl}',
+      descriptionHtml: ${JSON.stringify(p.body_html || '')},
     },\n`;
     });
     

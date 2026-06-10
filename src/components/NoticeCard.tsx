@@ -16,6 +16,7 @@ interface NoticeCardProps {
     date?: string;
     linkText?: string;
     linkUrl?: string;
+    views?: number;
   };
 }
 
@@ -129,10 +130,28 @@ export const NoticeCard: React.FC<NoticeCardProps> = ({ notice }) => {
     ? new Date(notice.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : notice.date || 'No Date';
 
-  const openPreview = () => {
+  const openPreview = async () => {
     setEmbedFailed(false);
     setIsPdfLoading(true);
     setIsPreviewOpen(true);
+    
+    if (notice.id) {
+      try {
+        await supabase.rpc('increment_notice_views', { notice_id: notice.id });
+      } catch (err) {
+        // Ignore view increment errors silently
+      }
+    }
+  };
+
+  const handleExternalLink = async () => {
+    if (notice.id) {
+      try {
+        await supabase.rpc('increment_notice_views', { notice_id: notice.id });
+      } catch (err) {
+        // Ignore view increment errors silently
+      }
+    }
   };
 
   return (
@@ -165,10 +184,18 @@ export const NoticeCard: React.FC<NoticeCardProps> = ({ notice }) => {
             {notice.title}
           </h3>
 
-          {/* Date */}
-          <div className="flex items-center space-x-1.5 text-white/45 text-xs mb-4 font-sans">
-            <Calendar className="w-3.5 h-3.5 text-orange-burnt shrink-0" />
-            <span>{formattedDate}</span>
+          {/* Date & Views */}
+          <div className="flex items-center space-x-4 text-white/45 text-xs mb-4 font-sans">
+            <div className="flex items-center space-x-1.5">
+              <Calendar className="w-3.5 h-3.5 text-orange-burnt shrink-0" />
+              <span>{formattedDate}</span>
+            </div>
+            {(notice.views !== undefined) && (
+              <div className="flex items-center space-x-1.5">
+                <Eye className="w-3.5 h-3.5 text-orange-burnt shrink-0" />
+                <span>{notice.views} views</span>
+              </div>
+            )}
           </div>
 
           {/* Description */}
@@ -215,6 +242,7 @@ export const NoticeCard: React.FC<NoticeCardProps> = ({ notice }) => {
               href={externalLink}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handleExternalLink}
               className="flex items-center justify-center space-x-2 w-full py-3 px-4 rounded-xl font-display text-xs sm:text-sm font-bold bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white shadow-lg active:scale-98 transition-all"
             >
               <span>{notice.linkText || 'Open External Resource'}</span>
