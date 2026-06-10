@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import * as pdfjsLib from 'pdfjs-dist';
 import { bPharmSyllabus } from '../data/syllabus';
+import { examsData } from '../data/exams';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
@@ -84,6 +85,9 @@ If a student asks about university exams, results, ERP, or the DBATU portal, pro
 
 Here is the official B.Pharm Syllabus. If a student asks about the syllabus or subjects for a specific semester, use this to answer their query:
 ${bPharmSyllabus}
+
+Here is the upcoming University Examination Schedule for Summer 2026. If a student asks about their exam dates, subjects, or timings, use this exact schedule:
+${JSON.stringify(examsData, null, 2)}
 
 When providing links, use markdown format like this: [Click here for Notices](/notices).`;
 
