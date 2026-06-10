@@ -56,7 +56,7 @@ export const AIChatbot: React.FC = () => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama3-8b-8192",
+          model: "llama-3.3-70b-versatile",
           messages: apiMessages,
           temperature: 0.5,
           max_tokens: 200

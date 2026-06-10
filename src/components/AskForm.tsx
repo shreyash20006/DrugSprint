@@ -101,7 +101,7 @@ export const AskForm: React.FC = () => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama3-8b-8192",
+          model: "llama-3.3-70b-versatile",
           messages: [
             { role: "system", content: `You are the TGPCOP Council AI Assistant. Answer the student's question based ONLY on this context:\n\n${faqContext}\n\nIf the answer is not in the context, say "I couldn't find an exact answer. Please submit your question to the council for a direct reply." Keep answers short and friendly. No markdown.` },
             { role: "user", content: formData.question }

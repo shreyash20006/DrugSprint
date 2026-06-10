@@ -49,7 +49,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama3-8b-8192",
+          model: "llama-3.3-70b-versatile",
           messages: [
             { role: "system", content: "You are a helpful college event coordinator assistant. You write punchy, exciting event descriptions. Output ONLY the description. No intro, no reasoning, no markdown." },
             { role: "user", content: `Write an engaging, exciting 3-sentence description for a college ${formData.type} named "${formData.name}". Make it sound professional yet fun for college students.` }

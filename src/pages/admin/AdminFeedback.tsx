@@ -58,7 +58,7 @@ export const AdminFeedback: React.FC = () => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama3-8b-8192",
+          model: "llama-3.3-70b-versatile",
           messages: [
             { role: "system", content: "You are an analytical assistant. Summarize the following event feedback into exactly 3 concise bullet points: 1. Overall Sentiment 2. Key Strengths 3. Areas for Improvement. Do not use markdown bolding." },
             { role: "user", content: `Here is the feedback:\n${textComments}` }
