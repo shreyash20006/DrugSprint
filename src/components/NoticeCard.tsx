@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Pin, Download, Calendar, Eye, ExternalLink, X, FileText, AlertTriangle } from 'lucide-react';
 import { DNALoader } from './DNALoader';
+import { supabase } from '../lib/supabase';
 
 interface NoticeCardProps {
   notice: {

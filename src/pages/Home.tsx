@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   CalendarDays,
   MapPin,
+  Clock,
   Sparkles,
   TrendingUp,
   Megaphone,

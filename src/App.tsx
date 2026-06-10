@@ -96,15 +96,6 @@ const AppContent: React.FC = () => {
       OneSignal.init({
         appId: 'c9422105-aceb-4d9b-8e4f-9c7e7c49958b',
         allowLocalhostAsSecureOrigin: true,
-        notifyButton: {
-          enable: true,
-          theme: 'default',
-          position: 'bottom-right',
-          colors: {
-            'circle.background': 'var(--orange-burnt, #E06D2B)',
-            'circle.foreground': 'white',
-          }
-        },
       }).then(() => {
         // Show the subscription prompt after initialization
         OneSignal.Slidedown.promptPush();
