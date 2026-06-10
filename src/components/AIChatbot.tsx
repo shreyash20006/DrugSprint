@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Sparkles, Loader2, Bot } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -40,8 +41,32 @@ export const AIChatbot: React.FC = () => {
       }
 
       // Convert history for Groq (OpenAI format)
+      const systemInstruction = `You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. Keep answers concise, helpful, and polite. 
+      
+You have access to the following website pages. If a student asks for information related to these, provide them with the direct link:
+- Home: /
+- Council Members: /council
+- Ask a Question / FAQ: /ask
+- Notices & Circulars: /notices
+- Events & Activities: /events
+- Gallery & Media: /gallery
+- Achievements: /achievements
+- Newsletter: /newsletter
+- Complaints & Grievances: /complaint
+- Mentorship Program: /mentors
+- Student Profile & Dashboard: /profile
+- Academic Calendar: /calendar
+- Leaderboard: /leaderboard
+- Message Board: /board
+- Store & Merchandise: /store
+- Contact Us: /contact
+- Report a Bug: /report
+- Voting & Elections: /vote
+
+When providing links, use markdown format like this: [Click here for Notices](/notices).`;
+
       const apiMessages = [
-        { role: "system", content: "You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. Keep answers concise, helpful, and polite. Do not use markdown." },
+        { role: "system", content: systemInstruction },
         ...messages.filter(m => m.content !== 'Hi there! I am the TGPCOP Council AI Assistant. How can I help you today?').map(m => ({ 
           role: m.role, 
           content: m.content 
@@ -147,7 +172,21 @@ export const AIChatbot: React.FC = () => {
                         : 'bg-white text-navy-dark border border-navy-dark/10 rounded-tl-sm shadow-sm'
                     }`}
                   >
-                    {msg.content}
+                    {msg.role === 'assistant' ? (
+                      msg.content.split(/(\[[^\]]+\]\([^)]+\))/g).map((part, i) => {
+                        const match = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                        if (match) {
+                          return (
+                            <Link key={i} to={match[2]} className="text-[#E06D2B] font-bold hover:underline" onClick={() => setIsOpen(false)}>
+                              {match[1]}
+                            </Link>
+                          );
+                        }
+                        return <span key={i}>{part}</span>;
+                      })
+                    ) : (
+                      msg.content
+                    )}
                   </div>
                 </div>
               ))}
