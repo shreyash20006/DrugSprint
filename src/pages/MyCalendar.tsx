@@ -151,11 +151,7 @@ export const MyCalendar: React.FC = () => {
           </h1>
           <p className="text-white/60 text-xs sm:text-sm max-w-xl leading-relaxed">
             Stay aligned with all college workshops, competitions, cultural events, and seminars. Book and sync them straight to your phone.
-          </p>
         </div>
-
-        {/* Featured Exam Banner */}
-        <FeaturedExamBanner />
 
         {/* View Mode Switcher */}
         <div className="flex justify-center mb-8">
@@ -307,7 +303,8 @@ export const MyCalendar: React.FC = () => {
             </div>
 
             {/* Sidebar Selected Date Events Details */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-6">
+              
               <div className="bg-[#080F25]/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 shadow-2xl min-h-[440px] flex flex-col justify-between">
                 <div>
                   <div className="flex items-center space-x-2 border-b border-white/5 pb-4 mb-4">
@@ -321,9 +318,13 @@ export const MyCalendar: React.FC = () => {
 
                   <div className="space-y-4">
                     {selectedDateEvents.length === 0 ? (
-                      <div className="text-center py-16 border border-dashed border-white/10 rounded-2xl bg-white/20">
-                        <Info className="w-10 h-10 mx-auto text-white/20 mb-2" />
-                        <p className="text-xs text-white/40 leading-relaxed font-sans">No events scheduled on this date.</p>
+                      <div className="flex flex-col gap-6">
+                        <div className="text-center py-10 border border-dashed border-white/10 rounded-2xl bg-white/5">
+                          <Info className="w-8 h-8 mx-auto text-white/20 mb-2" />
+                          <p className="text-xs text-white/40 leading-relaxed font-sans">No regular events scheduled on this date.</p>
+                        </div>
+                        {/* Display Featured Banner here instead */}
+                        <FeaturedExamBanner />
                       </div>
                     ) : (
                       selectedDateEvents.map((ev) => {

@@ -35,12 +35,12 @@ export const FeaturedExamBanner = () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-12 bg-gradient-to-br from-[#0D1B3E]/90 to-navy-dark border border-orange-burnt/40 rounded-3xl p-6 md:p-8 shadow-[0_8px_32px_rgba(224,109,43,0.15)] relative overflow-hidden group"
+        className="bg-gradient-to-br from-[#0D1B3E]/90 to-navy-dark border border-orange-burnt/40 rounded-2xl p-5 shadow-[0_8px_32px_rgba(224,109,43,0.15)] relative overflow-hidden group"
       >
         <div className="absolute top-0 right-0 w-64 h-64 bg-orange-burnt/10 rounded-full blur-[80px] pointer-events-none group-hover:bg-orange-burnt/20 transition-all duration-700" />
         
-        <div className="flex flex-col md:flex-row gap-8 items-start md:items-center relative z-10">
-          <div className="flex-1 space-y-4">
+        <div className="flex flex-col gap-5 items-start relative z-10">
+          <div className="w-full space-y-3">
             <div className="flex items-center space-x-3">
               <span className="flex items-center space-x-1.5 bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider animate-pulse">
                 <AlertTriangle className="w-3.5 h-3.5" />
@@ -52,16 +52,16 @@ export const FeaturedExamBanner = () => {
               </span>
             </div>
 
-            <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white leading-tight">
+            <h2 className="text-lg font-display font-extrabold text-white leading-tight">
               B.Pharm Supplementary Examination Summer 2026
             </h2>
             
-            <p className="text-white/70 text-sm font-sans max-w-2xl">
-              Revised Supplementary Semester Examination Summer 2026 for First Year, Second Year, Third Year and Final Year Bachelor of Pharmacy students.
+            <p className="text-white/70 text-xs font-sans">
+              Revised Supplementary Semester Examination Summer 2026.
             </p>
 
             <div className="grid grid-cols-2 gap-4 pt-2">
-              <div className="space-y-1">
+              <div className="space-y-1 col-span-2">
                 <span className="text-[10px] text-white/40 uppercase font-bold tracking-wider">Organization</span>
                 <p className="text-sm text-white font-medium">DBATU, Lonere</p>
               </div>
@@ -79,7 +79,7 @@ export const FeaturedExamBanner = () => {
             </div>
           </div>
 
-          <div className="w-full md:w-auto bg-[#050B18]/50 border border-white/5 p-5 rounded-2xl shrink-0 flex flex-col items-center">
+          <div className="w-full bg-[#050B18]/50 border border-white/5 p-4 rounded-xl shrink-0 flex flex-col items-center">
             {timeLeft ? (
               <>
                 <span className="text-[10px] text-white/50 uppercase font-bold tracking-widest mb-3">Exams Starting In</span>
