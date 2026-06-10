@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { BarChart3, Loader2, Star, MessageSquare } from 'lucide-react';
+import { BarChart3, Loader2, Star, MessageSquare, Sparkles } from 'lucide-react';
+import { useToast } from '../../components/admin/Toast';
 
 export const AdminFeedback: React.FC = () => {
   const [events, setEvents] = useState<any[]>([]);
@@ -8,6 +9,10 @@ export const AdminFeedback: React.FC = () => {
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingFb, setIsLoadingFb] = useState(false);
+  
+  const [summary, setSummary] = useState<string | null>(null);
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     const fetch = async () => {
@@ -19,15 +24,60 @@ export const AdminFeedback: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!selectedEventId) { setFeedbacks([]); return; }
+    if (!selectedEventId) { setFeedbacks([]); setSummary(null); return; }
     const fetch = async () => {
       setIsLoadingFb(true);
+      setSummary(null);
       const { data } = await supabase.from('feedback').select('*').eq('event_id', selectedEventId).order('created_at', { ascending: false });
       setFeedbacks(data || []);
       setIsLoadingFb(false);
     };
     fetch();
   }, [selectedEventId]);
+
+  const handleSummarize = async () => {
+    const textComments = feedbacks
+      .filter(f => f.liked || f.suggestions)
+      .map(f => `Rating: ${f.rating}/5. Liked: ${f.liked || 'none'}. Suggestions: ${f.suggestions || 'none'}`)
+      .join('\n');
+      
+    if (!textComments) {
+      toast.error("No written comments to summarize.");
+      return;
+    }
+
+    setIsSummarizing(true);
+    try {
+      const hfKey = import.meta.env.VITE_HF_API_KEY;
+      if (!hfKey) throw new Error("Hugging Face API key is missing. Add VITE_HF_API_KEY to your .env file.");
+      
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/google/gemma-4-12B-it/v1/chat/completions",
+        {
+          headers: { Authorization: `Bearer ${hfKey}`, "Content-Type": "application/json" },
+          method: "POST",
+          body: JSON.stringify({ 
+            model: "google/gemma-4-12B-it",
+            messages: [
+              { role: "system", content: "You are an analytical assistant. Summarize the following event feedback into exactly 3 concise bullet points: 1. Overall Sentiment 2. Key Strengths 3. Areas for Improvement. Do not use markdown bolding." },
+              { role: "user", content: `Here is the feedback:\n${textComments}` }
+            ],
+            max_tokens: 300,
+            temperature: 0.3
+          }),
+        }
+      );
+      
+      if (!response.ok) throw new Error("API request failed");
+      const result = await response.json();
+      setSummary(result.choices?.[0]?.message?.content?.trim() || "Failed to generate summary.");
+      toast.success("✨ AI Summary Generated!");
+    } catch (err: any) {
+      toast.error(`❌ AI Summarization failed: ${err.message}`);
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
 
   const avgRating = feedbacks.length > 0 ? (feedbacks.reduce((s, f) => s + f.rating, 0) / feedbacks.length).toFixed(1) : '0.0';
   const ratingDist = [5, 4, 3, 2, 1].map(star => ({
@@ -76,6 +126,32 @@ export const AdminFeedback: React.FC = () => {
                 <p className="font-display font-extrabold text-2xl text-navy-dark mb-1">{feedbacks.length}</p>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-navy-dark/50">Total Responses</p>
               </div>
+            </div>
+
+            {/* AI Summary Section */}
+            <div className="bg-white rounded-xl border border-navy-dark/10 p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Sparkles className="w-5 h-5 text-purple-500" />
+                  <h3 className="font-display font-bold text-sm text-navy-dark">AI Feedback Summary</h3>
+                </div>
+                {!summary && (
+                  <button
+                    onClick={handleSummarize}
+                    disabled={isSummarizing || feedbacks.length === 0}
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-purple-500 hover:bg-purple-600 text-white transition-colors text-xs font-bold uppercase tracking-wider disabled:opacity-50"
+                  >
+                    {isSummarizing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                    <span>{isSummarizing ? 'Analyzing...' : 'Generate Summary'}</span>
+                  </button>
+                )}
+              </div>
+              
+              {summary && (
+                <div className="p-4 bg-purple-500/5 border border-purple-500/20 rounded-lg text-sm text-navy-dark/80 whitespace-pre-wrap font-sans leading-relaxed">
+                  {summary}
+                </div>
+              )}
             </div>
 
             {/* Rating Distribution */}

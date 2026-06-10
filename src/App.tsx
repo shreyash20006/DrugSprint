@@ -14,6 +14,7 @@ import { ScrollProgressBar } from './components/ScrollProgressBar';
 import { ProtectedRoute } from './components/admin/ProtectedRoute';
 import { DNALoader } from './components/DNALoader';
 import { DesktopOnlyWrapper } from './components/DesktopOnlyWrapper';
+import { AIChatbot } from './components/AIChatbot';
 
 // Lazy load ALL pages for dynamic bundle code-splitting & minimal first-paint loading times
 const Home = lazy(() => import('./pages/Home'));
@@ -173,6 +174,7 @@ const AppContent: React.FC = () => {
       </main>
 
       {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <AIChatbot />}
     </div>
   );
 };
