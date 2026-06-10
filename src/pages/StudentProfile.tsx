@@ -62,6 +62,10 @@ export const StudentProfile: React.FC = () => {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [isLoadingPayments, setIsLoadingPayments] = useState(false);
 
+  const [prnInput, setPrnInput] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationData, setVerificationData] = useState<any>(null);
+
   // Sync state with profile
   useEffect(() => {
     if (studentProfile) {
@@ -69,6 +73,22 @@ export const StudentProfile: React.FC = () => {
       setYear(studentProfile.year || 'First Year');
       setPhone(studentProfile.phone || '');
     }
+  }, [studentProfile]);
+
+  // Fetch Verification Data
+  useEffect(() => {
+    if (!studentProfile) return;
+    const fetchVerification = async () => {
+      try {
+        const { data } = await supabase
+          .from('student_verifications')
+          .select('*')
+          .eq('user_id', studentProfile.id)
+          .single();
+        if (data) setVerificationData(data);
+      } catch (err) {}
+    };
+    fetchVerification();
   }, [studentProfile]);
 
   // Load and check authorization
@@ -277,13 +297,17 @@ export const StudentProfile: React.FC = () => {
                   </div>
 
                   {/* Future-Ready Verification Badge */}
-                  <div className="mt-3 inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                    </span>
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest">Verification Coming Soon</span>
-                  </div>
+                  {verificationData?.verification_status === 'verified' ? (
+                    <div className="mt-3 inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                      <BadgeCheck className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest">Verified Student</span>
+                    </div>
+                  ) : (
+                    <div className="mt-3 inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest">Pending Verification</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="w-full border-t border-white/5 my-4" />
@@ -423,18 +447,74 @@ export const StudentProfile: React.FC = () => {
                   <span>Launch ERP Portal ↗</span>
                 </a>
 
-                {/* Future-Ready Verification Information Card */}
-                <div className="w-full mt-6 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-2xl p-4 text-left shadow-lg relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-[30px] pointer-events-none group-hover:bg-amber-500/10 transition-colors" />
-                  <div className="flex items-start space-x-3 relative z-10">
-                    <BadgeCheck className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-sm font-display font-extrabold text-white mb-1">Student Verification</h4>
-                      <p className="text-[11px] text-white/50 leading-relaxed font-sans">
-                        Student Verification will be enabled once the official TGPCOP student database becomes available.
-                      </p>
+                {/* PRN Verification Section */}
+                <div className="w-full mt-6 bg-gradient-to-br from-[#0B152A] to-navy-dark border border-white/10 rounded-2xl p-5 shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-orange-burnt/10 rounded-full blur-[40px] pointer-events-none group-hover:bg-orange-burnt/20 transition-colors" />
+                  
+                  {verificationData?.verification_status === 'verified' ? (
+                    <div className="flex items-start space-x-3 relative z-10">
+                      <div className="p-2 bg-emerald-500/10 rounded-xl">
+                        <BadgeCheck className="w-6 h-6 text-emerald-500" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-display font-extrabold text-white mb-1">Student PRN Verified</h4>
+                        <p className="text-[11px] text-white/60 leading-relaxed font-sans mb-2">
+                          Your account is permanently linked to your official DBATU PRN: <span className="font-bold text-orange-burnt">{verificationData.prn}</span>
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="relative z-10">
+                      <div className="flex items-start space-x-3 mb-4">
+                        <div className="p-2 bg-amber-500/10 rounded-xl shrink-0">
+                          <BadgeCheck className="w-5 h-5 text-amber-500 mt-0.5" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-display font-extrabold text-white mb-1">Verify Your PRN</h4>
+                          <p className="text-[11px] text-white/50 leading-relaxed font-sans">
+                            Enter your official university PRN below to link your account to the official student database.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-2">
+                        <input
+                          type="text"
+                          value={prnInput}
+                          onChange={(e) => setPrnInput(e.target.value)}
+                          placeholder="e.g. 240467311..."
+                          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:border-orange-burnt transition-colors"
+                        />
+                        <button
+                          onClick={async () => {
+                            if (!prnInput.trim() || prnInput.length < 5) return toast.error('Please enter a valid PRN');
+                            setIsVerifying(true);
+                            try {
+                              const { data, error } = await supabase.from('student_verifications').select('*').eq('prn', prnInput.trim()).single();
+                              if (error || !data) throw new Error('PRN not found in database. Contact council member.');
+                              if (data.user_id && data.user_id !== studentProfile?.id) throw new Error('This PRN is already claimed.');
+                              
+                              const { error: updateErr } = await supabase.from('student_verifications').update({ 
+                                user_id: studentProfile?.id, verification_status: 'verified', updated_at: new Date().toISOString()
+                              }).eq('id', data.id);
+                              if (updateErr) throw updateErr;
+                              
+                              setVerificationData({ ...data, user_id: studentProfile?.id, verification_status: 'verified' });
+                              toast.success('Verification successful!');
+                            } catch (err: any) {
+                              toast.error(err.message);
+                            } finally {
+                              setIsVerifying(false);
+                            }
+                          }}
+                          disabled={isVerifying}
+                          className="px-4 py-2.5 bg-orange-burnt hover:bg-[#E06D2B] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center"
+                        >
+                          {isVerifying ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verify'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>

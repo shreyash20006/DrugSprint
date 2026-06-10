@@ -20,6 +20,7 @@ export const AdminDashboard: React.FC = () => {
     pendingQuestions: 0,
     noticesCount: 0,
     activeEventsCount: 0,
+    verifiedPercentage: 0,
   });
   const [recentQuestions, setRecentQuestions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,11 +50,24 @@ export const AdminDashboard: React.FC = () => {
         .eq('is_active', true);
       if (eErr) throw eErr;
 
+      // 4. Fetch verification stats
+      const { data: verifications, error: vErr } = await supabase
+        .from('student_verifications')
+        .select('verification_status');
+      if (vErr) throw vErr;
+      
+      let verifiedPercentage = 0;
+      if (verifications && verifications.length > 0) {
+        const verifiedCount = verifications.filter(v => v.verification_status === 'verified').length;
+        verifiedPercentage = Math.round((verifiedCount / verifications.length) * 100);
+      }
+
       setStats({
         totalQuestions: totalQ,
         pendingQuestions: pendingQ,
         noticesCount: noticesCount || 0,
         activeEventsCount: activeEventsCount || 0,
+        verifiedPercentage,
       });
 
       // Sort and retrieve last 5 recent questions
@@ -192,15 +206,15 @@ export const AdminDashboard: React.FC = () => {
                 </h3>
                 <div className="mt-4 relative z-10">
                   <div className="flex justify-between items-end mb-2">
-                    <span className="text-3xl font-display font-extrabold text-white">0%</span>
+                    <span className="text-3xl font-display font-extrabold text-white">{stats.verifiedPercentage}%</span>
                     <span className="text-[10px] uppercase font-bold text-amber-500/70 tracking-wider">Verified</span>
                   </div>
                   {/* Progress Bar */}
                   <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
-                    <div className="bg-amber-500 h-full w-0 rounded-full transition-all duration-1000"></div>
+                    <div className="bg-amber-500 h-full rounded-full transition-all duration-1000" style={{ width: `${stats.verifiedPercentage}%` }}></div>
                   </div>
                   <p className="text-[10px] text-white/40 mt-3 font-sans leading-relaxed">
-                    Awaiting Official Database upload to begin verifying student accounts.
+                    Live database linking active. Verifying student accounts automatically.
                   </p>
                 </div>
               </div>
