@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Loader2, Calendar } from 'lucide-react';
+import { Loader2, Calendar, Sparkles } from 'lucide-react';
 import { Modal } from './Modal';
 import { useToast } from './Toast';
 import { logAction } from '../../lib/logger';
@@ -28,7 +28,57 @@ export const EventModal: React.FC<EventModalProps> = ({
     is_active: true,
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const toast = useToast();
+
+  const handleGenerateDescription = async () => {
+    if (!formData.name) {
+      toast.error('Please enter a Name first to generate a description!');
+      return;
+    }
+    
+    setIsGenerating(true);
+    try {
+      const hfKey = import.meta.env.VITE_HF_API_KEY;
+      if (!hfKey) throw new Error("Hugging Face API key is missing. Add VITE_HF_API_KEY to your .env file.");
+      
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/google/gemma-4-12B-it/v1/chat/completions",
+        {
+          headers: { Authorization: `Bearer ${hfKey}`, "Content-Type": "application/json" },
+          method: "POST",
+          body: JSON.stringify({ 
+            model: "google/gemma-4-12B-it",
+            messages: [
+              { role: "system", content: "You are a helpful college event coordinator assistant. You write punchy, exciting event descriptions. Output ONLY the description. No intro, no reasoning, no markdown." },
+              { role: "user", content: `Write an engaging, exciting 3-sentence description for a college ${formData.type} named "${formData.name}". Make it sound professional yet fun for college students.` }
+            ],
+            max_tokens: 150,
+            temperature: 0.7
+          }),
+        }
+      );
+      
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(errText);
+      }
+      
+      const result = await response.json();
+      const generatedText = result.choices?.[0]?.message?.content?.trim();
+      
+      if (generatedText) {
+        setFormData(prev => ({ ...prev, description: generatedText }));
+        toast.success('✨ AI Description Generated!');
+      } else {
+        throw new Error("No text generated.");
+      }
+    } catch (err: any) {
+      toast.error(`❌ AI Generation failed: ${err.message}`);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   useEffect(() => {
     if (eventToEdit) {
@@ -170,9 +220,20 @@ export const EventModal: React.FC<EventModalProps> = ({
 
         {/* Description */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70 mb-1.5">
-            Description *
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70">
+              Description *
+            </label>
+            <button
+              type="button"
+              onClick={handleGenerateDescription}
+              disabled={isGenerating}
+              className="flex items-center space-x-1 px-2.5 py-1 rounded-md bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 border border-purple-500/20 transition-all text-[10px] font-bold uppercase tracking-wider disabled:opacity-50"
+            >
+              {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+              <span>{isGenerating ? 'Generating...' : 'AI Enhance'}</span>
+            </button>
+          </div>
           <textarea
             required
             rows={4}

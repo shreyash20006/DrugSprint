@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, CheckCircle2, ChevronDown, HelpCircle, MessageSquare } from 'lucide-react';
+import { Send, CheckCircle2, ChevronDown, HelpCircle, MessageSquare, Sparkles, Loader2 } from 'lucide-react';
 import { councilMembers } from '../data/council';
 import { supabase } from '../lib/supabase';
 import { useStudentAuth } from '../lib/StudentAuthProvider';
@@ -72,6 +72,58 @@ export const AskForm: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  const [aiAnswer, setAiAnswer] = useState<string | null>(null);
+  const [isGeneratingAiAnswer, setIsGeneratingAiAnswer] = useState(false);
+
+  const handleAiSuggest = async () => {
+    if (!formData.question || formData.question.length < 10) {
+      alert('Please enter a detailed question first so I can understand what you need!');
+      return;
+    }
+    
+    setIsGeneratingAiAnswer(true);
+    setAiAnswer(null);
+    try {
+      const hfKey = import.meta.env.VITE_HF_API_KEY;
+      if (!hfKey) {
+        setAiAnswer("AI is not configured. Please submit your question directly to the council.");
+        setIsGeneratingAiAnswer(false);
+        return;
+      }
+      
+      const faqContext = faqs.map(f => `Q: ${f.question}\nA: ${f.answer}`).join("\n\n");
+      
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/google/gemma-4-12B-it/v1/chat/completions",
+        {
+          headers: { Authorization: `Bearer ${hfKey}`, "Content-Type": "application/json" },
+          method: "POST",
+          body: JSON.stringify({ 
+            model: "google/gemma-4-12B-it",
+            messages: [
+              { 
+                role: "system", 
+                content: `You are the TGPCOP Council AI Assistant. Answer the student's question based ONLY on this context:\n\n${faqContext}\n\nIf the answer is not in the context, say "I couldn't find an exact answer. Please submit your question to the council for a direct reply." Keep answers short and friendly. No markdown.` 
+              },
+              { role: "user", content: formData.question }
+            ],
+            max_tokens: 150,
+            temperature: 0.3
+          }),
+        }
+      );
+      
+      if (!response.ok) throw new Error("API Error");
+      const result = await response.json();
+      const generatedText = result.choices?.[0]?.message?.content?.trim();
+      setAiAnswer(generatedText || "Sorry, I couldn't process that. Please submit your question.");
+    } catch (err: any) {
+      setAiAnswer("AI service is currently unavailable. Please submit your question to the council.");
+    } finally {
+      setIsGeneratingAiAnswer(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -248,9 +300,20 @@ export const AskForm: React.FC = () => {
 
                 {/* Question Text Area */}
                 <div>
-                  <label htmlFor="question" className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
-                    Your Question / Grievance
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label htmlFor="question" className="block text-xs font-bold uppercase tracking-wider text-white/70">
+                      Your Question / Grievance *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleAiSuggest}
+                      disabled={isGeneratingAiAnswer}
+                      className="flex items-center space-x-1 px-2.5 py-1 rounded-md bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 transition-all text-[10px] font-bold uppercase tracking-wider disabled:opacity-50"
+                    >
+                      {isGeneratingAiAnswer ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                      <span>{isGeneratingAiAnswer ? 'Thinking...' : 'AI Quick Answer'}</span>
+                    </button>
+                  </div>
                   <textarea
                     id="question"
                     required
@@ -260,6 +323,32 @@ export const AskForm: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, question: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl border border-orange-burnt/20 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt bg-[#0F1E42]/60 outline-none text-white text-sm sm:text-base transition-colors resize-none shadow-inner font-sans placeholder-white/30"
                   />
+                  
+                  <AnimatePresence>
+                    {aiAnswer && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="mt-4 p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl relative"
+                      >
+                        <button 
+                          type="button" 
+                          onClick={() => setAiAnswer(null)} 
+                          className="absolute top-2 right-3 text-purple-400/50 hover:text-purple-400 text-lg"
+                        >
+                          &times;
+                        </button>
+                        <div className="flex items-start space-x-3">
+                          <Sparkles className="w-5 h-5 text-purple-400 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="block text-[10px] font-bold uppercase tracking-wider text-purple-400 mb-1">AI Auto-Responder</span>
+                            <p className="text-sm text-white/80 font-sans leading-relaxed">{aiAnswer}</p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Submit button */}
