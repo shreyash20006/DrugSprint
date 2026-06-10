@@ -58,6 +58,7 @@ const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 const AdminLogs = lazy(() => import('./pages/admin/AdminLogs'));
 const AdminBugs = lazy(() => import('./pages/admin/AdminBugs'));
 const AdminRegistrations = lazy(() => import('./pages/admin/AdminRegistrations'));
+const AdminStudentVerification = lazy(() => import('./pages/admin/AdminStudentVerification'));
 const AdminPolls = lazy(() => import('./pages/admin/AdminPolls'));
 const AdminFeedback = lazy(() => import('./pages/admin/AdminFeedback'));
 const AdminMessages = lazy(() => import('./pages/admin/AdminMessages'));
@@ -173,6 +174,7 @@ const AppContent: React.FC = () => {
               <Route path="/admin/events" element={<AdminEvents />} />
               <Route path="/admin/gallery" element={<AdminGallery />} />
               <Route path="/admin/registrations" element={<AdminRegistrations />} />
+              <Route path="/admin/verification" element={<AdminStudentVerification />} />
               <Route path="/admin/polls" element={<AdminPolls />} />
               <Route path="/admin/feedback" element={<AdminFeedback />} />
               <Route path="/admin/messages" element={<AdminMessages />} />

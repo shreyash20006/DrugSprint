@@ -23,6 +23,7 @@ import {
   Award,
   Newspaper,
   HeartHandshake,
+  BadgeCheck,
   AlertTriangle,
   Wrench,
   CreditCard
@@ -82,6 +83,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       path: '/admin/dashboard',
       name: 'Dashboard',
       icon: <LayoutDashboard className="w-5 h-5" />,
+    },
+    {
+      path: '/admin/verification',
+      name: 'Student Verification',
+      icon: <BadgeCheck className="w-5 h-5" />,
     },
     {
       path: '/admin/questions',

@@ -9,7 +9,8 @@ import {
   Loader2, 
   Clock, 
   ArrowRight,
-  Plus
+  Plus,
+  BadgeCheck
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -178,52 +179,79 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Quick Actions Shortcuts panel (lg:span-4) */}
-            <div className="lg:col-span-4 glass-panel glow-card rounded-2xl p-6 shadow-2xl relative overflow-hidden border border-white/5 space-y-5 bg-[#0F1E42]/10">
-              <div className="absolute inset-0 grid-bg-overlay opacity-10 pointer-events-none" />
+            {/* Right Column: Widgets (lg:span-4) */}
+            <div className="lg:col-span-4 space-y-6">
               
-              <div className="border-b border-white/5 pb-3 z-10 relative">
-                <h3 className="font-display font-extrabold text-base text-orange-burnt">
-                  Quick Tasks Panel
+              {/* Verification Percentage Widget */}
+              <div className="glass-panel glow-card rounded-2xl p-6 shadow-2xl relative overflow-hidden border border-amber-500/20 bg-amber-500/5">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <BadgeCheck className="w-16 h-16 text-amber-500" />
+                </div>
+                <h3 className="font-display font-extrabold text-base text-amber-500 mb-2 flex items-center">
+                  <BadgeCheck className="w-4 h-4 mr-2" /> PRN Verification
                 </h3>
-                <p className="text-[10px] text-white/45 font-sans mt-0.5">
-                  Publish updates and portfolio photos live to the college portal.
-                </p>
+                <div className="mt-4 relative z-10">
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-3xl font-display font-extrabold text-white">0%</span>
+                    <span className="text-[10px] uppercase font-bold text-amber-500/70 tracking-wider">Verified</span>
+                  </div>
+                  {/* Progress Bar */}
+                  <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                    <div className="bg-amber-500 h-full w-0 rounded-full transition-all duration-1000"></div>
+                  </div>
+                  <p className="text-[10px] text-white/40 mt-3 font-sans leading-relaxed">
+                    Awaiting Official Database upload to begin verifying student accounts.
+                  </p>
+                </div>
               </div>
 
-              <div className="space-y-3.5 z-10 relative">
-                <Link
-                  to="/admin/notices"
-                  className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/5 hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-xs font-bold font-display uppercase tracking-wider transition-all duration-300 group shadow-sm border border-white/5"
-                >
-                  <div className="flex items-center space-x-2.5">
-                    <Plus className="w-4 h-4 text-orange-burnt group-hover:text-white transition-colors shrink-0" />
-                    <span>📢 Add Announcement</span>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                </Link>
+              {/* Quick Actions Shortcuts panel */}
+              <div className="glass-panel glow-card rounded-2xl p-6 shadow-2xl relative overflow-hidden border border-white/5 space-y-5 bg-[#0F1E42]/10">
+                <div className="absolute inset-0 grid-bg-overlay opacity-10 pointer-events-none" />
+                
+                <div className="border-b border-white/5 pb-3 z-10 relative">
+                  <h3 className="font-display font-extrabold text-base text-orange-burnt">
+                    Quick Tasks Panel
+                  </h3>
+                  <p className="text-[10px] text-white/45 font-sans mt-0.5">
+                    Publish updates and portfolio photos live to the college portal.
+                  </p>
+                </div>
 
-                <Link
-                  to="/admin/events"
-                  className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/5 hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-xs font-bold font-display uppercase tracking-wider transition-all duration-300 group shadow-sm border border-white/5"
-                >
-                  <div className="flex items-center space-x-2.5">
-                    <Plus className="w-4 h-4 text-orange-burnt group-hover:text-white transition-colors shrink-0" />
-                    <span>🎉 Add Live Event</span>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                </Link>
+                <div className="space-y-3.5 z-10 relative">
+                  <Link
+                    to="/admin/notices"
+                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/5 hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-xs font-bold font-display uppercase tracking-wider transition-all duration-300 group shadow-sm border border-white/5"
+                  >
+                    <div className="flex items-center space-x-2.5">
+                      <Plus className="w-4 h-4 text-orange-burnt group-hover:text-white transition-colors shrink-0" />
+                      <span>📢 Add Announcement</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                  </Link>
 
-                <Link
-                  to="/admin/gallery"
-                  className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/5 hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-xs font-bold font-display uppercase tracking-wider transition-all duration-300 group shadow-sm border border-white/5"
-                >
-                  <div className="flex items-center space-x-2.5">
-                    <Plus className="w-4 h-4 text-orange-burnt group-hover:text-white transition-colors shrink-0" />
-                    <span>📸 Upload Gallery Image</span>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                </Link>
+                  <Link
+                    to="/admin/events"
+                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/5 hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-xs font-bold font-display uppercase tracking-wider transition-all duration-300 group shadow-sm border border-white/5"
+                  >
+                    <div className="flex items-center space-x-2.5">
+                      <Plus className="w-4 h-4 text-orange-burnt group-hover:text-white transition-colors shrink-0" />
+                      <span>🎉 Add Live Event</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                  </Link>
+
+                  <Link
+                    to="/admin/gallery"
+                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/5 hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-xs font-bold font-display uppercase tracking-wider transition-all duration-300 group shadow-sm border border-white/5"
+                  >
+                    <div className="flex items-center space-x-2.5">
+                      <Plus className="w-4 h-4 text-orange-burnt group-hover:text-white transition-colors shrink-0" />
+                      <span>📸 Upload Gallery Image</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                  </Link>
+                </div>
               </div>
             </div>
 

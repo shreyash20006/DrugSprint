@@ -6,7 +6,7 @@ import { useStudentAuth } from '../lib/StudentAuthProvider';
 import { generateUploadAndDownloadReceipt } from '../lib/receiptPdf';
 import { 
   User, Mail, Phone, Calendar, LogOut, CheckCircle, 
-  MessageSquare, BookOpen, Clock, Heart, CreditCard, Download, Loader2
+  MessageSquare, BookOpen, Clock, Heart, CreditCard, Download, Loader2, BadgeCheck
 } from 'lucide-react';
 import { useToast } from '../components/admin/Toast';
 
@@ -275,6 +275,15 @@ export const StudentProfile: React.FC = () => {
                       🛡️ {getRoleLabel(studentProfile.role || 'student')}
                     </span>
                   </div>
+
+                  {/* Future-Ready Verification Badge */}
+                  <div className="mt-3 inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    </span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest">Verification Coming Soon</span>
+                  </div>
                 </div>
 
                 <div className="w-full border-t border-white/5 my-4" />
@@ -413,6 +422,20 @@ export const StudentProfile: React.FC = () => {
                 >
                   <span>Launch ERP Portal ↗</span>
                 </a>
+
+                {/* Future-Ready Verification Information Card */}
+                <div className="w-full mt-6 bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 rounded-2xl p-4 text-left shadow-lg relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-[30px] pointer-events-none group-hover:bg-amber-500/10 transition-colors" />
+                  <div className="flex items-start space-x-3 relative z-10">
+                    <BadgeCheck className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-display font-extrabold text-white mb-1">Student Verification</h4>
+                      <p className="text-[11px] text-white/50 leading-relaxed font-sans">
+                        Student Verification will be enabled once the official TGPCOP student database becomes available.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           </div>
