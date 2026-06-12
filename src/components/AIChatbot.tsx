@@ -7,7 +7,9 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { bPharmSyllabus } from '../data/syllabus';
 import { examsData } from '../data/exams';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 interface AttachedFile {
   type: 'image' | 'pdf';
