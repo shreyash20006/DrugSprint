@@ -16,20 +16,34 @@ export const AdminStudentVerification: React.FC = () => {
     setIsLoading(true);
     try {
       // Fetch verifications and optionally join with profiles to get the email if a user is linked
-      const { data, error } = await supabase
+      // PostgREST might not recognize the join if the FK is on auth.users instead of profiles.
+      // So we fetch verifications and profiles separately and merge them.
+      const { data: verificationsData, error: verificationsError } = await supabase
         .from('student_verifications')
-        .select('*, profiles:user_id(email)')
+        .select('*')
         .order('created_at', { ascending: false });
         
-      if (error) throw error;
+      if (verificationsError) throw verificationsError;
       
-      if (data) {
-        setRecords(data);
+      if (verificationsData) {
+        // Fetch all profiles to map emails
+        const { data: profilesData } = await supabase.from('profiles').select('id, email');
+        
+        // Merge them manually
+        const mergedData = verificationsData.map((v: any) => {
+          const profile = profilesData?.find((p: any) => p.id === v.user_id);
+          return {
+            ...v,
+            profiles: profile ? { email: profile.email } : null
+          };
+        });
+
+        setRecords(mergedData);
         setStats({
-          total: data.length,
-          verified: data.filter(d => d.verification_status === 'verified').length,
-          pending: data.filter(d => d.verification_status === 'pending' || d.verification_status === 'coming_soon').length,
-          rejected: data.filter(d => d.verification_status === 'rejected').length,
+          total: mergedData.length,
+          verified: mergedData.filter((d: any) => d.verification_status === 'verified').length,
+          pending: mergedData.filter((d: any) => d.verification_status === 'pending' || d.verification_status === 'coming_soon').length,
+          rejected: mergedData.filter((d: any) => d.verification_status === 'rejected').length,
         });
       }
     } catch (e) {
