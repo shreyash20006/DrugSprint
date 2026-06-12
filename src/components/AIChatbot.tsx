@@ -9,9 +9,22 @@ import { examsData } from '../data/exams';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
+interface AttachedFile {
+  type: 'image' | 'pdf';
+  name: string;
+  url?: string; // base64 preview URL for images
+  text?: string; // extracted text for PDFs
+  images?: string[]; // rendered PDF pages as base64 images
+}
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  attachment?: {
+    type: 'image' | 'pdf';
+    name: string;
+    url?: string;
+  };
 }
 
 export const AIChatbot: React.FC = () => {
@@ -21,8 +34,7 @@ export const AIChatbot: React.FC = () => {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [pdfContext, setPdfContext] = useState<string>('');
-  const [pdfName, setPdfName] = useState<string>('');
+  const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,7 +53,24 @@ export const AIChatbot: React.FC = () => {
 
     const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+
+    // Capture current attachment to include in the message history and to construct the prompt
+    const currentAttachment = attachedFile ? {
+      type: attachedFile.type,
+      name: attachedFile.name,
+      url: attachedFile.type === 'image' ? attachedFile.url : (attachedFile.images?.[0] || undefined)
+    } : undefined;
+
+    const savedAttachedFile = attachedFile;
+
+    setMessages(prev => [...prev, { 
+      role: 'user', 
+      content: userMessage, 
+      attachment: currentAttachment 
+    }]);
+    
+    // Clear the attachment from input area
+    setAttachedFile(null);
     setIsTyping(true);
 
     try {
@@ -56,10 +85,6 @@ Additionally, you are a highly knowledgeable academic tutor. If a student asks y
 
 Keep answers concise, helpful, and polite.`;
 
-      if (pdfContext) {
-        systemInstruction += `\n\nThe student has uploaded a PDF document named "${pdfName}". Here is the extracted text from the PDF to help you answer their questions accurately:\n\n---\n${pdfContext.substring(0, 30000)}\n---\n\nIf their question is about the PDF, use this text to answer.`;
-      }
-      
       systemInstruction += `\n\nYou have access to the following website pages. If a student asks for information related to these, provide them with the direct link:
 - Home: /
 - Council Members: /council
@@ -91,14 +116,62 @@ ${JSON.stringify(examsData, null, 2)}
 
 When providing links, use markdown format like this: [Click here for Notices](/notices).`;
 
-      const apiMessages = [
-        { role: "system", content: systemInstruction },
-        ...messages.filter(m => m.content !== 'Hi there! I am the TGPCOP Council AI Assistant. How can I help you today?').map(m => ({ 
-          role: m.role, 
-          content: m.content 
-        })),
-        { role: "user", content: userMessage }
+      let modelToUse = "llama-3.3-70b-versatile";
+      let userContent: any = userMessage;
+
+      if (savedAttachedFile) {
+        if (savedAttachedFile.type === 'image' && savedAttachedFile.url) {
+          modelToUse = "llama-3.2-11b-vision-preview";
+          userContent = [
+            { type: "text", text: userMessage },
+            { type: "image_url", image_url: { url: savedAttachedFile.url } }
+          ];
+        } else if (savedAttachedFile.type === 'pdf') {
+          // If we have rendered images for the PDF, send them to the vision model
+          if (savedAttachedFile.images && savedAttachedFile.images.length > 0) {
+            modelToUse = "llama-3.2-11b-vision-preview";
+            userContent = [
+              { 
+                type: "text", 
+                text: `${userMessage}\n\n[PDF Text Context:\n${savedAttachedFile.text?.substring(0, 15000)}]` 
+              },
+              ...savedAttachedFile.images.map(imgUrl => ({
+                type: "image_url",
+                image_url: { url: imgUrl }
+              }))
+            ];
+          } else {
+            // Text-only PDF fallback
+            systemInstruction += `\n\nThe student has uploaded a PDF document named "${savedAttachedFile.name}". Here is the extracted text from the PDF:\n\n---\n${savedAttachedFile.text?.substring(0, 30000)}\n---\n\nUse this text to answer their query.`;
+          }
+        }
+      }
+
+      // Map conversation history
+      const apiMessages: any[] = [
+        { role: "system", content: systemInstruction }
       ];
+
+      // Add previous messages (with attachment text hints, but no base64 images to save tokens/bandwidth)
+      messages.forEach(m => {
+        if (m.content === 'Hi there! I am the TGPCOP Council AI Assistant. How can I help you today?') return;
+        
+        let contentText = m.content;
+        if (m.attachment) {
+          contentText = `[Attached ${m.attachment.type}: ${m.attachment.name}] ${contentText}`;
+        }
+        
+        apiMessages.push({
+          role: m.role,
+          content: contentText
+        });
+      });
+
+      // Add the current user message (with userContent structure)
+      apiMessages.push({
+        role: "user",
+        content: userContent
+      });
 
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
@@ -107,10 +180,10 @@ When providing links, use markdown format like this: [Click here for Notices](/n
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
+          model: modelToUse,
           messages: apiMessages,
           temperature: 0.5,
-          max_tokens: 200
+          max_tokens: 250
         })
       });
 
@@ -139,34 +212,98 @@ When providing links, use markdown format like this: [Click here for Notices](/n
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.type !== 'application/pdf') {
-      alert("Please upload a valid PDF file.");
+    // Check size limit: 50MB
+    const maxSize = 50 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert("File size exceeds 50MB limit. Please upload a smaller file.");
       return;
     }
 
     setIsUploading(true);
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      let fullText = '';
-      
-      const maxPages = Math.min(pdf.numPages, 30); // Limit to 30 pages to prevent memory issues
-      
-      for (let i = 1; i <= maxPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item: any) => item.str).join(' ');
-        fullText += pageText + '\\n';
-      }
 
-      setPdfContext(fullText);
-      setPdfName(file.name);
-      setMessages(prev => [...prev, { role: 'assistant', content: `I have successfully read your PDF: **${file.name}**. What would you like to know about it?` }]);
+    try {
+      if (file.type.startsWith('image/')) {
+        // Handle Image
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64Data = reader.result as string;
+          setAttachedFile({
+            type: 'image',
+            name: file.name,
+            url: base64Data
+          });
+          setMessages(prev => [
+            ...prev,
+            { role: 'assistant', content: `I have received your image: **${file.name}**. I can analyze its content. What would you like to ask about it?` }
+          ]);
+          setIsUploading(false);
+        };
+        reader.onerror = () => {
+          alert("Failed to read the image file.");
+          setIsUploading(false);
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type === 'application/pdf') {
+        // Handle PDF
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let fullText = '';
+        
+        const maxPages = Math.min(pdf.numPages, 30); // Limit to 30 pages
+        
+        for (let i = 1; i <= maxPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map((item: any) => item.str).join(' ');
+          fullText += pageText + '\n';
+        }
+
+        // Render first 3 pages as base64 images (for visual inspection/scanned PDFs)
+        const pdfImages: string[] = [];
+        const numPagesToRender = Math.min(pdf.numPages, 3);
+        for (let i = 1; i <= numPagesToRender; i++) {
+          try {
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            if (context) {
+              canvas.height = viewport.height;
+              canvas.width = viewport.width;
+              await page.render({ canvasContext: context, viewport, canvas }).promise;
+              const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+              pdfImages.push(base64Image);
+            }
+          } catch (err) {
+            console.warn(`Failed to render PDF page ${i} to image:`, err);
+          }
+        }
+
+        setAttachedFile({
+          type: 'pdf',
+          name: file.name,
+          text: fullText,
+          images: pdfImages
+        });
+        
+        const assistantMsg = pdfImages.length > 0
+          ? `I have successfully read your PDF: **${file.name}** (extracted text and rendered the first ${pdfImages.length} page(s) for visual search). What would you like to know about it?`
+          : `I have successfully read your PDF: **${file.name}**. What would you like to know about it?`;
+
+        setMessages(prev => [
+          ...prev,
+          { role: 'assistant', content: assistantMsg }
+        ]);
+        setIsUploading(false);
+      } else {
+        alert("Please upload a valid image or PDF file.");
+        setIsUploading(false);
+      }
     } catch (error) {
-      console.error("PDF Extraction Error:", error);
-      alert("Failed to read the PDF. It might be corrupted or scanned/image-based.");
-    } finally {
+      console.error("File upload/processing error:", error);
+      alert("Failed to process the uploaded file. Please make sure it is not corrupted.");
       setIsUploading(false);
+    } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -234,6 +371,23 @@ When providing links, use markdown format like this: [Click here for Notices](/n
                         : 'bg-white text-navy-dark border border-navy-dark/10 rounded-tl-sm shadow-sm prose prose-sm prose-orange max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0'
                     }`}
                   >
+                    {msg.attachment && (
+                      <div className="mb-2 max-w-full overflow-hidden rounded-lg border border-white/20 bg-black/10 p-1">
+                        {msg.attachment.type === 'image' && msg.attachment.url && (
+                          <img 
+                            src={msg.attachment.url} 
+                            alt="Attached file preview" 
+                            className="max-h-32 w-full rounded object-cover" 
+                          />
+                        )}
+                        {msg.attachment.type === 'pdf' && (
+                          <div className="flex items-center space-x-2 p-1.5 text-xs text-white">
+                            <FileText className="w-4 h-4 shrink-0 text-orange-200" />
+                            <span className="truncate font-sans font-medium">{msg.attachment.name}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     {msg.role === 'assistant' ? (
                       <ReactMarkdown
                         components={{
@@ -266,13 +420,23 @@ When providing links, use markdown format like this: [Click here for Notices](/n
             </div>
 
             {/* Context Badge */}
-            {pdfName && (
+            {attachedFile && (
               <div className="bg-purple-50 border-t border-purple-100 px-3 py-1.5 flex items-center justify-between shrink-0">
                 <div className="flex items-center space-x-2 text-purple-700">
-                  <FileText className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-bold font-sans truncate max-w-[200px]">Context: {pdfName}</span>
+                  {attachedFile.type === 'image' ? (
+                    attachedFile.url ? (
+                      <img src={attachedFile.url} alt="Thumbnail" className="w-5 h-5 rounded object-cover border border-purple-200" />
+                    ) : (
+                      <FileUp className="w-3.5 h-3.5" />
+                    )
+                  ) : (
+                    <FileText className="w-3.5 h-3.5" />
+                  )}
+                  <span className="text-[10px] font-bold font-sans truncate max-w-[200px]">
+                    Attachment: {attachedFile.name}
+                  </span>
                 </div>
-                <button onClick={() => { setPdfName(''); setPdfContext(''); }} className="text-purple-400 hover:text-red-500 transition-colors">
+                <button onClick={() => setAttachedFile(null)} className="text-purple-400 hover:text-red-500 transition-colors">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -282,7 +446,7 @@ When providing links, use markdown format like this: [Click here for Notices](/n
             <form onSubmit={handleSend} className="p-3 bg-white border-t border-navy-dark/10 flex items-center space-x-2 shrink-0">
               <input
                 type="file"
-                accept="application/pdf"
+                accept="application/pdf,image/*"
                 ref={fileInputRef}
                 className="hidden"
                 onChange={handleFileUpload}
@@ -291,7 +455,7 @@ When providing links, use markdown format like this: [Click here for Notices](/n
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                title="Upload PDF to Chat"
+                title="Upload Image or PDF (up to 50MB)"
                 className="w-10 h-10 flex items-center justify-center bg-gray-50 text-navy-dark/60 rounded-xl border border-navy-dark/10 hover:bg-gray-100 transition-colors shrink-0 disabled:opacity-50"
               >
                 {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileUp className="w-4 h-4" />}
