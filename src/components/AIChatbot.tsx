@@ -11,6 +11,46 @@ import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
+const compressImage = (base64Str: string, maxWidth = 1024, maxHeight = 1024): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+      let width = img.width;
+      let height = img.height;
+
+      // Keep aspect ratio
+      if (width > height) {
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(base64Str);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      resolve(compressedDataUrl);
+    };
+    img.onerror = (err) => {
+      reject(err);
+    };
+  });
+};
+
 interface AttachedFile {
   type: 'image' | 'pdf';
   name: string;
@@ -192,7 +232,14 @@ When providing links, use markdown format like this: [Click here for Notices](/n
       if (!response.ok) {
         const errText = await response.text();
         console.error("Groq API Error:", errText);
-        throw new Error(`API request failed: ${response.statusText}`);
+        let detailedError = response.statusText;
+        try {
+          const parsed = JSON.parse(errText);
+          if (parsed?.error?.message) {
+            detailedError = parsed.error.message;
+          }
+        } catch (_) {}
+        throw new Error(`API request failed with status ${response.status}: ${detailedError}`);
       }
       
       const result = await response.json();
@@ -227,18 +274,25 @@ When providing links, use markdown format like this: [Click here for Notices](/n
       if (file.type.startsWith('image/')) {
         // Handle Image
         const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64Data = reader.result as string;
-          setAttachedFile({
-            type: 'image',
-            name: file.name,
-            url: base64Data
-          });
-          setMessages(prev => [
-            ...prev,
-            { role: 'assistant', content: `I have received your image: **${file.name}**. I can analyze its content. What would you like to ask about it?` }
-          ]);
-          setIsUploading(false);
+        reader.onloadend = async () => {
+          try {
+            const rawBase64 = reader.result as string;
+            const compressedBase64 = await compressImage(rawBase64);
+            setAttachedFile({
+              type: 'image',
+              name: file.name,
+              url: compressedBase64
+            });
+            setMessages(prev => [
+              ...prev,
+              { role: 'assistant', content: `I have received your image: **${file.name}**. I can analyze its content. What would you like to ask about it?` }
+            ]);
+          } catch (compressErr) {
+            console.error("Compression error:", compressErr);
+            alert("Failed to process the image.");
+          } finally {
+            setIsUploading(false);
+          }
         };
         reader.onerror = () => {
           alert("Failed to read the image file.");
@@ -266,14 +320,14 @@ When providing links, use markdown format like this: [Click here for Notices](/n
         for (let i = 1; i <= numPagesToRender; i++) {
           try {
             const page = await pdf.getPage(i);
-            const viewport = page.getViewport({ scale: 1.5 });
+            const viewport = page.getViewport({ scale: 1.0 }); // lowered scale to 1.0 to reduce payload size
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
             if (context) {
               canvas.height = viewport.height;
               canvas.width = viewport.width;
               await page.render({ canvasContext: context, viewport, canvas }).promise;
-              const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+              const base64Image = canvas.toDataURL('image/jpeg', 0.6); // lowered quality to 0.6 to reduce payload size
               pdfImages.push(base64Image);
             }
           } catch (err) {
