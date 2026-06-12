@@ -92,6 +92,35 @@ const AppContent: React.FC = () => {
     ADMIN_PATHS.includes(location.pathname);
 
   useEffect(() => {
+    // --- Custom Horizontal Scroll Support for Mouse Wheels ---
+    // Converts vertical mouse wheel scrolling into horizontal scrolling for any overflow-x-auto containers when hovered
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY === 0 || e.shiftKey) return;
+      
+      let target = e.target as HTMLElement | null;
+      while (target && target !== document.body && target !== document.documentElement) {
+        const style = window.getComputedStyle(target);
+        const isScrollableX = (style.overflowX === 'auto' || style.overflowX === 'scroll') && target.scrollWidth > target.clientWidth;
+        
+        if (isScrollableX) {
+          const atLeft = target.scrollLeft === 0;
+          const atRight = Math.ceil(target.scrollLeft + target.clientWidth) >= target.scrollWidth;
+          
+          // Let the browser handle standard vertical scrolling if we've hit the horizontal edges
+          if ((e.deltaY < 0 && atLeft) || (e.deltaY > 0 && atRight)) {
+            return;
+          }
+          
+          e.preventDefault();
+          target.scrollLeft += e.deltaY;
+          return;
+        }
+        target = target.parentElement;
+      }
+    };
+
+    document.addEventListener('wheel', handleWheel, { passive: false });
+
     // Initialize OneSignal Push Notifications
     try {
       OneSignal.init({
@@ -104,6 +133,8 @@ const AppContent: React.FC = () => {
     } catch (error) {
       console.warn("OneSignal initialization failed:", error);
     }
+    
+    return () => document.removeEventListener('wheel', handleWheel);
   }, []);
 
   return (
