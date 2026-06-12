@@ -117,9 +117,17 @@ export const AIChatbot: React.FC = () => {
 
     try {
       const groqKey = import.meta.env.VITE_GROQ_API_KEY;
-      if (!groqKey) {
-        throw new Error("AI is not configured. Missing GROQ API Key.");
+      const mistralKey = import.meta.env.VITE_MISTRAL_API_KEY;
+      
+      if (!groqKey && !mistralKey) {
+        throw new Error("AI is not configured. Missing API Key (Groq or Mistral).");
       }
+
+      const isMistral = !!mistralKey;
+      const apiKey = isMistral ? mistralKey : groqKey;
+      const apiEndpoint = isMistral 
+        ? "https://api.mistral.ai/v1/chat/completions" 
+        : "https://api.groq.com/openai/v1/chat/completions";
 
       let systemInstruction = `You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. 
       
@@ -158,12 +166,17 @@ ${JSON.stringify(examsData, null, 2)}
 
 When providing links, use markdown format like this: [Click here for Notices](/notices).`;
 
-      let modelToUse = "llama-3.3-70b-versatile";
+      let modelToUse = "";
+      if (isMistral) {
+        modelToUse = savedAttachedFile ? "pixtral-12b-2409" : "mistral-small-latest";
+      } else {
+        modelToUse = savedAttachedFile ? "llama-3.2-11b-vision-preview" : "llama-3.3-70b-versatile";
+      }
+      
       let userContent: any = userMessage;
 
       if (savedAttachedFile) {
         if (savedAttachedFile.type === 'image' && savedAttachedFile.url) {
-          modelToUse = "llama-3.2-11b-vision-preview";
           userContent = [
             { type: "text", text: userMessage },
             { type: "image_url", image_url: { url: savedAttachedFile.url } }
@@ -171,7 +184,6 @@ When providing links, use markdown format like this: [Click here for Notices](/n
         } else if (savedAttachedFile.type === 'pdf') {
           // If we have rendered images for the PDF, send them to the vision model
           if (savedAttachedFile.images && savedAttachedFile.images.length > 0) {
-            modelToUse = "llama-3.2-11b-vision-preview";
             userContent = [
               { 
                 type: "text", 
@@ -215,10 +227,10 @@ When providing links, use markdown format like this: [Click here for Notices](/n
         content: userContent
       });
 
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${groqKey}`,
+          "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
@@ -231,12 +243,14 @@ When providing links, use markdown format like this: [Click here for Notices](/n
 
       if (!response.ok) {
         const errText = await response.text();
-        console.error("Groq API Error:", errText);
+        console.error("AI API Error:", errText);
         let detailedError = response.statusText;
         try {
           const parsed = JSON.parse(errText);
           if (parsed?.error?.message) {
             detailedError = parsed.error.message;
+          } else if (parsed?.message) {
+            detailedError = parsed.message;
           }
         } catch (_) {}
         throw new Error(`API request failed with status ${response.status}: ${detailedError}`);
