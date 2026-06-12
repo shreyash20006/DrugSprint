@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Sparkles, Loader2, Bot, FileUp, FileText, Globe } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, Bot, FileUp, FileText, Globe, Maximize2, Minimize2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -127,6 +127,7 @@ export const AIChatbot: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -473,7 +474,11 @@ When providing links, use markdown format like this: [Click here for Notices](/n
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 w-[350px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-6rem)] bg-white rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden border border-navy-dark/10 shadow-navy-dark/20"
+            className={`fixed bottom-6 right-6 bg-white rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden border border-navy-dark/10 shadow-navy-dark/20 transition-all duration-300 ${
+              isFullScreen
+                ? 'w-[calc(100vw-2rem)] md:w-[800px] h-[calc(100vh-4rem)]'
+                : 'w-[350px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-6rem)]'
+            }`}
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-navy-dark to-[#152852] p-4 flex items-center justify-between text-white shrink-0">
@@ -489,12 +494,23 @@ When providing links, use markdown format like this: [Click here for Notices](/n
                   </span>
                 </div>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-              >
-                <X className="w-5 h-5 text-white/80" />
-              </button>
+              <div className="flex items-center space-x-1">
+                <button 
+                  type="button"
+                  onClick={() => setIsFullScreen(prev => !prev)}
+                  title={isFullScreen ? "Minimize Chat" : "Maximize Chat"}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                >
+                  {isFullScreen ? <Minimize2 className="w-4 h-4 text-white/80" /> : <Maximize2 className="w-4 h-4 text-white/80" />}
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => { setIsOpen(false); setIsFullScreen(false); }}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                >
+                  <X className="w-5 h-5 text-white/80" />
+                </button>
+              </div>
             </div>
 
             {/* Messages Area */}
