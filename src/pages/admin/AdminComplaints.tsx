@@ -81,7 +81,7 @@ export const AdminComplaints: React.FC = () => {
       </div>
 
       {/* Status Filter Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {[
           { key: 'received',      icon: <Clock className="w-4 h-4" />,       label: 'Received',      count: counts.received },
           { key: 'investigating', icon: <AlertTriangle className="w-4 h-4" />, label: 'Investigating', count: counts.investigating },

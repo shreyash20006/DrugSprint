@@ -154,7 +154,7 @@ export const AdminBugs: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {[
           { label: 'Pending',     count: pendingCount,    key: 'pending' as BugStatus,     icon: <Clock className="w-4 h-4" />,          cls: STATUS_CONFIG.pending.classes },
           { label: 'In Progress', count: inProgressCount, key: 'in_progress' as BugStatus, icon: <AlertTriangle className="w-4 h-4" />,   cls: STATUS_CONFIG.in_progress.classes },

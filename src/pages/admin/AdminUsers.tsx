@@ -386,7 +386,7 @@ export const AdminUsers: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[800px]">
               <thead className="bg-white/5 border-b border-white/10">
                 <tr>
                   {['Student Profile / Email', 'Assigned Role', 'Account Status', 'Registration Date', 'Access Actions'].map(h => (

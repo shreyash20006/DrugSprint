@@ -117,7 +117,7 @@ export const AdminLayout: React.FC = () => {
           />
 
           {/* Scrollable Contents Pane */}
-          <main id="admin-main-scroll" className="flex-grow overflow-y-auto p-6 md:p-8 custom-scrollbar relative z-10">
+          <main id="admin-main-scroll" className="flex-grow overflow-y-auto p-4 sm:p-6 md:p-8 custom-scrollbar relative z-10">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}

@@ -231,8 +231,8 @@ export const AdminStudentVerification: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                <div className="flex-1 overflow-y-auto custom-scrollbar relative">
-                  <table className="w-full text-left border-collapse">
+                <div className="flex-1 overflow-auto custom-scrollbar relative">
+                  <table className="w-full text-left border-collapse min-w-[700px]">
                     <thead className="sticky top-0 bg-[#0A1428]/95 backdrop-blur-md z-20 shadow-sm border-b border-white/10">
                       <tr className="text-[10px] font-bold uppercase tracking-wider text-white/40">
                         <th className="p-4 pl-6">PRN</th>
@@ -254,10 +254,10 @@ export const AdminStudentVerification: React.FC = () => {
                           <td className="p-4 pl-6 text-sm font-display font-bold text-orange-burnt whitespace-nowrap">
                             {record.prn}
                           </td>
-                          <td className="p-4 text-sm text-white font-medium group-hover:text-orange-100 transition-colors">
+                          <td className="p-4 text-sm text-white font-medium group-hover:text-orange-100 transition-colors whitespace-nowrap">
                             {record.student_name}
                           </td>
-                          <td className="p-4 text-sm text-white/70">
+                          <td className="p-4 text-sm text-white/70 whitespace-nowrap">
                             {record.profiles?.email ? record.profiles.email : <span className="text-white/30 italic">Unlinked</span>}
                           </td>
                           <td className="p-4 text-xs text-white/50">

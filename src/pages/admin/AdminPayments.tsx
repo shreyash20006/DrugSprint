@@ -221,7 +221,7 @@ export const AdminPayments: React.FC = () => {
       </div>
 
       {/* Stats Summary Widgets Ribbon */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
         {/* Successful */}
         <div className="bg-[#0D1B3E]/40 backdrop-blur-md rounded-xl border border-white/10 p-4 shadow-lg flex items-center justify-between">
           <div>
@@ -342,7 +342,7 @@ export const AdminPayments: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[800px]">
               <thead className="bg-white/5 border-b border-white/10">
                 <tr className="text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10">
                   <th className="text-left px-5 py-3.5">Student</th>

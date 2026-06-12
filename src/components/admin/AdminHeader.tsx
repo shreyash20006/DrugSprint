@@ -21,10 +21,10 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ title, onMenuClick }) 
   };
 
   return (
-    <header className="bg-[#0A1428]/60 backdrop-blur-md border border-white/10 h-[72px] px-6 mx-4 md:mx-8 mt-4 md:mt-8 rounded-2xl flex items-center justify-between shrink-0 shadow-[0_8px_30px_rgba(0,0,0,0.4)] z-20">
+    <header className="bg-[#0A1428]/60 backdrop-blur-md border border-white/10 h-[72px] px-4 sm:px-6 mx-3 sm:mx-4 md:mx-8 mt-3 sm:mt-4 md:mt-8 rounded-2xl flex items-center justify-between shrink-0 shadow-[0_8px_30px_rgba(0,0,0,0.4)] z-20">
       {/* Left side: Hamburger (Mobile) + Title & Search */}
-      <div className="flex items-center space-x-6 flex-1">
-        <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-3 sm:space-x-6 flex-1 min-w-0">
+        <div className="flex items-center space-x-2 sm:space-x-4 shrink-0 min-w-0">
           <button
             onClick={onMenuClick}
             className="md:hidden p-2 rounded-xl text-white hover:bg-white/10 transition-colors focus:outline-none backdrop-blur-sm border border-white/5"
@@ -32,7 +32,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ title, onMenuClick }) 
           >
             <Menu className="w-5 h-5" />
           </button>
-          <h1 className="font-display font-extrabold text-lg md:text-xl text-white tracking-tight uppercase drop-shadow-md hidden sm:block">
+          <h1 className="font-display font-extrabold text-xs sm:text-sm md:text-base lg:text-lg text-white tracking-tight uppercase drop-shadow-md block line-clamp-1 max-w-[120px] sm:max-w-none">
             {title}
           </h1>
         </div>
@@ -51,7 +51,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ title, onMenuClick }) 
       </div>
 
       {/* Right side: Admin Email + Avatar Monogram + Role Badge */}
-      <div className="flex items-center space-x-4 shrink-0">
+      <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
         <button className="p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all focus:outline-none relative group border border-transparent hover:border-white/10">
           <Bell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-burnt rounded-full border border-[#0A1428] animate-pulse"></span>
