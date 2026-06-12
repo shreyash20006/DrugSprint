@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Sparkles, Loader2, Bot, FileUp, FileText } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, Bot, FileUp, FileText, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -59,6 +59,53 @@ interface AttachedFile {
   images?: string[]; // rendered PDF pages as base64 images
 }
 
+const performWebSearch = async (query: string): Promise<string> => {
+  try {
+    const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error("Search proxy failed");
+    
+    const data = await res.json();
+    const htmlContent = data.contents;
+    
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    const results: string[] = [];
+    
+    const resultDivs = doc.querySelectorAll('.result');
+    const limit = Math.min(resultDivs.length, 5); // get top 5 results
+    
+    for (let i = 0; i < limit; i++) {
+      const div = resultDivs[i];
+      const titleEl = div.querySelector('.result__title a');
+      const snippetEl = div.querySelector('.result__snippet');
+      if (titleEl && snippetEl) {
+        const title = titleEl.textContent?.trim() || '';
+        let link = titleEl.getAttribute('href') || '';
+        
+        // Decode DDG redirect URL if needed (e.g. //duckduckgo.com/l/?uddg=URL)
+        if (link.includes('uddg=')) {
+          const parts = link.split('uddg=');
+          if (parts[1]) {
+            link = decodeURIComponent(parts[1].split('&')[0]);
+          }
+        }
+        if (link.startsWith('//')) link = 'https:' + link;
+        const snippet = snippetEl.textContent?.trim() || '';
+        results.push(`- **[${title}](${link})**: ${snippet}`);
+      }
+    }
+    
+    if (results.length === 0) return "No results found.";
+    return results.join('\n\n');
+  } catch (err) {
+    console.error("Search error:", err);
+    return "Search failed.";
+  }
+};
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -78,6 +125,8 @@ export const AIChatbot: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -91,7 +140,7 @@ export const AIChatbot: React.FC = () => {
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!input.trim() || isTyping) return;
+    if (!input.trim() || isTyping || isSearching) return;
 
     const userMessage = input.trim();
     setInput('');
@@ -104,6 +153,7 @@ export const AIChatbot: React.FC = () => {
     } : undefined;
 
     const savedAttachedFile = attachedFile;
+    const shouldSearch = webSearchEnabled;
 
     setMessages(prev => [...prev, { 
       role: 'user', 
@@ -113,6 +163,19 @@ export const AIChatbot: React.FC = () => {
     
     // Clear the attachment from input area
     setAttachedFile(null);
+    
+    let searchResults = "";
+    if (shouldSearch) {
+      setIsSearching(true);
+      try {
+        searchResults = await performWebSearch(userMessage);
+      } catch (err) {
+        console.error("Web search failed:", err);
+        searchResults = "Search query failed.";
+      }
+      setIsSearching(false);
+    }
+
     setIsTyping(true);
 
     try {
@@ -132,6 +195,9 @@ export const AIChatbot: React.FC = () => {
       let systemInstruction = `You are a friendly and helpful AI assistant for the TGPCOP (Tatyasaheb Kore College of Pharmacy) Student Council. You help students with their queries regarding campus life, events, and council activities. 
       
 Additionally, you are a highly knowledgeable academic tutor. If a student asks you an educational or syllabus-related question (for example, "what is a bone", "explain pharmacology", etc.), you must provide a clear, accurate, and helpful academic explanation.
+
+IMPORTANT DIAGRAM INSTRUCTION:
+If a student asks you to draw, show, create, or explain a diagram/image of a biological organ or process (e.g. kidney, heart, neuron, cell membrane, synapse, etc.), you must construct a clean, highly readable text-based ASCII diagram or flow block diagram inside a markdown code block. Do NOT say you cannot draw or show images; always provide a readable ASCII diagram structure (similar to a block diagram or labeled ASCII organ drawing) so they can study the parts and connections easily.
 
 Keep answers concise, helpful, and polite.`;
 
@@ -165,6 +231,10 @@ Here is the upcoming University Examination Schedule for Summer 2026. If a stude
 ${JSON.stringify(examsData, null, 2)}
 
 When providing links, use markdown format like this: [Click here for Notices](/notices).`;
+
+      if (shouldSearch && searchResults) {
+        systemInstruction += `\n\nWEB SEARCH RESULTS:\nHere are the top results from a live web search for the query "${userMessage}". Use this context to answer the student's question accurately with up-to-date information:\n---\n${searchResults}\n---\nInclude relevant search citation links in your answer if helpful.`;
+      }
 
       let modelToUse = "";
       if (isMistral) {
@@ -478,6 +548,14 @@ When providing links, use markdown format like this: [Click here for Notices](/n
                 </div>
               ))}
               
+              {isSearching && (
+                <div className="flex justify-start">
+                  <div className="max-w-[85%] p-4 bg-white border border-navy-dark/10 rounded-2xl rounded-tl-sm shadow-sm flex items-center space-x-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-purple-500" />
+                    <span className="text-xs text-navy-dark/50 font-medium">Searching the web...</span>
+                  </div>
+                </div>
+              )}
               {isTyping && (
                 <div className="flex justify-start">
                   <div className="max-w-[85%] p-4 bg-white border border-navy-dark/10 rounded-2xl rounded-tl-sm shadow-sm flex items-center space-x-2">
@@ -529,6 +607,18 @@ When providing links, use markdown format like this: [Click here for Notices](/n
                 className="w-10 h-10 flex items-center justify-center bg-gray-50 text-navy-dark/60 rounded-xl border border-navy-dark/10 hover:bg-gray-100 transition-colors shrink-0 disabled:opacity-50"
               >
                 {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileUp className="w-4 h-4" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => setWebSearchEnabled(prev => !prev)}
+                title="Toggle Web Search"
+                className={`w-10 h-10 flex items-center justify-center rounded-xl border transition-colors shrink-0 ${
+                  webSearchEnabled
+                    ? 'bg-purple-50 text-purple-600 border-purple-300 ring-2 ring-purple-100'
+                    : 'bg-gray-50 text-navy-dark/60 border-navy-dark/10 hover:bg-gray-100'
+                }`}
+              >
+                <Globe className="w-4 h-4" />
               </button>
               <input
                 type="text"
