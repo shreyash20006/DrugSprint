@@ -16,6 +16,7 @@ import { ProtectedRoute } from './components/admin/ProtectedRoute';
 import { DNALoader } from './components/DNALoader';
 import { DesktopOnlyWrapper } from './components/DesktopOnlyWrapper';
 import { AIChatbot } from './components/AIChatbot';
+import { FloatingScrollButtons } from './components/FloatingScrollButtons';
 
 // Lazy load ALL pages for dynamic bundle code-splitting & minimal first-paint loading times
 const Home = lazy(() => import('./pages/Home'));
@@ -141,6 +142,7 @@ const AppContent: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-gray-light font-sans text-navy-dark antialiased">
       {!isAdminRoute && <Navbar />}
       {!isAdminRoute && <ScrollProgressBar />}
+      <FloatingScrollButtons />
 
       <main className="flex-grow">
         <Suspense fallback={
