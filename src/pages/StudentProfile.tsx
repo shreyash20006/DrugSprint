@@ -499,8 +499,26 @@ export const StudentProfile: React.FC = () => {
                               }).eq('id', data.id);
                               if (updateErr) throw updateErr;
                               
+                              // Autofill and update the user's profile with official data
+                              const officialName = data.student_name || studentProfile?.full_name;
+                              const officialYear = data.year || studentProfile?.year || 'First Year';
+                              
+                              const { error: profileErr } = await supabase.from('profiles').update({
+                                full_name: officialName,
+                                year: officialYear
+                              }).eq('id', studentProfile?.id);
+                              
+                              if (profileErr) throw profileErr;
+                              
+                              // Update local state to show immediately
+                              setFullName(officialName);
+                              setYear(officialYear);
                               setVerificationData({ ...data, user_id: studentProfile?.id, verification_status: 'verified' });
-                              toast.success('Verification successful!');
+                              
+                              // Trigger a refetch of the profile in context
+                              await refreshProfile();
+                              
+                              toast.success('Verified! Profile updated with official details.');
                             } catch (err: any) {
                               toast.error(err.message);
                             } finally {
