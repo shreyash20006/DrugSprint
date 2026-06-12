@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useToast } from '../../components/admin/Toast';
 import { logActivity } from '../../lib/logs';
 import { useAuth } from '../../components/admin/ProtectedRoute';
-import { Newspaper, Plus, Loader2, Trash2, Edit, X, Eye, EyeOff, Upload } from 'lucide-react';
+import { Newspaper, Plus, Loader2, Trash2, Edit, X, Eye, EyeOff, Upload, FileText } from 'lucide-react';
 
 export const AdminNewsletter: React.FC = () => {
   const toast = useToast();
@@ -128,85 +128,157 @@ export const AdminNewsletter: React.FC = () => {
     }
   };
 
+  const inputCls = "w-full px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-sm placeholder-white/30 outline-none focus:border-orange-burnt/50 focus:bg-white/[0.06] transition-all";
+  const labelCls = "block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1.5";
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center space-x-3"><Newspaper className="w-6 h-6 text-orange-burnt" /><h2 className="font-display font-extrabold text-xl text-navy-dark">Newsletters</h2></div>
-        <button onClick={openCreate} className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-orange-burnt text-white font-display text-xs font-bold hover:bg-orange-burnt/90 transition-colors shadow-md">
-          <Plus className="w-4 h-4" /><span>Create Newsletter</span>
+        <div className="flex items-center space-x-3">
+          <div className="p-2.5 bg-orange-burnt/10 rounded-xl border border-orange-burnt/20">
+            <Newspaper className="w-5 h-5 text-orange-burnt" />
+          </div>
+          <div>
+            <h2 className="font-display font-extrabold text-xl text-white">Newsletter Publisher</h2>
+            <p className="text-xs text-white/40 font-sans mt-0.5">Publish council newsletters to the student portal</p>
+          </div>
+        </div>
+        <button
+          onClick={openCreate}
+          className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold hover:shadow-[0_4px_15px_rgba(214,90,30,0.4)] hover:-translate-y-px transition-all shadow-md"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Create Newsletter</span>
         </button>
       </div>
 
-      {isLoading ? <div className="py-20 text-center"><Loader2 className="w-8 h-8 animate-spin text-orange-burnt mx-auto" /></div> : items.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-navy-dark/10"><Newspaper className="w-10 h-10 text-navy-dark/15 mx-auto mb-2" /><p className="text-navy-dark/40 text-sm">No newsletters yet</p></div>
+      {/* List */}
+      {isLoading ? (
+        <div className="py-20 flex flex-col items-center justify-center text-white/40">
+          <Loader2 className="w-8 h-8 text-orange-burnt animate-spin mb-3" />
+          <p className="text-sm font-display">Loading newsletters...</p>
+        </div>
+      ) : items.length === 0 ? (
+        <div className="py-20 flex flex-col items-center justify-center bg-white/[0.02] rounded-2xl border border-white/5">
+          <Newspaper className="w-12 h-12 text-white/10 mb-3" />
+          <p className="text-white/50 text-sm font-display font-bold">No newsletters yet</p>
+          <p className="text-white/25 text-xs font-sans mt-1">Create and publish your first council newsletter</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {items.map(n => (
-            <div key={n.id} className="bg-white rounded-xl border border-navy-dark/10 shadow-sm p-5 flex items-center justify-between">
-              <div>
-                <div className="flex items-center space-x-2 mb-0.5">
-                  <h3 className="font-display font-bold text-sm text-navy-dark">{n.title}</h3>
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${n.is_published ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}>
-                    {n.is_published ? 'Published' : 'Draft'}
-                  </span>
+            <div key={n.id} className="bg-white/[0.03] backdrop-blur-sm rounded-2xl border border-white/10 p-5 flex items-center justify-between hover:border-white/20 hover:bg-white/[0.05] transition-all duration-200 group">
+              <div className="flex items-center space-x-4 min-w-0">
+                <div className={`p-2 rounded-xl border ${n.is_published ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-amber-500/10 border-amber-500/20'}`}>
+                  <FileText className={`w-4 h-4 ${n.is_published ? 'text-emerald-400' : 'text-amber-400'}`} />
                 </div>
-                <p className="text-navy-dark/50 text-xs">{n.month}</p>
+                <div className="min-w-0">
+                  <div className="flex items-center space-x-2 mb-0.5">
+                    <h3 className="font-display font-bold text-sm text-white group-hover:text-orange-100 transition-colors truncate">{n.title}</h3>
+                    <span className={`shrink-0 text-[9px] font-bold px-2 py-0.5 rounded-lg border ${n.is_published ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>
+                      {n.is_published ? '● Published' : '● Draft'}
+                    </span>
+                  </div>
+                  <p className="text-white/40 text-xs font-sans">{n.month}</p>
+                </div>
               </div>
-              <div className="flex items-center space-x-1.5">
-                <button onClick={() => togglePublish(n)} className={`p-1.5 rounded-lg transition-colors ${n.is_published ? 'hover:bg-amber-50 text-amber-500' : 'hover:bg-emerald-50 text-emerald-500'}`} title={n.is_published ? 'Unpublish' : 'Publish'}>
+              <div className="flex items-center space-x-1 shrink-0 ml-3">
+                <button
+                  onClick={() => togglePublish(n)}
+                  className={`p-2 rounded-xl transition-all ${n.is_published ? 'hover:bg-amber-500/10 text-amber-400/70 hover:text-amber-400' : 'hover:bg-emerald-500/10 text-emerald-400/70 hover:text-emerald-400'}`}
+                  title={n.is_published ? 'Unpublish' : 'Publish'}
+                >
                   {n.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
-                <button onClick={() => openEdit(n)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500"><Edit className="w-4 h-4" /></button>
-                <button onClick={() => handleDelete(n)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-400"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => openEdit(n)} className="p-2 rounded-xl hover:bg-blue-500/10 text-blue-400/70 hover:text-blue-400 transition-all">
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleDelete(n)} className="p-2 rounded-xl hover:bg-red-500/10 text-red-400/70 hover:text-red-400 transition-all">
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             </div>
           ))}
         </div>
       )}
 
+      {/* Create/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
           <div onClick={() => setShowModal(false)} className="absolute inset-0" />
-          <div className="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl z-10 overflow-hidden">
-            <div className="bg-navy-dark text-white px-6 py-4 flex items-center justify-between">
-              <h4 className="font-display font-extrabold text-sm">{editId ? 'Edit Newsletter' : 'Create Newsletter'}</h4>
-              <button onClick={() => setShowModal(false)} className="p-1 rounded-lg hover:bg-white/10"><X className="w-4 h-4" /></button>
+          <div className="relative bg-[#0A1428] w-full max-w-lg rounded-2xl shadow-2xl z-10 overflow-hidden border border-white/10">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-orange-burnt/20 to-transparent border-b border-white/10 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-orange-burnt/20 rounded-lg">
+                  <Newspaper className="w-4 h-4 text-orange-burnt" />
+                </div>
+                <h4 className="font-display font-extrabold text-sm text-white">
+                  {editId ? 'Edit Newsletter' : 'Create Newsletter'}
+                </h4>
+              </div>
+              <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
             </div>
+
             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-              <div><label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1.5">Title *</label>
-                <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="May 2025 Newsletter" className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 outline-none text-sm" /></div>
-              <div><label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1.5">Month *</label>
-                <input type="text" value={month} onChange={e => setMonth(e.target.value)} placeholder="May 2025" className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 outline-none text-sm" /></div>
+              <div>
+                <label className={labelCls}>Title *</label>
+                <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="May 2025 Newsletter" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Month *</label>
+                <input type="text" value={month} onChange={e => setMonth(e.target.value)} placeholder="May 2025" className={inputCls} />
+              </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1.5">Sections</label>
+                <label className={labelCls}>Sections</label>
                 <div className="space-y-3">
                   {sections.map((sec, i) => (
-                    <div key={i} className="bg-navy-dark/[0.02] rounded-lg p-3 space-y-2">
+                    <div key={i} className="bg-white/[0.04] rounded-xl p-3 space-y-2 border border-white/5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-navy-dark/40">Section {i + 1}</span>
-                        {sections.length > 1 && <button onClick={() => setSections(sections.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600"><X className="w-3.5 h-3.5" /></button>}
+                        <span className="text-[10px] font-bold text-white/30">Section {i + 1}</span>
+                        {sections.length > 1 && (
+                          <button onClick={() => setSections(sections.filter((_, j) => j !== i))} className="text-red-400/50 hover:text-red-400 transition-colors">
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
-                      <input type="text" value={sec.heading} onChange={e => { const n = [...sections]; n[i] = { ...n[i], heading: e.target.value }; setSections(n); }}
-                        placeholder="Section heading" className="w-full px-3 py-2 rounded-lg border border-navy-dark/10 outline-none text-sm" />
-                      <textarea value={sec.content} onChange={e => { const n = [...sections]; n[i] = { ...n[i], content: e.target.value }; setSections(n); }}
-                        placeholder="Section content..." rows={3} className="w-full px-3 py-2 rounded-lg border border-navy-dark/10 outline-none text-sm resize-none" />
+                      <input
+                        type="text"
+                        value={sec.heading}
+                        onChange={e => { const n = [...sections]; n[i] = { ...n[i], heading: e.target.value }; setSections(n); }}
+                        placeholder="Section heading"
+                        className={inputCls}
+                      />
+                      <textarea
+                        value={sec.content}
+                        onChange={e => { const n = [...sections]; n[i] = { ...n[i], content: e.target.value }; setSections(n); }}
+                        placeholder="Section content..."
+                        rows={3}
+                        className={`${inputCls} resize-none`}
+                      />
                     </div>
                   ))}
-                  <button onClick={() => setSections([...sections, { heading: '', content: '' }])} className="text-orange-burnt text-xs font-bold font-display hover:underline">+ Add Section</button>
+                  <button onClick={() => setSections([...sections, { heading: '', content: '' }])} className="text-orange-burnt text-xs font-bold font-display hover:text-orange-300 transition-colors">
+                    + Add Section
+                  </button>
                 </div>
               </div>
 
-              <div><label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1.5">PDF URL (Cloudinary or Uploaded)</label>
+              <div>
+                <label className={labelCls}>PDF URL (Cloudinary or Uploaded)</label>
                 <div className="flex gap-2">
-                  <input 
-                    type="url" 
-                    value={pdfUrl} 
-                    onChange={e => setPdfUrl(e.target.value)} 
+                  <input
+                    type="url"
+                    value={pdfUrl}
+                    onChange={e => setPdfUrl(e.target.value)}
                     placeholder="https://..."
-                    className="flex-grow px-4 py-2.5 rounded-lg border border-navy-dark/15 outline-none text-sm" 
+                    className={inputCls}
                   />
-                  <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+                  <label className="flex items-center justify-center px-4 py-2.5 bg-white/[0.05] hover:bg-orange-burnt text-white rounded-xl cursor-pointer transition-all shrink-0 text-xs font-bold font-display border border-white/10 hover:border-orange-burnt">
                     {isUploading ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
@@ -215,25 +287,25 @@ export const AdminNewsletter: React.FC = () => {
                         <span>Upload</span>
                       </>
                     )}
-                    <input
-                      type="file"
-                      accept="application/pdf"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      disabled={isUploading}
-                    />
+                    <input type="file" accept="application/pdf" onChange={handleFileUpload} className="hidden" disabled={isUploading} />
                   </label>
                 </div>
               </div>
 
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input type="checkbox" checked={isPublished} onChange={e => setIsPublished(e.target.checked)} className="accent-orange-burnt w-4 h-4" />
-                <span className="text-sm font-sans text-navy-dark font-medium">Publish immediately</span>
+                <span className="text-sm font-sans text-white/70 font-medium">Publish immediately</span>
               </label>
 
               <div className="flex space-x-3 pt-2">
-                <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-lg border border-navy-dark/15 text-navy-dark/60 font-display text-xs font-bold">Cancel</button>
-                <button onClick={handleSave} disabled={isSaving} className="flex-1 py-2.5 rounded-lg bg-orange-burnt text-white font-display text-xs font-bold shadow-md disabled:opacity-50 flex items-center justify-center">
+                <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/60 font-display text-xs font-bold hover:bg-white/5 transition-colors">
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold shadow-md disabled:opacity-50 flex items-center justify-center hover:shadow-[0_4px_15px_rgba(214,90,30,0.4)] hover:-translate-y-px transition-all"
+                >
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>{editId ? 'Update' : 'Create'}</span>}
                 </button>
               </div>

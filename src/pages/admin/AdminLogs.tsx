@@ -8,35 +8,35 @@ import {
 } from 'lucide-react';
 
 const ACTION_ICONS: Record<string, React.ReactNode> = {
-  login_success: <LogIn className="w-3.5 h-3.5 text-emerald-500" />,
-  login_fail: <AlertTriangle className="w-3.5 h-3.5 text-red-500" />,
-  notice_create: <FileText className="w-3.5 h-3.5 text-blue-500" />,
-  notice_edit: <Edit className="w-3.5 h-3.5 text-amber-500" />,
-  notice_delete: <Trash2 className="w-3.5 h-3.5 text-red-500" />,
-  logo_change: <ImageIcon className="w-3.5 h-3.5 text-purple-500" />,
-  banner_change: <ImageIcon className="w-3.5 h-3.5 text-indigo-500" />,
-  user_create: <UserPlus className="w-3.5 h-3.5 text-emerald-500" />,
-  user_delete: <UserX className="w-3.5 h-3.5 text-red-500" />,
-  user_suspend: <Bell className="w-3.5 h-3.5 text-amber-500" />,
-  user_pw_reset: <Bell className="w-3.5 h-3.5 text-blue-500" />,
-  user_role_change: <Bell className="w-3.5 h-3.5 text-cyan-500" />,
-  bug_reported: <Bug className="w-3.5 h-3.5 text-orange-500" />,
+  login_success: <LogIn className="w-3.5 h-3.5 text-emerald-400" />,
+  login_fail: <AlertTriangle className="w-3.5 h-3.5 text-red-400" />,
+  notice_create: <FileText className="w-3.5 h-3.5 text-blue-400" />,
+  notice_edit: <Edit className="w-3.5 h-3.5 text-amber-400" />,
+  notice_delete: <Trash2 className="w-3.5 h-3.5 text-red-400" />,
+  logo_change: <ImageIcon className="w-3.5 h-3.5 text-purple-400" />,
+  banner_change: <ImageIcon className="w-3.5 h-3.5 text-indigo-400" />,
+  user_create: <UserPlus className="w-3.5 h-3.5 text-emerald-400" />,
+  user_delete: <UserX className="w-3.5 h-3.5 text-red-400" />,
+  user_suspend: <Bell className="w-3.5 h-3.5 text-amber-400" />,
+  user_pw_reset: <Bell className="w-3.5 h-3.5 text-blue-400" />,
+  user_role_change: <Bell className="w-3.5 h-3.5 text-cyan-400" />,
+  bug_reported: <Bug className="w-3.5 h-3.5 text-orange-400" />,
 };
 
 const ACTION_COLORS: Record<string, string> = {
-  login_success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  login_fail: 'bg-red-50 text-red-700 border-red-200',
-  notice_create: 'bg-blue-50 text-blue-700 border-blue-200',
-  notice_edit: 'bg-amber-50 text-amber-700 border-amber-200',
-  notice_delete: 'bg-red-50 text-red-700 border-red-200',
-  logo_change: 'bg-purple-50 text-purple-700 border-purple-200',
-  banner_change: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-  user_create: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  user_delete: 'bg-red-50 text-red-700 border-red-200',
-  user_suspend: 'bg-amber-50 text-amber-700 border-amber-200',
-  user_pw_reset: 'bg-blue-50 text-blue-700 border-blue-200',
-  user_role_change: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-  bug_reported: 'bg-orange-50 text-orange-700 border-orange-200',
+  login_success:  'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  login_fail:     'bg-red-500/10 text-red-400 border-red-500/20',
+  notice_create:  'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  notice_edit:    'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  notice_delete:  'bg-red-500/10 text-red-400 border-red-500/20',
+  logo_change:    'bg-purple-500/10 text-purple-400 border-purple-500/20',
+  banner_change:  'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+  user_create:    'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  user_delete:    'bg-red-500/10 text-red-400 border-red-500/20',
+  user_suspend:   'bg-amber-500/10 text-amber-400 border-amber-500/20',
+  user_pw_reset:  'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  user_role_change: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+  bug_reported:   'bg-orange-500/10 text-orange-400 border-orange-500/20',
 };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -105,23 +105,26 @@ export const AdminLogs: React.FC = () => {
     setFiltered(result);
   }, [logs, searchEmail, actionType, dateFrom, dateTo]);
 
-  return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+  const hasFilters = searchEmail || actionType !== 'all' || dateFrom || dateTo;
 
+  return (
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between bg-white border border-navy-dark/10 p-5 rounded-2xl shadow-xs">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-600">
-            <ClipboardList className="w-5 h-5" />
+          <div className="p-2.5 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
+            <ClipboardList className="w-5 h-5 text-indigo-400" />
           </div>
           <div>
-            <h3 className="font-display font-extrabold text-base text-navy-dark">Security Audit Trail</h3>
-            <p className="text-[10px] text-navy-dark/45 font-sans leading-none mt-0.5">{filtered.length} of {logs.length} records shown</p>
+            <h2 className="font-display font-extrabold text-xl text-white">Security Audit Trail</h2>
+            <p className="text-[10px] text-white/40 font-sans mt-0.5">
+              {filtered.length} of {logs.length} records shown
+            </p>
           </div>
         </div>
         <button
           onClick={fetchLogs}
-          className="flex items-center space-x-1.5 px-4 py-2 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors"
+          className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl border border-white/10 text-white/60 font-display text-xs font-bold hover:bg-white/[0.05] hover:text-white transition-all"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Refresh</span>
@@ -129,41 +132,47 @@ export const AdminLogs: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs p-4">
+      <div className="bg-white/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl p-4 space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Search by email */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-navy-dark/30" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
             <input
-              type="text" value={searchEmail}
+              type="text"
+              value={searchEmail}
               onChange={e => setSearchEmail(e.target.value)}
               placeholder="Filter by email..."
-              className="w-full pl-9 pr-4 py-2 rounded-lg border border-navy-dark/15 focus:border-indigo-400 outline-none text-xs font-sans text-navy-dark transition-colors"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-sans outline-none focus:border-indigo-500/50 transition-all placeholder-white/30"
             />
           </div>
           {/* Action type */}
           <select
-            value={actionType} onChange={e => setActionType(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-navy-dark/15 focus:border-indigo-400 outline-none text-xs font-sans text-navy-dark transition-colors bg-white"
+            value={actionType}
+            onChange={e => setActionType(e.target.value)}
+            className="px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white text-xs font-sans outline-none focus:border-indigo-500/50 transition-all appearance-none cursor-pointer"
           >
-            <option value="all">All Action Types</option>
-            {ACTION_TYPES.map(t => <option key={t} value={t}>{ACTION_LABELS[t]}</option>)}
+            <option value="all" className="bg-[#0A1428]">All Action Types</option>
+            {ACTION_TYPES.map(t => <option key={t} value={t} className="bg-[#0A1428]">{ACTION_LABELS[t]}</option>)}
           </select>
           {/* Date from */}
           <input
-            type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-navy-dark/15 focus:border-indigo-400 outline-none text-xs font-sans text-navy-dark transition-colors bg-white"
+            type="date"
+            value={dateFrom}
+            onChange={e => setDateFrom(e.target.value)}
+            className="px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white/70 text-xs font-sans outline-none focus:border-indigo-500/50 transition-all"
           />
           {/* Date to */}
           <input
-            type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-navy-dark/15 focus:border-indigo-400 outline-none text-xs font-sans text-navy-dark transition-colors bg-white"
+            type="date"
+            value={dateTo}
+            onChange={e => setDateTo(e.target.value)}
+            className="px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-white/70 text-xs font-sans outline-none focus:border-indigo-500/50 transition-all"
           />
         </div>
-        {(searchEmail || actionType !== 'all' || dateFrom || dateTo) && (
+        {hasFilters && (
           <button
             onClick={() => { setSearchEmail(''); setActionType('all'); setDateFrom(''); setDateTo(''); }}
-            className="mt-3 text-[10px] text-indigo-500 font-bold hover:underline"
+            className="text-[10px] text-indigo-400 font-bold hover:text-indigo-300 transition-colors"
           >
             ✕ Clear all filters
           </button>
@@ -171,39 +180,42 @@ export const AdminLogs: React.FC = () => {
       </div>
 
       {/* Log Entries */}
-      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs overflow-hidden">
+      <div className="bg-white/[0.03] backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center py-20 text-navy-dark/40">
-            <Loader2 className="w-8 h-8 animate-spin mr-3 text-indigo-500" />
+          <div className="flex flex-col items-center justify-center py-20 text-white/40">
+            <Loader2 className="w-8 h-8 animate-spin mb-3 text-indigo-400" />
             <span className="font-display text-sm">Loading audit logs...</span>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 text-navy-dark/40">
-            <ClipboardList className="w-10 h-10 mx-auto mb-2 opacity-30" />
-            <p className="text-sm font-display">No activity logs found matching your filters.</p>
+          <div className="text-center py-16">
+            <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
+              <ClipboardList className="w-7 h-7 text-white/20" />
+            </div>
+            <p className="text-white/50 text-sm font-display font-bold">No activity logs found</p>
+            <p className="text-white/25 text-xs font-sans mt-1">Try adjusting your filters</p>
           </div>
         ) : (
-          <div className="divide-y divide-navy-dark/5">
+          <div className="divide-y divide-white/[0.04]">
             {filtered.map(log => (
-              <div key={log.id} className="px-5 py-4 flex items-start space-x-4 hover:bg-navy-dark/[0.01] transition-colors">
+              <div key={log.id} className="px-5 py-4 flex items-start space-x-4 hover:bg-white/[0.02] transition-colors group">
                 {/* Icon */}
-                <div className="w-8 h-8 rounded-full bg-navy-dark/5 flex items-center justify-center shrink-0 mt-0.5">
-                  {ACTION_ICONS[log.action_type] || <Bell className="w-3.5 h-3.5 text-navy-dark/30" />}
+                <div className="w-8 h-8 rounded-full bg-white/[0.05] flex items-center justify-center shrink-0 mt-0.5 border border-white/5">
+                  {ACTION_ICONS[log.action_type] || <Bell className="w-3.5 h-3.5 text-white/30" />}
                 </div>
                 {/* Content */}
                 <div className="flex-grow min-w-0">
                   <div className="flex items-center flex-wrap gap-2 mb-1">
-                    <span className={`inline-block text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${ACTION_COLORS[log.action_type] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+                    <span className={`inline-block text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-lg border ${ACTION_COLORS[log.action_type] || 'bg-white/5 text-white/40 border-white/10'}`}>
                       {ACTION_LABELS[log.action_type] || log.action_type}
                     </span>
-                    <span className="text-[10px] text-navy-dark/40 font-medium font-display">
+                    <span className="text-[10px] text-white/40 font-mono">
                       {log.user_email}
                     </span>
                   </div>
-                  <p className="text-xs text-navy-dark/65 font-sans leading-relaxed truncate">{log.details}</p>
+                  <p className="text-xs text-white/55 font-sans leading-relaxed truncate">{log.details}</p>
                 </div>
                 {/* Timestamp */}
-                <div className="text-[10px] text-navy-dark/35 font-mono shrink-0 pt-0.5">
+                <div className="text-[10px] text-white/30 font-mono shrink-0 pt-0.5 text-right">
                   {new Date(log.created_at).toLocaleString('en-US', {
                     month: 'short', day: 'numeric',
                     hour: 'numeric', minute: '2-digit'
@@ -214,7 +226,6 @@ export const AdminLogs: React.FC = () => {
           </div>
         )}
       </div>
-
     </div>
   );
 };

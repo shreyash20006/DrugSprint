@@ -369,7 +369,7 @@ export const AdminSettings: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-32 text-navy-dark/40">
+      <div className="flex items-center justify-center py-32 text-white/40">
         <Loader2 className="w-8 h-8 animate-spin mr-3 text-orange-burnt" />
         <span className="font-display text-sm">Loading branding settings...</span>
       </div>
@@ -380,27 +380,27 @@ export const AdminSettings: React.FC = () => {
     <div className="space-y-6 animate-in fade-in duration-300 max-w-3xl">
 
       {/* Header */}
-      <div className="flex items-center space-x-3 bg-white border border-navy-dark/10 p-5 rounded-2xl shadow-xs">
+      <div className="flex items-center space-x-3 bg-[#0D1B3E]/40 backdrop-blur-md border border-white/10 p-5 rounded-2xl shadow-lg">
         <div className="w-10 h-10 rounded-full bg-orange-burnt/10 flex items-center justify-center text-orange-burnt">
           <Sliders className="w-5 h-5" />
         </div>
         <div>
-          <h3 className="font-display font-extrabold text-base text-navy-dark">Portal Branding Settings</h3>
-          <p className="text-[10px] text-navy-dark/45 font-sans leading-none mt-0.5">
+          <h3 className="font-display font-extrabold text-base text-white">Portal Branding Settings</h3>
+          <p className="text-[10px] text-white/40 font-sans leading-none mt-0.5">
             Change the college logo and homepage banner image displayed on the public website.
           </p>
         </div>
       </div>
 
       {/* ── My Personal Council Profile ───────────────────────────────────── */}
-      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs p-6 space-y-5">
-        <div className="flex items-center space-x-2 pb-3 border-b border-navy-dark/5">
+      <div className="bg-[#0D1B3E]/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg p-6 space-y-5">
+        <div className="flex items-center space-x-2 pb-3 border-b border-white/5">
           <Sliders className="w-4 h-4 text-orange-burnt" />
-          <h4 className="font-display font-bold text-sm text-navy-dark">👤 My Council Card Profile</h4>
+          <h4 className="font-display font-bold text-sm text-white">👤 My Council Card Profile</h4>
         </div>
 
         {/* Profile Card Preview & Details */}
-        <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-xl bg-navy-dark/[0.02] border border-navy-dark/5">
+        <div className="flex flex-col sm:flex-row items-center gap-6 p-4 rounded-xl bg-white/5 border border-white/5">
           {/* Avatar Preview */}
           <div className="w-20 h-20 rounded-full bg-orange-burnt/10 border border-orange-burnt/20 flex items-center justify-center text-orange-burnt font-display font-extrabold text-2xl shadow-inner shrink-0 overflow-hidden relative">
             {myProfileAvatar ? (
@@ -418,8 +418,8 @@ export const AdminSettings: React.FC = () => {
           </div>
 
           {/* Details list */}
-          <div className="space-y-1 text-xs text-navy-dark/70 font-sans leading-relaxed text-center sm:text-left flex-grow">
-            <h5 className="font-display font-extrabold text-sm text-navy-dark">{myProfileName || 'Unnamed Member'}</h5>
+          <div className="space-y-1 text-xs text-white/60 font-sans leading-relaxed text-center sm:text-left flex-grow">
+            <h5 className="font-display font-extrabold text-sm text-white">{myProfileName || 'Unnamed Member'}</h5>
             <p className="font-semibold text-orange-burnt/85 uppercase tracking-wider text-[10px]">
               Role: {myEmail === 'shrey@tgpcopconcil.com' ? 'President' : 'Council Administrator'} ({myEmail})
             </p>
@@ -432,52 +432,52 @@ export const AdminSettings: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Name Input */}
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">Display Name</label>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">Display Name</label>
             <input
               type="text"
               value={myProfileName}
               onChange={e => setMyProfileName(e.target.value)}
               placeholder="Enter your full name"
-              className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs sm:text-sm font-sans text-navy-dark transition-colors"
+              className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-white/5 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-xs sm:text-sm font-sans text-white transition-colors placeholder:text-white/20"
             />
           </div>
 
           {/* Phone Input */}
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">Phone Number</label>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">Phone Number</label>
             <input
               type="tel"
               value={myProfilePhone}
               onChange={e => setMyProfilePhone(e.target.value)}
               placeholder="e.g. +91 98765 43210"
-              className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs sm:text-sm font-sans text-navy-dark transition-colors"
+              className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-white/5 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-xs sm:text-sm font-sans text-white transition-colors placeholder:text-white/20"
             />
           </div>
 
           {/* Year/Class Input */}
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">Course & Year</label>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">Course & Year</label>
             <input
               type="text"
               value={myProfileYear}
               onChange={e => setMyProfileYear(e.target.value)}
               placeholder="e.g. B.Pharm III Year"
-              className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs sm:text-sm font-sans text-navy-dark transition-colors"
+              className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-white/5 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-xs sm:text-sm font-sans text-white transition-colors placeholder:text-white/20"
             />
           </div>
 
           {/* Profile Picture Input */}
           <div className="space-y-1.5">
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">Profile Photo URL (https://)</label>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">Profile Photo URL (https://)</label>
             <div className="flex gap-2">
               <input
                 type="url"
                 value={myProfileAvatar}
                 onChange={e => { setMyProfileAvatar(e.target.value); setProfileError(''); }}
                 placeholder="https://res.cloudinary.com/.../your-photo.jpg"
-                className={`flex-grow px-4 py-2.5 rounded-lg border ${profileError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-xs sm:text-sm font-sans text-navy-dark transition-colors`}
+                className={`flex-grow px-4 py-2.5 rounded-lg border bg-white/5 text-white placeholder:text-white/20 outline-none text-xs sm:text-sm font-sans transition-colors ${profileError ? 'border-red-400' : 'border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50'}`}
               />
-              <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+              <label className="flex items-center justify-center px-4 py-2.5 bg-white/5 hover:bg-orange-burnt border border-white/10 text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
                 {isUploading === 'profile' ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
@@ -520,7 +520,7 @@ export const AdminSettings: React.FC = () => {
               setProfileError('');
             }}
             disabled={myProfileName === originalProfileName && myProfilePhone === originalProfilePhone && myProfileYear === originalProfileYear && myProfileAvatar === originalProfileAvatar}
-            className="flex items-center space-x-1.5 px-4 py-2.5 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center space-x-1.5 px-4 py-2.5 border border-white/10 rounded-lg text-white/60 font-display text-xs font-bold hover:bg-white/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset</span>
@@ -529,15 +529,15 @@ export const AdminSettings: React.FC = () => {
       </div>
 
       {/* ── College Logo ─────────────────────────────────────────────────── */}
-      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs p-6 space-y-5">
-        <div className="flex items-center space-x-2 pb-3 border-b border-navy-dark/5">
+      <div className="bg-[#0D1B3E]/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg p-6 space-y-5">
+        <div className="flex items-center space-x-2 pb-3 border-b border-white/5">
           <ImageIcon className="w-4 h-4 text-orange-burnt" />
-          <h4 className="font-display font-bold text-sm text-navy-dark">College Logo</h4>
+          <h4 className="font-display font-bold text-sm text-white">College Logo</h4>
         </div>
 
         {/* Preview */}
         <div className="flex items-center space-x-5">
-          <div className="w-20 h-20 rounded-2xl bg-navy-dark/5 border border-navy-dark/10 flex items-center justify-center overflow-hidden shrink-0">
+          <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
             {logoUrl ? (
               <img
                 ref={logoImgRef}
@@ -548,25 +548,25 @@ export const AdminSettings: React.FC = () => {
                 onLoad={() => setLogoError('')}
               />
             ) : (
-              <ImageIcon className="w-8 h-8 text-navy-dark/20" />
+              <ImageIcon className="w-8 h-8 text-white/20" />
             )}
           </div>
-          <div className="text-xs text-navy-dark/50 font-sans leading-relaxed">
-            <p className="font-semibold text-navy-dark/70 mb-1">Current Logo URL:</p>
+          <div className="text-xs text-white/40 font-sans leading-relaxed">
+            <p className="font-semibold text-white/60 mb-1">Current Logo URL:</p>
             {originalLogo ? (
               <a href={originalLogo} target="_blank" rel="noopener noreferrer" className="text-orange-burnt hover:underline flex items-center space-x-1 truncate max-w-xs">
                 <ExternalLink className="w-3 h-3 shrink-0" />
                 <span className="truncate">{originalLogo}</span>
               </a>
             ) : (
-              <span className="italic text-navy-dark/30">No logo URL set — using default icon</span>
+              <span className="italic text-white/20">No logo URL set — using default icon</span>
             )}
           </div>
         </div>
 
         {/* URL Input */}
         <div className="space-y-2">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">
             New Logo URL (must be https://)
           </label>
           <div className="flex gap-2">
@@ -575,9 +575,9 @@ export const AdminSettings: React.FC = () => {
               value={logoUrl}
               onChange={e => { setLogoUrl(e.target.value); setLogoError(''); }}
               placeholder="https://res.cloudinary.com/your-cloud/image/upload/..."
-              className={`flex-grow px-4 py-2.5 rounded-lg border ${logoError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-sm font-sans text-navy-dark transition-colors`}
+              className={`flex-grow px-4 py-2.5 rounded-lg border bg-white/5 text-white placeholder:text-white/20 outline-none text-sm font-sans transition-colors ${logoError ? 'border-red-400' : 'border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50'}`}
             />
-            <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+            <label className="flex items-center justify-center px-4 py-2.5 bg-white/5 hover:bg-orange-burnt border border-white/10 text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
               {isUploading === 'logo' ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
@@ -611,7 +611,7 @@ export const AdminSettings: React.FC = () => {
           <button
             onClick={() => { setLogoUrl(originalLogo); setLogoError(''); }}
             disabled={logoUrl === originalLogo}
-            className="flex items-center space-x-1.5 px-4 py-2.5 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center space-x-1.5 px-4 py-2.5 border border-white/10 rounded-lg text-white/60 font-display text-xs font-bold hover:bg-white/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset</span>
@@ -620,14 +620,14 @@ export const AdminSettings: React.FC = () => {
       </div>
 
       {/* ── Homepage Banner ───────────────────────────────────────────────── */}
-      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs p-6 space-y-5">
-        <div className="flex items-center space-x-2 pb-3 border-b border-navy-dark/5">
+      <div className="bg-[#0D1B3E]/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg p-6 space-y-5">
+        <div className="flex items-center space-x-2 pb-3 border-b border-white/5">
           <Sun className="w-4 h-4 text-orange-burnt" />
-          <h4 className="font-display font-bold text-sm text-navy-dark">Homepage Hero Banner</h4>
+          <h4 className="font-display font-bold text-sm text-white">Homepage Hero Banner</h4>
         </div>
 
         {/* Preview */}
-        <div className="w-full h-40 rounded-xl overflow-hidden bg-navy-dark/5 border border-navy-dark/10 flex items-center justify-center relative">
+        <div className="w-full h-40 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center relative">
           {bannerUrl ? (
             isVideoUrl(bannerUrl) ? (
               <video
@@ -651,17 +651,17 @@ export const AdminSettings: React.FC = () => {
               />
             )
           ) : (
-            <div className="text-center text-navy-dark/25">
-              <Upload className="w-10 h-10 mx-auto mb-2" />
+            <div className="text-center text-white/30">
+              <Upload className="w-10 h-10 mx-auto mb-2 text-white/20" />
               <p className="text-xs font-display font-semibold">No banner image set</p>
-              <p className="text-[10px] text-navy-dark/20">Paste a Cloudinary URL below</p>
+              <p className="text-[10px] text-white/20">Paste a Cloudinary URL below</p>
             </div>
           )}
         </div>
 
         {/* URL Input */}
         <div className="space-y-2">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">
             Banner Image or Video URL (must be https://)
           </label>
           <div className="flex gap-2">
@@ -670,9 +670,9 @@ export const AdminSettings: React.FC = () => {
               value={bannerUrl}
               onChange={e => { setBannerUrl(e.target.value); setBannerError(''); }}
               placeholder="https://res.cloudinary.com/your-cloud/image/upload/..."
-              className={`flex-grow px-4 py-2.5 rounded-lg border ${bannerError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-sm font-sans text-navy-dark transition-colors`}
+              className={`flex-grow px-4 py-2.5 rounded-lg border bg-white/5 text-white placeholder:text-white/20 outline-none text-sm font-sans transition-colors ${bannerError ? 'border-red-400' : 'border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50'}`}
             />
-            <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+            <label className="flex items-center justify-center px-4 py-2.5 bg-white/5 hover:bg-orange-burnt border border-white/10 text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
               {isUploading === 'banner' ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
@@ -706,7 +706,7 @@ export const AdminSettings: React.FC = () => {
           <button
             onClick={() => { setBannerUrl(originalBanner); setBannerError(''); }}
             disabled={bannerUrl === originalBanner}
-            className="flex items-center space-x-1.5 px-4 py-2.5 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center space-x-1.5 px-4 py-2.5 border border-white/10 rounded-lg text-white/60 font-display text-xs font-bold hover:bg-white/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset</span>
@@ -715,15 +715,15 @@ export const AdminSettings: React.FC = () => {
       </div>
 
       {/* ── Browser Tab Favicon ───────────────────────────────────────────── */}
-      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs p-6 space-y-5">
-        <div className="flex items-center space-x-2 pb-3 border-b border-navy-dark/5">
+      <div className="bg-[#0D1B3E]/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg p-6 space-y-5">
+        <div className="flex items-center space-x-2 pb-3 border-b border-white/5">
           <Upload className="w-4 h-4 text-orange-burnt" />
-          <h4 className="font-display font-bold text-sm text-navy-dark">Browser Tab Favicon (Logo)</h4>
+          <h4 className="font-display font-bold text-sm text-white">Browser Tab Favicon (Logo)</h4>
         </div>
 
         {/* Preview */}
         <div className="flex items-center space-x-5">
-          <div className="w-14 h-14 rounded-xl bg-navy-dark/5 border border-navy-dark/10 flex items-center justify-center overflow-hidden shrink-0">
+          <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
             {faviconUrl ? (
               <img
                 ref={faviconImgRef}
@@ -734,25 +734,25 @@ export const AdminSettings: React.FC = () => {
                 onLoad={() => setFaviconError('')}
               />
             ) : (
-              <ImageIcon className="w-6 h-6 text-navy-dark/20" />
+              <ImageIcon className="w-6 h-6 text-white/20" />
             )}
           </div>
-          <div className="text-xs text-navy-dark/50 font-sans leading-relaxed">
-            <p className="font-semibold text-navy-dark/70 mb-1">Current Favicon URL:</p>
+          <div className="text-xs text-white/40 font-sans leading-relaxed">
+            <p className="font-semibold text-white/60 mb-1">Current Favicon URL:</p>
             {originalFavicon ? (
               <a href={originalFavicon} target="_blank" rel="noopener noreferrer" className="text-orange-burnt hover:underline flex items-center space-x-1 truncate max-w-xs">
                 <ExternalLink className="w-3 h-3 shrink-0" />
                 <span className="truncate">{originalFavicon}</span>
               </a>
             ) : (
-              <span className="italic text-navy-dark/30">No custom favicon URL set — using default tab icon</span>
+              <span className="italic text-white/20">No custom favicon URL set — using default tab icon</span>
             )}
           </div>
         </div>
 
         {/* URL Input */}
         <div className="space-y-2">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">
             New Favicon Image URL (must be https://)
           </label>
           <div className="flex gap-2">
@@ -761,9 +761,9 @@ export const AdminSettings: React.FC = () => {
               value={faviconUrl}
               onChange={e => { setFaviconUrl(e.target.value); setFaviconError(''); }}
               placeholder="https://res.cloudinary.com/.../favicon.png"
-              className={`flex-grow px-4 py-2.5 rounded-lg border ${faviconError ? 'border-red-400 bg-red-50' : 'border-navy-dark/15 focus:border-orange-burnt'} outline-none text-sm font-sans text-navy-dark transition-colors`}
+              className={`flex-grow px-4 py-2.5 rounded-lg border bg-white/5 text-white placeholder:text-white/20 outline-none text-sm font-sans transition-colors ${faviconError ? 'border-red-400' : 'border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50'}`}
             />
-            <label className="flex items-center justify-center px-4 py-2.5 bg-navy-dark hover:bg-orange-burnt text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
+            <label className="flex items-center justify-center px-4 py-2.5 bg-white/5 hover:bg-orange-burnt border border-white/10 text-white rounded-lg cursor-pointer transition-colors shrink-0 select-none text-xs font-bold font-display shadow-xs active:scale-98">
               {isUploading === 'favicon' ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
@@ -797,7 +797,7 @@ export const AdminSettings: React.FC = () => {
           <button
             onClick={() => { setFaviconUrl(originalFavicon); setFaviconError(''); }}
             disabled={faviconUrl === originalFavicon}
-            className="flex items-center space-x-1.5 px-4 py-2.5 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center space-x-1.5 px-4 py-2.5 border border-white/10 rounded-lg text-white/60 font-display text-xs font-bold hover:bg-white/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset</span>
@@ -806,11 +806,11 @@ export const AdminSettings: React.FC = () => {
       </div>
 
       {/* ── Announcement Bar Settings ────────────────────────────────────── */}
-      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs p-6 space-y-5">
-        <div className="flex items-center justify-between pb-3 border-b border-navy-dark/5">
+      <div className="bg-[#0D1B3E]/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg p-6 space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-white/5">
           <div className="flex items-center space-x-2">
             <Megaphone className="w-4 h-4 text-orange-burnt" />
-            <h4 className="font-display font-bold text-sm text-navy-dark">📢 Live Announcement Bar</h4>
+            <h4 className="font-display font-bold text-sm text-white">📢 Live Announcement Bar</h4>
           </div>
           <label className="relative inline-flex items-center cursor-pointer select-none">
             <input
@@ -819,8 +819,8 @@ export const AdminSettings: React.FC = () => {
               onChange={e => setAnnouncementEnabled(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-9 h-5 bg-navy-dark/15 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-burnt" />
-            <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
+            <div className="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[#0D1B3E] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#0D1B3E] after:border-white/10 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-burnt" />
+            <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-white/40">
               {announcementEnabled ? 'Enabled' : 'Disabled'}
             </span>
           </label>
@@ -828,7 +828,7 @@ export const AdminSettings: React.FC = () => {
 
         {/* Announcement Text Input */}
         <div className="space-y-2">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60">
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">
             Announcement Ticker Text (displayed at the very top of the website)
           </label>
           <textarea
@@ -837,9 +837,9 @@ export const AdminSettings: React.FC = () => {
             placeholder="🎉 Welcome to the official TGPCOP Student Council Portal! Admissions are open for the academic year 2026-2027. Apply now!"
             rows={3}
             maxLength={300}
-            className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-sm font-sans text-navy-dark transition-colors resize-none"
+            className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-white/5 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-sm font-sans text-white transition-colors resize-none placeholder:text-white/20"
           />
-          <div className="flex justify-between text-[9px] text-navy-dark/40 font-bold uppercase tracking-wider">
+          <div className="flex justify-between text-[9px] text-white/30 font-bold uppercase tracking-wider">
             <span>Maximum 300 characters</span>
             <span>{announcementText.length} / 300 chars</span>
           </div>
@@ -859,7 +859,7 @@ export const AdminSettings: React.FC = () => {
               setAnnouncementEnabled(originalAnnouncementEnabled);
             }}
             disabled={announcementText === originalAnnouncementText && announcementEnabled === originalAnnouncementEnabled}
-            className="flex items-center space-x-1.5 px-4 py-2.5 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center space-x-1.5 px-4 py-2.5 border border-white/10 rounded-lg text-white/60 font-display text-xs font-bold hover:bg-white/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset</span>
@@ -868,40 +868,40 @@ export const AdminSettings: React.FC = () => {
       </div>
 
       {/* ── Payment Purposes Manager ────────────────────────────────────── */}
-      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs p-6 space-y-5 select-none">
-        <div className="flex items-center justify-between pb-3 border-b border-navy-dark/5">
+      <div className="bg-[#0D1B3E]/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg p-6 space-y-5 select-none">
+        <div className="flex items-center justify-between pb-3 border-b border-white/5">
           <div className="flex items-center space-x-2">
             <CreditCard className="w-4 h-4 text-orange-burnt" />
-            <h4 className="font-display font-bold text-sm text-navy-dark">💳 Predefined Payment Purposes</h4>
+            <h4 className="font-display font-bold text-sm text-white">💳 Predefined Payment Purposes</h4>
           </div>
           <button
             onClick={() => setIsPurposesModalOpen(true)}
-            className="px-3.5 py-1.5 bg-[#0D1B3E] hover:bg-orange-burnt text-white rounded-lg font-display text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white rounded-lg font-display text-[10px] font-bold uppercase tracking-wider hover:shadow-[0_4px_12px_rgba(214,90,30,0.3)] transition-all cursor-pointer hover:-translate-y-px active:scale-95 shadow-sm"
           >
             ➕ Add New Purpose
           </button>
         </div>
 
         {purposesLoading ? (
-          <div className="py-8 text-center text-navy-dark/40 text-xs">
+          <div className="py-8 text-center text-white/40 text-xs">
             <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-orange-burnt" />
             <span>Loading active purposes...</span>
           </div>
         ) : purposes.length === 0 ? (
-          <div className="py-8 text-center text-navy-dark/30 text-xs italic">
+          <div className="py-8 text-center text-white/30 text-xs italic">
             No predefined payment purposes configured. Predefined purposes will sync instantly with student Pay page.
           </div>
         ) : (
-          <div className="overflow-x-auto border border-navy-dark/10 rounded-xl overflow-hidden">
+          <div className="overflow-x-auto border border-white/10 rounded-xl overflow-hidden bg-white/5">
             <table className="w-full text-xs">
-              <thead className="bg-navy-dark/[0.02] text-navy-dark/50 font-bold uppercase tracking-wider text-[9px] border-b border-navy-dark/5">
+              <thead className="bg-white/5 text-white/40 font-bold uppercase tracking-wider text-[9px] border-b border-white/10">
                 <tr>
                   <th className="text-left px-4 py-2.5">Purpose Name</th>
                   <th className="text-left px-4 py-2.5">Amount</th>
                   <th className="text-right px-4 py-2.5">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-navy-dark/5 text-navy-dark/85">
+              <tbody className="divide-y divide-white/5 text-white/80">
                 {purposes.map((p) => {
                   const shareUrl = `${window.location.origin}/pay?purpose=${encodeURIComponent(p.name)}&amount=${p.amount}`;
                   const isCopied = copiedPurposeId === p.id;
@@ -914,7 +914,7 @@ export const AdminSettings: React.FC = () => {
                   };
 
                   return (
-                    <tr key={p.id} className="hover:bg-orange-burnt/[0.01]">
+                    <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
                       <td className="px-4 py-2.5 font-semibold">{p.name}</td>
                       <td className="px-4 py-2.5 font-bold text-orange-burnt">₹{p.amount}</td>
                       <td className="px-4 py-2.5 text-right space-x-1.5 shrink-0">
@@ -922,15 +922,15 @@ export const AdminSettings: React.FC = () => {
                         <button
                           onClick={handleCopy}
                           title="Copy Direct Payment Link"
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-navy-dark/10 hover:border-orange-burnt hover:bg-orange-burnt/5 text-navy-dark/50 hover:text-orange-burnt transition-colors cursor-pointer"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-white/10 hover:border-orange-burnt hover:bg-orange-burnt/10 text-white/50 hover:text-white transition-colors cursor-pointer"
                         >
-                          {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                          {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                         {/* QR Code */}
                         <button
                           onClick={() => setSharePurpose(p)}
                           title="View QR Code Scanner"
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-navy-dark/10 hover:border-orange-burnt hover:bg-orange-burnt/5 text-navy-dark/50 hover:text-orange-burnt transition-colors cursor-pointer"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-white/10 hover:border-orange-burnt hover:bg-orange-burnt/10 text-white/50 hover:text-white transition-colors cursor-pointer"
                         >
                           <QrCode className="w-3.5 h-3.5" />
                         </button>
@@ -938,7 +938,7 @@ export const AdminSettings: React.FC = () => {
                         <button
                           onClick={() => handleDeletePurpose(p.id)}
                           title="Delete Purpose"
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-red-500/10 hover:border-red-500 hover:bg-red-500/5 text-red-500/55 hover:text-red-500 transition-colors cursor-pointer"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-md border border-red-500/20 hover:border-red-500 hover:bg-red-500/10 text-red-400 hover:text-red-400 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -954,33 +954,32 @@ export const AdminSettings: React.FC = () => {
 
       {/* Add Purpose Modal */}
       {isPurposesModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div onClick={() => setIsPurposesModalOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-xs animate-fade-in" />
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 border border-navy-dark/10 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="font-display font-extrabold text-sm text-navy-dark border-b border-navy-dark/10 pb-2 mb-4 uppercase tracking-wide flex items-center space-x-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+          <div className="bg-[#0D1B3E] border border-white/10 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="font-display font-extrabold text-sm text-white border-b border-white/10 pb-2 mb-4 uppercase tracking-wide flex items-center space-x-2">
               <CreditCard className="w-4 h-4 text-orange-burnt" />
               <span>Add Predefined Purpose</span>
             </h3>
             <form onSubmit={handleAddPurpose} className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/50 mb-1">Purpose Name*</label>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Purpose Name*</label>
                 <input
                   type="text"
                   value={newPurposeName}
                   onChange={(e) => setNewPurposeName(e.target.value)}
                   placeholder="e.g. Pharma Quiz 2026"
-                  className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs font-sans text-navy-dark"
+                  className="w-full px-3 py-2 rounded-lg border border-white/10 focus:border-orange-burnt/50 outline-none text-xs font-sans text-white bg-white/5 placeholder:text-white/20"
                   required
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/50 mb-1">Amount (INR)*</label>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Amount (INR)*</label>
                 <input
                   type="number"
                   value={newPurposeAmount}
                   onChange={(e) => setNewPurposeAmount(Math.max(0, parseInt(e.target.value, 10) || 0))}
                   placeholder="e.g. 50"
-                  className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs font-sans text-navy-dark"
+                  className="w-full px-3 py-2 rounded-lg border border-white/10 focus:border-orange-burnt/50 outline-none text-xs font-sans text-white bg-white/5 placeholder:text-white/20"
                   required
                   min="0"
                 />
@@ -989,14 +988,14 @@ export const AdminSettings: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsPurposesModalOpen(false)}
-                  className="flex-1 py-2 text-xs font-display font-bold border border-navy-dark/15 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                  className="flex-1 py-2 text-xs font-display font-bold border border-white/10 hover:bg-white/5 text-white/60 rounded-lg cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSavingPurpose}
-                  className="flex-1 py-2 bg-orange-burnt hover:bg-orange-burnt/95 text-white font-display text-xs font-bold rounded-lg cursor-pointer transition-colors flex items-center justify-center space-x-1"
+                  className="flex-1 py-2 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold rounded-lg cursor-pointer transition-colors flex items-center justify-center space-x-1"
                 >
                   {isSavingPurpose ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>Save Purpose</span>}
                 </button>
@@ -1015,22 +1014,21 @@ export const AdminSettings: React.FC = () => {
         };
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div onClick={() => setSharePurpose(null)} className="fixed inset-0 bg-black/60 backdrop-blur-xs" />
-            <div className="bg-white rounded-2xl max-w-sm w-full p-6 border border-navy-dark/10 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200 text-navy-dark">
-              <h3 className="font-display font-extrabold text-sm text-navy-dark border-b border-navy-dark/10 pb-2 mb-4 uppercase tracking-wide flex items-center space-x-2">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+            <div className="bg-[#0D1B3E] border border-white/10 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200 text-white">
+              <h3 className="font-display font-extrabold text-sm text-white border-b border-white/10 pb-2 mb-4 uppercase tracking-wide flex items-center space-x-2">
                 <QrCode className="w-4 h-4 text-orange-burnt" />
                 <span>Predefined QR Code</span>
               </h3>
               <div className="space-y-4">
-                <div className="text-center font-display font-bold text-xs text-navy-dark leading-snug">
+                <div className="text-center font-display font-bold text-xs text-white leading-snug">
                   {sharePurpose.name} — <span className="text-orange-burnt font-extrabold">₹{sharePurpose.amount}</span>
                 </div>
-                <div className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-navy-dark/5 rounded-xl space-y-2">
-                  <div className="p-2 bg-white border border-navy-dark/10 rounded-lg shadow-sm">
+                <div className="flex flex-col items-center justify-center p-4 bg-white/5 border border-white/10 rounded-xl space-y-2">
+                  <div className="p-2 bg-white rounded-lg shadow-sm">
                     <QRCode value={generatedUrl} size={140} />
                   </div>
-                  <span className="text-[9px] text-navy-dark/40 font-semibold uppercase tracking-wider">
+                  <span className="text-[9px] text-white/40 font-semibold uppercase tracking-wider">
                     Scan to pay on mobile device
                   </span>
                 </div>
@@ -1039,11 +1037,11 @@ export const AdminSettings: React.FC = () => {
                     type="text"
                     value={generatedUrl}
                     readOnly
-                    className="flex-1 px-2.5 py-1.5 rounded-lg border border-navy-dark/10 bg-gray-50 text-[10px] font-mono select-all focus:outline-none text-navy-dark"
+                    className="flex-1 px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/5 text-[10px] font-mono select-all focus:outline-none text-white/70"
                   />
                   <button
                     onClick={handleCopyLink}
-                    className="px-3 py-1.5 rounded-lg bg-navy-dark hover:bg-orange-burnt text-white font-display text-[10px] font-bold transition-all cursor-pointer flex items-center space-x-1 shrink-0"
+                    className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-orange-burnt border border-white/10 text-white font-display text-[10px] font-bold transition-all cursor-pointer flex items-center space-x-1 shrink-0"
                   >
                     <Copy className="w-3 h-3" />
                     <span>Copy</span>
@@ -1052,7 +1050,7 @@ export const AdminSettings: React.FC = () => {
               </div>
               <button
                 onClick={() => setSharePurpose(null)}
-                className="mt-5 w-full py-2 border border-navy-dark/15 hover:bg-navy-dark hover:text-white rounded-lg font-display text-xs font-bold transition-colors uppercase tracking-widest cursor-pointer"
+                className="mt-5 w-full py-2 border border-white/10 hover:bg-white/5 text-white/60 rounded-lg font-display text-xs font-bold transition-colors uppercase tracking-widest cursor-pointer"
               >
                 Close QR Box
               </button>

@@ -260,14 +260,14 @@ export const AdminGallery: React.FC = () => {
   const getCategoryBadgeColor = (category: string) => {
     switch (category?.toLowerCase()) {
       case 'competitions':
-        return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
       case 'campus life':
-        return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
       case 'general':
-        return 'bg-navy-dark/10 text-navy-dark border-navy-dark/20';
+        return 'bg-white/10 text-white/60 border-white/20';
       case 'events':
       default:
-        return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
     }
   };
 
@@ -283,7 +283,7 @@ export const AdminGallery: React.FC = () => {
         );
       case 'audio':
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full border text-[9px] font-bold bg-blue-500/10 text-blue-600 border-blue-500/20 uppercase tracking-widest">
+          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full border text-[9px] font-bold bg-blue-500/10 text-blue-400 border-blue-500/20 uppercase tracking-widest">
             <Music className="w-2.5 h-2.5 shrink-0" />
             <span>🎵 Audio</span>
           </span>
@@ -291,7 +291,7 @@ export const AdminGallery: React.FC = () => {
       case 'image':
       default:
         return (
-          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full border text-[9px] font-bold bg-gray-100 text-gray-600 border-gray-200 uppercase tracking-widest">
+          <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full border text-[9px] font-bold bg-white/10 text-white/55 border-white/20 uppercase tracking-widest">
             <ImageIcon className="w-2.5 h-2.5 shrink-0" />
             <span>🖼️ Image</span>
           </span>
@@ -303,14 +303,14 @@ export const AdminGallery: React.FC = () => {
     <div className="space-y-6 animate-in fade-in duration-300">
       
       {/* Header Panel */}
-      <div className="flex items-center justify-between bg-white border border-navy-dark/10 p-5 rounded-2xl shadow-xs">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-orange-burnt/10 flex items-center justify-center text-orange-burnt">
-            <ImageIcon className="w-5 h-5" />
+          <div className="p-2.5 bg-orange-burnt/10 rounded-xl border border-orange-burnt/20">
+            <ImageIcon className="w-5 h-5 text-orange-burnt" />
           </div>
           <div>
-            <h3 className="font-display font-extrabold text-base text-navy-dark">Multi-Media Console</h3>
-            <p className="text-[10px] text-navy-dark/45 font-sans leading-none mt-0.5">
+            <h2 className="font-display font-extrabold text-xl text-white">Multi-Media Console</h2>
+            <p className="text-xs text-white/40 font-sans mt-0.5">
               Upload dynamic image, video, and audio links to build the student visual portfolio.
             </p>
           </div>
@@ -319,14 +319,14 @@ export const AdminGallery: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => { setBulkRows([emptyRow(), emptyRow()]); setIsBulkOpen(true); }}
-            className="flex items-center space-x-1.5 px-4 py-2.5 bg-navy-dark hover:bg-navy-dark/90 text-white rounded-lg font-display text-xs font-bold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
+            className="flex items-center space-x-1.5 px-4 py-2.5 bg-white/[0.06] hover:bg-white/[0.10] text-white rounded-xl font-display text-xs font-bold border border-white/10 transition-all"
           >
             <Images className="w-4 h-4" />
             <span>Bulk Add</span>
           </button>
           <button
             onClick={handleAddNew}
-            className="flex items-center space-x-1.5 px-4 py-2.5 bg-orange-burnt hover:bg-orange-burnt/95 text-white rounded-lg font-display text-xs font-bold shadow-md shadow-orange-burnt/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            className="flex items-center space-x-1.5 px-4 py-2.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white rounded-xl font-display text-xs font-bold shadow-md hover:shadow-[0_4px_15px_rgba(214,90,30,0.4)] hover:-translate-y-px transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Add Media</span>
@@ -335,7 +335,7 @@ export const AdminGallery: React.FC = () => {
       </div>
 
       {/* Category Filter tabs */}
-      <div className="flex flex-wrap bg-white border border-navy-dark/10 p-2.5 rounded-xl gap-2 shadow-xs">
+      <div className="flex flex-wrap bg-white/[0.04] backdrop-blur-sm border border-white/10 p-2.5 rounded-xl gap-2">
         {(['All', 'Events', 'Competitions', 'Campus Life', 'General'] as const).map((tab) => {
           const isActive = activeTab === tab;
           return (
@@ -344,8 +344,8 @@ export const AdminGallery: React.FC = () => {
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${
                 isActive
-                  ? 'bg-navy-dark text-white shadow-sm'
-                  : 'text-navy-dark/65 hover:bg-gray-light hover:text-navy-dark'
+                  ? 'bg-orange-burnt text-white shadow-sm'
+                  : 'text-white/50 hover:bg-white/[0.06] hover:text-white'
               }`}
             >
               {tab}
@@ -356,7 +356,7 @@ export const AdminGallery: React.FC = () => {
 
       {/* Dynamic Cards Grid */}
       {isLoading ? (
-        <div className="h-64 flex flex-col items-center justify-center text-navy-dark/45 bg-white border border-navy-dark/10 rounded-2xl">
+        <div className="h-64 flex flex-col items-center justify-center text-white/40 bg-white/[0.02] border border-white/5 rounded-2xl">
           <Loader2 className="w-10 h-10 text-orange-burnt animate-spin mb-4" />
           <p className="font-display text-sm tracking-wider uppercase">Loading portfolio database...</p>
         </div>
@@ -368,10 +368,10 @@ export const AdminGallery: React.FC = () => {
             return (
               <div 
                 key={photo.id} 
-                className="bg-white border border-navy-dark/10 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between group"
+                className="bg-white/[0.04] backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 hover:bg-white/[0.07] transition-all duration-200 flex flex-col justify-between group"
               >
                 {/* Cover Image / Dynamic Icon box for Audio */}
-                <div className="h-48 bg-navy-dark/5 overflow-hidden relative flex items-center justify-center">
+                <div className="h-48 bg-black/30 overflow-hidden relative flex items-center justify-center">
                   {photo.media_type === 'audio' ? (
                     /* Audio waveform monogram placeholder */
                     <div className="w-20 h-20 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 shadow-inner group-hover:scale-105 transition-transform duration-300">
@@ -427,23 +427,23 @@ export const AdminGallery: React.FC = () => {
                       {getMediaTypeBadge(photo.media_type)}
                     </div>
                     
-                    <h4 className="font-display font-extrabold text-sm text-navy-dark leading-snug">
+                    <h4 className="font-display font-extrabold text-sm text-white leading-snug">
                       {photo.title}
                     </h4>
                   </div>
 
                   {/* Actions overlay panel */}
-                  <div className="flex items-center gap-2 pt-2 border-t border-navy-dark/5">
+                  <div className="flex items-center gap-2 pt-2 border-t border-white/5">
                     <button
                       onClick={() => handleEdit(photo)}
-                      className="flex-grow inline-flex items-center justify-center space-x-1.5 py-1.5 px-3 rounded-lg bg-navy-dark/5 text-navy-dark hover:bg-navy-dark hover:text-white text-xs font-semibold transition-colors"
+                      className="flex-grow inline-flex items-center justify-center space-x-1.5 py-1.5 px-3 rounded-xl bg-white/[0.05] text-white/70 hover:bg-orange-burnt hover:text-white text-xs font-semibold transition-colors"
                     >
                       <Edit className="w-3.5 h-3.5" />
                       <span>Edit Details</span>
                     </button>
                     <button
                       onClick={() => handleDelete(photo.id)}
-                      className="p-1.5 rounded-lg text-navy-dark/45 hover:bg-red-50 hover:text-red-600 transition-colors border border-navy-dark/5"
+                      className="p-1.5 rounded-xl text-white/30 hover:bg-red-500/10 hover:text-red-400 transition-colors border border-white/5"
                       title="Delete Item"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -456,12 +456,12 @@ export const AdminGallery: React.FC = () => {
         </div>
       ) : (
         /* Empty State */
-        <div className="text-center py-20 bg-white border border-navy-dark/10 rounded-2xl px-4">
-          <AlertCircle className="w-12 h-12 text-navy-dark/15 mx-auto mb-4" />
-          <h3 className="font-display font-extrabold text-base text-navy-dark uppercase tracking-wider">
+        <div className="text-center py-20 bg-white/[0.02] border border-white/5 rounded-2xl px-4">
+          <AlertCircle className="w-12 h-12 text-white/10 mx-auto mb-4" />
+          <h3 className="font-display font-extrabold text-base text-white/60 uppercase tracking-wider">
             No Media Found
           </h3>
-          <p className="text-xs text-navy-dark/50 max-w-xs mx-auto mt-1.5 leading-relaxed font-sans">
+          <p className="text-xs text-white/30 max-w-xs mx-auto mt-1.5 leading-relaxed font-sans">
             Ready to publish your first media item? Click the add button to upload dynamic images, audios, or videos.
           </p>
         </div>
@@ -478,10 +478,10 @@ export const AdminGallery: React.FC = () => {
           
           {/* Media Type horizontal Tab Selector (🖼 Image, 🎬 Video, 🎵 Audio) */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70 mb-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-2">
               Media Type *
             </label>
-            <div className="flex bg-gray-light p-1 rounded-xl w-full">
+            <div className="flex bg-white/5 p-1 rounded-xl w-full border border-white/10">
               {([
                 { id: 'image' as const, label: '🖼️ Image' },
                 { id: 'video' as const, label: '🎬 Video' },
@@ -496,7 +496,7 @@ export const AdminGallery: React.FC = () => {
                     className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 ${
                       isActive
                         ? 'bg-orange-burnt text-white shadow-sm'
-                        : 'text-navy-dark/60 hover:text-navy-dark'
+                        : 'text-white/60 hover:text-white'
                     }`}
                   >
                     {t.label}
@@ -508,7 +508,7 @@ export const AdminGallery: React.FC = () => {
 
           {/* Photo Title */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1.5">
               Title *
             </label>
             <input
@@ -517,24 +517,24 @@ export const AdminGallery: React.FC = () => {
               placeholder="e.g. Traditional Dance - Aura 2026"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-3 py-2.5 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-sm bg-white transition-colors"
+              className="w-full px-3 py-2.5 rounded-lg border border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-sm bg-white/5 text-white placeholder-white/20 transition-colors"
             />
           </div>
 
           {/* Category drop down */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1.5">
               Category *
             </label>
             <select
               value={formData.category}
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full px-3 py-2.5 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-sm bg-white cursor-pointer"
+              className="w-full px-3 py-2.5 rounded-lg border border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-sm bg-[#081120] text-white cursor-pointer"
             >
-              <option>Events</option>
-              <option>Competitions</option>
-              <option>Campus Life</option>
-              <option>General</option>
+              <option className="bg-[#0D1B3E] text-white">Events</option>
+              <option className="bg-[#0D1B3E] text-white">Competitions</option>
+              <option className="bg-[#0D1B3E] text-white">Campus Life</option>
+              <option className="bg-[#0D1B3E] text-white">General</option>
             </select>
           </div>
 
@@ -542,7 +542,7 @@ export const AdminGallery: React.FC = () => {
           {formData.media_type === 'image' ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70">
+                <label className="block text-xs font-bold uppercase tracking-wider text-white/70">
                   Album Photos *
                 </label>
                 <button
@@ -557,9 +557,9 @@ export const AdminGallery: React.FC = () => {
 
               <div className="space-y-6 max-h-[35vh] overflow-y-auto pr-1">
                 {formData.media_urls.map((url, idx) => (
-                  <div key={idx} className="bg-gray-50 border border-navy-dark/5 p-4 rounded-xl space-y-3 relative">
+                  <div key={idx} className="bg-white/5 border border-white/10 p-4 rounded-xl space-y-3 relative">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-navy-dark/40 uppercase tracking-widest">
+                      <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
                         Photo {idx + 1}
                       </span>
                       {formData.media_urls.length > 1 && (
@@ -573,7 +573,7 @@ export const AdminGallery: React.FC = () => {
                               media_url: idx === 0 ? (newUrls[0] || '') : formData.media_url
                             });
                           }}
-                          className="text-xs text-red-500 hover:text-red-600 flex items-center space-x-1"
+                          className="text-xs text-red-400 hover:text-red-300 flex items-center space-x-1"
                         >
                           <X className="w-3.5 h-3.5" />
                           <span>Remove</span>
@@ -611,11 +611,11 @@ export const AdminGallery: React.FC = () => {
           )}
 
           {/* Action buttons */}
-          <div className="flex space-x-3 pt-3 border-t border-navy-dark/10">
+          <div className="flex space-x-3 pt-3 border-t border-white/10">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="flex-1 py-2.5 border border-navy-dark/15 hover:bg-navy-dark/5 text-navy-dark font-display text-sm font-semibold rounded-lg transition-colors"
+              className="flex-1 py-2.5 border border-white/10 hover:bg-white/5 text-white/60 font-display text-sm font-semibold rounded-lg transition-colors"
             >
               Cancel
             </button>
@@ -625,7 +625,7 @@ export const AdminGallery: React.FC = () => {
               className={`flex-1 py-2.5 text-white font-display text-sm font-semibold rounded-lg shadow-md transition-all flex items-center justify-center space-x-1.5 ${
                 isSaving 
                   ? 'bg-orange-burnt animate-pulse cursor-not-allowed shadow-[#C84B0E]/30'
-                  : 'bg-orange-burnt hover:bg-orange-burnt/95 hover:scale-[1.01] active:scale-[0.99]'
+                  : 'bg-gradient-to-r from-orange-burnt to-[#E06D2B] hover:shadow-[0_4px_12px_rgba(214,90,30,0.3)] hover:-translate-y-px active:scale-[0.99]'
               }`}
             >
               {isSaving ? (
@@ -649,20 +649,20 @@ export const AdminGallery: React.FC = () => {
         icon={<Images className="w-5 h-5" />}
       >
         <form onSubmit={handleBulkSubmit} className="space-y-4">
-          <p className="text-xs text-navy-dark/50 font-sans">
+          <p className="text-xs text-white/50 font-sans">
             Fill in as many rows as you like. Empty rows (no title or URL) are skipped automatically.
           </p>
 
           <div className="space-y-3 max-h-[55vh] overflow-y-auto pr-1">
             {bulkRows.map((row, idx) => (
-              <div key={idx} className="bg-gray-light/60 rounded-xl p-3 space-y-2 border border-navy-dark/8 relative">
+              <div key={idx} className="bg-white/5 rounded-xl p-3 space-y-2 border border-white/10 relative">
                 {/* Row number + remove button */}
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[9px] font-bold text-navy-dark/40 uppercase tracking-widest">Item {idx + 1}</span>
+                  <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">Item {idx + 1}</span>
                   <button
                     type="button"
                     onClick={() => removeBulkRow(idx)}
-                    className="w-5 h-5 flex items-center justify-center rounded-full text-navy-dark/30 hover:bg-red-100 hover:text-red-500 transition-colors"
+                    className="w-5 h-5 flex items-center justify-center rounded-full text-white/30 hover:bg-red-500/10 hover:text-red-400 transition-colors"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -674,7 +674,7 @@ export const AdminGallery: React.FC = () => {
                   placeholder="Title *"
                   value={row.title}
                   onChange={e => updateBulkRow(idx, 'title', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-xs bg-white transition-colors"
+                  className="w-full px-3 py-2 rounded-lg border border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-xs bg-[#081120] text-white placeholder-white/20 transition-colors"
                 />
 
                 {/* URL */}
@@ -683,7 +683,7 @@ export const AdminGallery: React.FC = () => {
                   placeholder="https:// media URL *"
                   value={row.media_url}
                   onChange={e => updateBulkRow(idx, 'media_url', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-xs bg-white transition-colors"
+                  className="w-full px-3 py-2 rounded-lg border border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-xs bg-[#081120] text-white placeholder-white/20 transition-colors"
                 />
 
                 {/* Category + Type row */}
@@ -691,21 +691,21 @@ export const AdminGallery: React.FC = () => {
                   <select
                     value={row.category}
                     onChange={e => updateBulkRow(idx, 'category', e.target.value)}
-                    className="flex-1 px-2 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs bg-white cursor-pointer"
+                    className="flex-1 px-2 py-2 rounded-lg border border-white/10 focus:border-orange-burnt/50 outline-none text-xs bg-[#081120] text-white cursor-pointer"
                   >
-                    <option>Events</option>
-                    <option>Competitions</option>
-                    <option>Campus Life</option>
-                    <option>General</option>
+                    <option className="bg-[#0D1B3E] text-white">Events</option>
+                    <option className="bg-[#0D1B3E] text-white">Competitions</option>
+                    <option className="bg-[#0D1B3E] text-white">Campus Life</option>
+                    <option className="bg-[#0D1B3E] text-white">General</option>
                   </select>
                   <select
                     value={row.media_type}
                     onChange={e => updateBulkRow(idx, 'media_type', e.target.value as 'image' | 'video' | 'audio')}
-                    className="flex-1 px-2 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-xs bg-white cursor-pointer"
+                    className="flex-1 px-2 py-2 rounded-lg border border-white/10 focus:border-orange-burnt/50 outline-none text-xs bg-[#081120] text-white cursor-pointer"
                   >
-                    <option value="image">🖼️ Image</option>
-                    <option value="video">🎬 Video</option>
-                    <option value="audio">🎵 Audio</option>
+                    <option value="image" className="bg-[#0D1B3E] text-white">🖼️ Image</option>
+                    <option value="video" className="bg-[#0D1B3E] text-white">🎬 Video</option>
+                    <option value="audio" className="bg-[#0D1B3E] text-white">🎵 Audio</option>
                   </select>
                 </div>
               </div>
@@ -716,18 +716,18 @@ export const AdminGallery: React.FC = () => {
           <button
             type="button"
             onClick={addBulkRow}
-            className="w-full py-2 border-2 border-dashed border-navy-dark/20 hover:border-orange-burnt/40 hover:bg-orange-burnt/5 text-navy-dark/50 hover:text-orange-burnt rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5"
+            className="w-full py-2 border-2 border-dashed border-white/20 hover:border-orange-burnt/45 hover:bg-white/5 text-white/50 hover:text-orange-burnt rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Another Row</span>
           </button>
 
           {/* Actions */}
-          <div className="flex space-x-3 pt-3 border-t border-navy-dark/10">
+          <div className="flex space-x-3 pt-3 border-t border-white/10">
             <button
               type="button"
               onClick={() => setIsBulkOpen(false)}
-              className="flex-1 py-2.5 border border-navy-dark/15 hover:bg-navy-dark/5 text-navy-dark font-display text-sm font-semibold rounded-lg transition-colors"
+              className="flex-1 py-2.5 border border-white/10 hover:bg-white/5 text-white/60 font-display text-sm font-semibold rounded-lg transition-colors"
             >
               Cancel
             </button>
@@ -737,7 +737,7 @@ export const AdminGallery: React.FC = () => {
               className={`flex-1 py-2.5 text-white font-display text-sm font-semibold rounded-lg shadow-md transition-all flex items-center justify-center space-x-1.5 ${
                 isBulkSaving
                   ? 'bg-orange-burnt animate-pulse cursor-not-allowed'
-                  : 'bg-orange-burnt hover:bg-orange-burnt/95 hover:scale-[1.01] active:scale-[0.99]'
+                  : 'bg-gradient-to-r from-orange-burnt to-[#E06D2B] hover:shadow-[0_4px_12px_rgba(214,90,30,0.3)] hover:-translate-y-px active:scale-[0.99]'
               }`}
             >
               {isBulkSaving ? (

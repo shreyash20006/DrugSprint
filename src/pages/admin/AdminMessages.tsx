@@ -153,20 +153,20 @@ export const AdminMessages: React.FC = () => {
       {/* Overview statistics bar */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: 'Pending Moderation', count: messages.filter(m => !m.is_approved).length, bg: 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500' },
-          { label: 'Approved Live', count: messages.filter(m => m.is_approved).length, bg: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' },
-          { label: 'Pinned Posts', count: messages.filter(m => m.is_pinned).length, bg: 'bg-blue-500/10 border-blue-500/20 text-blue-500' },
-          { label: 'Total Messages', count: messages.length, bg: 'bg-slate-500/10 border-slate-500/20 text-white/70' }
+          { label: 'Pending Moderation', count: messages.filter(m => !m.is_approved).length, border: 'border-yellow-500/20', text: 'text-yellow-500' },
+          { label: 'Approved Live', count: messages.filter(m => m.is_approved).length, border: 'border-emerald-500/20', text: 'text-emerald-500' },
+          { label: 'Pinned Posts', count: messages.filter(m => m.is_pinned).length, border: 'border-blue-500/20', text: 'text-blue-500' },
+          { label: 'Total Messages', count: messages.length, border: 'border-white/5', text: 'text-white/70' }
         ].map(stat => (
-          <div key={stat.label} className={`border p-4 rounded-2xl flex flex-col justify-between ${stat.bg}`}>
-            <span className="text-[10px] uppercase font-bold tracking-wider">{stat.label}</span>
+          <div key={stat.label} className={`bg-[#0D1B3E]/60 backdrop-blur-md border p-4 rounded-2xl flex flex-col justify-between ${stat.border} ${stat.text}`}>
+            <span className="text-[10px] uppercase font-bold tracking-wider text-white/50">{stat.label}</span>
             <span className="text-2xl font-extrabold mt-1">{stat.count}</span>
           </div>
         ))}
       </div>
 
       {/* Action panel & Filters bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-navy-dark p-4 rounded-2xl border border-gray-200 dark:border-white/5 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0D1B3E]/60 backdrop-blur-md p-4 rounded-2xl border border-white/5 shadow-sm">
         <div className="flex gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
           {[
             { id: 'pending', label: 'Pending Moderation' },
@@ -180,7 +180,7 @@ export const AdminMessages: React.FC = () => {
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 filterMode === btn.id
                   ? 'bg-orange-burnt text-white shadow-md'
-                  : 'text-gray-600 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/5'
+                  : 'text-white/60 hover:bg-white/5 hover:text-white'
               }`}
             >
               {btn.label}
@@ -190,7 +190,7 @@ export const AdminMessages: React.FC = () => {
 
         <button 
           onClick={fetchMessages} 
-          className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-white/10 hover:border-orange-burnt/30 text-xs font-bold text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+          className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 rounded-xl border border-white/10 hover:border-orange-burnt/30 text-xs font-bold text-white/70 hover:bg-white/5 transition-all"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Refresh List</span>
@@ -203,23 +203,23 @@ export const AdminMessages: React.FC = () => {
           <div className="w-8 h-8 border-2 border-orange-burnt border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filteredMessages.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-navy-dark border border-gray-200 dark:border-white/5 rounded-3xl">
-          <MessageSquare className="w-12 h-12 text-gray-300 dark:text-white/10 mx-auto mb-3" />
-          <h3 className="font-bold text-gray-800 dark:text-white text-base">No message posts found</h3>
-          <p className="text-xs text-gray-400 dark:text-white/40 mt-1">There are no records matching the selected filter state.</p>
+        <div className="text-center py-16 bg-[#0D1B3E]/60 backdrop-blur-md border border-white/5 rounded-2xl">
+          <MessageSquare className="w-12 h-12 text-white/10 mx-auto mb-3" />
+          <h3 className="font-bold text-white text-base">No message posts found</h3>
+          <p className="text-xs text-white/40 mt-1">There are no records matching the selected filter state.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {filteredMessages.map((msg) => (
             <div 
               key={msg.id} 
-              className={`bg-white dark:bg-[#0c1227] border rounded-2xl p-5 transition-all relative ${
+              className={`bg-[#0D1B3E]/60 backdrop-blur-md border rounded-2xl p-5 transition-all relative ${
                 msg.is_pinned 
-                  ? 'border-gold-accent/40 dark:border-gold-accent/30' 
-                  : 'border-gray-200 dark:border-white/5'
+                  ? 'border-amber-500/40' 
+                  : 'border-white/5'
               }`}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-white/5 pb-3 mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-3 mb-3">
                 {/* Author Info */}
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 rounded-xl bg-orange-burnt/10 dark:bg-orange-burnt/5 flex items-center justify-center text-orange-burnt">
@@ -227,12 +227,12 @@ export const AdminMessages: React.FC = () => {
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="font-bold text-gray-800 dark:text-white text-sm">{msg.author_name}</span>
+                      <span className="font-bold text-white text-sm">{msg.author_name}</span>
                       {msg.author_email && (
-                        <span className="text-[10px] text-gray-400 dark:text-white/35 font-mono">{msg.author_email}</span>
+                        <span className="text-[10px] text-white/40 font-mono">{msg.author_email}</span>
                       )}
                     </div>
-                    <span className="text-[10px] text-gray-400 dark:text-white/45">
+                    <span className="text-[10px] text-white/45">
                       📅 {new Date(msg.created_at).toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -245,12 +245,12 @@ export const AdminMessages: React.FC = () => {
                     onClick={() => handleTogglePin(msg.id, msg.is_pinned)}
                     className={`p-2 rounded-xl border flex items-center justify-center transition-colors ${
                       msg.is_pinned
-                        ? 'bg-gold-accent/15 border-gold-accent/30 text-gold-accent'
-                        : 'border-gray-200 dark:border-white/10 hover:border-gold-accent/30 text-gray-400 hover:text-gold-accent'
+                        ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                        : 'border-white/10 hover:border-amber-500/30 text-white/40 hover:text-amber-400'
                     }`}
                     title={msg.is_pinned ? 'Unpin message' : 'Pin message to top'}
                   >
-                    <Pin className={`w-4 h-4 ${msg.is_pinned ? 'fill-gold-accent' : ''}`} />
+                    <Pin className={`w-4 h-4 ${msg.is_pinned ? 'fill-amber-400' : ''}`} />
                   </button>
 
                   {/* Approved action */}
@@ -258,8 +258,8 @@ export const AdminMessages: React.FC = () => {
                     onClick={() => handleToggleApproval(msg.id, msg.is_approved)}
                     className={`p-2 rounded-xl border flex items-center justify-center transition-colors ${
                       msg.is_approved
-                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
-                        : 'border-gray-200 dark:border-white/10 hover:border-emerald-500/30 text-gray-400 hover:text-emerald-500'
+                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                        : 'border-white/10 hover:border-emerald-500/30 text-white/40 hover:text-emerald-400'
                     }`}
                     title={msg.is_approved ? 'Hide message' : 'Approve message'}
                   >
@@ -269,7 +269,7 @@ export const AdminMessages: React.FC = () => {
                   {/* Reply button */}
                   <button
                     onClick={() => startReply(msg)}
-                    className="p-2 rounded-xl border border-gray-200 dark:border-white/10 hover:border-orange-burnt/30 text-gray-500 hover:text-orange-burnt transition-colors"
+                    className="p-2 rounded-xl border border-white/10 hover:border-orange-burnt/30 text-white/50 hover:text-orange-burnt transition-colors"
                     title="Write/edit reply"
                   >
                     <CornerDownRight className="w-4 h-4" />
@@ -278,7 +278,7 @@ export const AdminMessages: React.FC = () => {
                   {/* Delete button */}
                   <button
                     onClick={() => handleDelete(msg.id)}
-                    className="p-2 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-red-500/5 hover:border-red-500/30 text-gray-400 hover:text-red-500 transition-all"
+                    className="p-2 rounded-xl border border-white/10 hover:bg-red-500/5 hover:border-red-500/30 text-white/40 hover:text-red-500 transition-all"
                     title="Delete message permanently"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -287,31 +287,31 @@ export const AdminMessages: React.FC = () => {
               </div>
 
               {/* Student Question message */}
-              <p className="text-sm text-gray-700 dark:text-white/80 leading-relaxed font-sans mt-3 pl-1 whitespace-pre-wrap">
+              <p className="text-sm text-white/80 leading-relaxed font-sans mt-3 pl-1 whitespace-pre-wrap">
                 {msg.content}
               </p>
 
               {/* Current Reply Display */}
               {msg.reply && activeReplyId !== msg.id && (
-                <div className="bg-[#f3f6ff] dark:bg-[#121e3d] border border-orange-burnt/20 p-4 rounded-xl mt-4 flex items-start space-x-3.5">
+                <div className="bg-[#0B1628]/40 border border-white/10 p-4 rounded-xl mt-4 flex items-start space-x-3.5">
                   <ShieldCheck className="w-5 h-5 text-orange-burnt shrink-0 mt-0.5" />
                   <div>
                     <span className="block text-[10px] font-bold text-orange-burnt uppercase tracking-wider">Replied by {msg.reply_by || 'Council'}</span>
-                    <p className="text-xs text-gray-600 dark:text-white/70 font-sans mt-0.5 leading-relaxed whitespace-pre-wrap">{msg.reply}</p>
+                    <p className="text-xs text-white/70 font-sans mt-0.5 leading-relaxed whitespace-pre-wrap">{msg.reply}</p>
                   </div>
                 </div>
               )}
 
               {/* Reply Edit Interface */}
               {activeReplyId === msg.id && (
-                <div className="bg-orange-burnt/5 border border-orange-burnt/20 p-4 rounded-xl mt-4 space-y-4">
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl mt-4 space-y-4">
                   <div>
                     <span className="block text-[10px] font-bold text-orange-burnt uppercase tracking-wider mb-1">Write Council Response</span>
                     <textarea
                       value={replyText}
                       onChange={e => setReplyText(e.target.value)}
                       placeholder="Type your moderation answer/response here..."
-                      className="w-full h-24 p-3 border border-orange-burnt/20 dark:border-white/5 bg-white dark:bg-[#050b18] text-xs text-gray-800 dark:text-white rounded-xl outline-none focus:border-orange-burnt transition-colors resize-none"
+                      className="w-full h-24 p-3 border border-white/10 bg-[#081120] text-xs text-white rounded-xl outline-none focus:border-orange-burnt transition-colors resize-none"
                     />
                   </div>
 
@@ -321,19 +321,19 @@ export const AdminMessages: React.FC = () => {
                       value={replySign}
                       onChange={e => setReplySign(e.target.value)}
                       placeholder="Sign signature (e.g. Student President)"
-                      className="w-full sm:w-64 p-2 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#050b18] text-xs text-gray-800 dark:text-white rounded-lg outline-none focus:border-orange-burnt transition-colors"
+                      className="w-full sm:w-64 p-2 border border-white/10 bg-[#081120] text-xs text-white rounded-lg outline-none focus:border-orange-burnt transition-colors"
                     />
 
                     <div className="flex space-x-2 w-full sm:w-auto">
                       <button
                         onClick={() => setActiveReplyId(null)}
-                        className="flex-1 sm:flex-none px-4 py-2 border border-gray-200 dark:border-white/10 hover:bg-white/10 text-xs font-bold text-gray-600 dark:text-white/60 rounded-xl"
+                        className="flex-1 sm:flex-none px-4 py-2 border border-white/10 hover:bg-white/5 text-xs font-bold text-white/60 rounded-xl"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={() => handleReplySubmit(msg.id)}
-                        className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-5 py-2 bg-orange-burnt text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:opacity-90 shadow-md shadow-orange-burnt/10"
+                        className="flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-5 py-2 bg-gradient-to-r from-orange-burnt to-[#E06D2B] hover:shadow-[0_4px_12px_rgba(214,90,30,0.3)] hover:-translate-y-px text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
                       >
                         <Check className="w-3.5 h-3.5" />
                         <span>Save Reply</span>

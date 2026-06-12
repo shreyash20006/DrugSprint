@@ -40,9 +40,9 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'answered':
-        return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
+        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
       case 'seen':
-        return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
       case 'pending':
       default:
         return 'bg-orange-burnt/10 text-orange-burnt border-orange-burnt/20';
@@ -136,14 +136,14 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
   });
 
   return (
-    <div className="p-5 space-y-4 hover:bg-navy-dark/[0.01] transition-colors relative">
+    <div className="p-5 space-y-4 hover:bg-white/[0.01] transition-colors relative border-b border-white/5">
       {/* Header Info */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h4 className="font-display font-extrabold text-sm text-navy-dark">
+          <h4 className="font-display font-extrabold text-sm text-white">
             {question.student_name}
           </h4>
-          <span className="text-[10px] text-navy-dark/50 font-sans block">
+          <span className="text-[10px] text-white/50 font-sans block">
             {question.student_year}
           </span>
         </div>
@@ -158,23 +158,23 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
       </div>
 
       {/* Snippet of Question */}
-      <p className="text-xs text-navy-dark/80 font-sans bg-gray-50/50 p-3 rounded-lg border border-navy-dark/5 italic leading-relaxed">
+      <p className="text-xs text-white/80 font-sans bg-white/5 p-3 rounded-lg border border-white/10 italic leading-relaxed">
         "{question.question_text}"
       </p>
 
       {/* Date published */}
-      <div className="flex items-center space-x-1.5 text-[10px] text-navy-dark/40 font-medium">
+      <div className="flex items-center space-x-1.5 text-[10px] text-white/40 font-medium">
         <Calendar className="w-3.5 h-3.5" />
         <span>{formattedDate}</span>
       </div>
 
       {/* Action panel triggers */}
-      <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-navy-dark/5">
+      <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5">
         {question.status === 'pending' && (
           <button
             onClick={handleMarkSeen}
             disabled={isUpdatingStatus}
-            className="flex-1 inline-flex items-center justify-center space-x-1 py-1.5 px-3 rounded-lg bg-navy-dark/5 text-navy-dark hover:bg-navy-dark hover:text-white text-xs font-semibold transition-colors"
+            className="flex-1 inline-flex items-center justify-center space-x-1 py-1.5 px-3 rounded-lg bg-white/5 text-white/80 hover:bg-white/10 text-xs font-semibold transition-colors border border-white/5"
           >
             {isUpdatingStatus ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
             <span>Mark Seen</span>
@@ -192,7 +192,7 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className="p-1.5 rounded-lg text-navy-dark/45 hover:bg-red-50 hover:text-red-600 transition-colors border border-navy-dark/5"
+          className="p-1.5 rounded-lg text-white/45 hover:bg-red-500/10 hover:text-red-400 transition-colors border border-white/5"
         >
           {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
         </button>
@@ -200,18 +200,18 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
 
       {/* Inline Collapsible Reply Drawer Box */}
       {isExpanded && (
-        <div className="mt-4 pt-4 border-t border-navy-dark/5 space-y-3 bg-gray-50/50 p-4 rounded-xl">
+        <div className="mt-4 pt-4 border-t border-white/5 space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
           {question.student_email && (
             <div>
-              <span className="text-[9px] font-bold uppercase tracking-widest text-navy-dark/40 block mb-0.5">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 block mb-0.5">
                 Student Email Address
               </span>
-              <p className="text-xs text-navy-dark/80 bg-white px-3 py-1.5 rounded-lg border border-navy-dark/5 font-sans select-all">
+              <p className="text-xs text-white/80 bg-[#081120] px-3 py-1.5 rounded-lg border border-white/10 font-sans select-all">
                 {question.student_email}
               </p>
             </div>
           )}
-          <span className="text-[9px] font-bold uppercase tracking-widest text-navy-dark/40 block">
+          <span className="text-[9px] font-bold uppercase tracking-widest text-white/40 block">
             Admin Response / Reply
           </span>
           <form onSubmit={handleReplySubmit} className="space-y-3">
@@ -221,14 +221,14 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Provide a formal response or student advice here..."
-              className="w-full p-2.5 text-xs rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none bg-white font-sans resize-none"
+              className="w-full p-2.5 text-xs rounded-lg border border-white/10 focus:border-[#C84B0E] focus:ring-1 focus:ring-[#C84B0E] outline-none bg-[#081120] text-white placeholder:text-white/20 font-sans resize-none"
             />
             
             <div className="flex space-x-2">
               <button
                 type="submit"
                 disabled={isReplying || !replyText.trim()}
-                className="flex-1 py-2 rounded-lg bg-orange-burnt text-white font-display text-xs font-bold shadow transition-colors flex items-center justify-center space-x-1"
+                className="flex-1 py-2 rounded-lg bg-gradient-to-r from-orange-burnt to-[#E06D2B] hover:shadow-[0_4px_12px_rgba(214,90,30,0.3)] text-white font-display text-xs font-bold shadow transition-colors flex items-center justify-center space-x-1"
               >
                 {isReplying ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                 <span>Save Reply</span>
@@ -236,7 +236,7 @@ const QuestionCardMobile: React.FC<{ question: any; onRefresh: () => void }> = (
               <button
                 type="button"
                 onClick={() => setIsExpanded(false)}
-                className="py-2 px-3 rounded-lg border border-navy-dark/15 hover:bg-navy-dark/5 text-navy-dark font-display text-xs font-semibold transition-colors"
+                className="py-2 px-3 rounded-lg border border-white/10 hover:bg-white/5 text-white/60 font-display text-xs font-semibold transition-colors"
               >
                 Cancel
               </button>
@@ -337,28 +337,28 @@ export const AdminQuestions: React.FC = () => {
       
       {/* Metrics Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-white border border-orange-burnt/10 p-4 rounded-xl shadow-xs flex items-center justify-between">
+        <div className="bg-[#0D1B3E]/60 backdrop-blur-md border border-white/5 p-4 rounded-xl shadow-md flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-orange-burnt/75">Pending Inquiries</span>
-            <span className="block font-display font-extrabold text-xl text-orange-burnt">{pending}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#C84B0E]/75">Pending Inquiries</span>
+            <span className="block font-display font-extrabold text-xl text-[#C84B0E]">{pending}</span>
           </div>
-          <AlertCircle className="w-5 h-5 text-orange-burnt/60 animate-pulse" />
+          <AlertCircle className="w-5 h-5 text-[#C84B0E]/60 animate-pulse" />
         </div>
 
-        <div className="bg-white border border-blue-500/10 p-4 rounded-xl shadow-xs flex items-center justify-between">
+        <div className="bg-[#0D1B3E]/60 backdrop-blur-md border border-white/5 p-4 rounded-xl shadow-md flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500/75">Seen Questions</span>
-            <span className="block font-display font-extrabold text-xl text-blue-600">{seen}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-400">Seen Questions</span>
+            <span className="block font-display font-extrabold text-xl text-blue-400">{seen}</span>
           </div>
-          <Inbox className="w-5 h-5 text-blue-500/50" />
+          <Inbox className="w-5 h-5 text-blue-400/50" />
         </div>
 
-        <div className="bg-white border border-emerald-500/10 p-4 rounded-xl shadow-xs flex items-center justify-between">
+        <div className="bg-[#0D1B3E]/60 backdrop-blur-md border border-white/5 p-4 rounded-xl shadow-md flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500/75">Answered Inquiries</span>
-            <span className="block font-display font-extrabold text-xl text-emerald-600">{answered}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Answered Inquiries</span>
+            <span className="block font-display font-extrabold text-xl text-emerald-400">{answered}</span>
           </div>
-          <CheckCircle className="w-5 h-5 text-emerald-500/60" />
+          <CheckCircle className="w-5 h-5 text-emerald-400/60" />
         </div>
       </div>
 
@@ -368,7 +368,7 @@ export const AdminQuestions: React.FC = () => {
         data={filteredQuestions}
         isLoading={isLoading}
         emptyState={{
-          icon: <Mail className="w-12 h-12 text-navy-dark/15" />,
+          icon: <Mail className="w-12 h-12 text-white/10" />,
           title: 'No Questions Found',
           description: 'Try adjusting your search query, selecting another category status filter, or checking other executive members.'
         }}

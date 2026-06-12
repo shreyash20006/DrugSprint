@@ -268,16 +268,16 @@ export const AdminUsers: React.FC = () => {
     <div className="space-y-6 animate-in fade-in duration-300">
 
       {/* Page Header */}
-      <div className="flex items-center justify-between bg-white border border-navy-dark/10 p-5 rounded-2xl shadow-xs">
+      <div className="flex items-center justify-between bg-[#0D1B3E]/40 backdrop-blur-md border border-white/10 p-5 rounded-2xl shadow-lg">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600">
+          <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 border border-purple-500/20">
             <Users className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <h3 className="font-display font-extrabold text-base text-navy-dark uppercase tracking-wide">
+            <h3 className="font-display font-extrabold text-base text-white uppercase tracking-wide">
               User Management
             </h3>
-            <p className="text-[10px] text-navy-dark/45 font-sans leading-none mt-0.5 uppercase tracking-wider font-semibold">
+            <p className="text-[10px] text-white/40 font-sans leading-none mt-0.5 uppercase tracking-wider font-semibold">
               Manage accounts, assign roles, and handle council authorization.
             </p>
           </div>
@@ -286,7 +286,7 @@ export const AdminUsers: React.FC = () => {
         {/* Add Workspace User Button */}
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center space-x-2 px-4 py-2.5 bg-orange-burnt hover:bg-orange-burnt/90 text-white font-display font-bold text-xs rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95"
+          className="flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display font-bold text-xs rounded-xl shadow-md hover:shadow-[0_4px_15px_rgba(214,90,30,0.4)] hover:-translate-y-px transition-all active:scale-95"
         >
           <UserPlus className="w-4 h-4" />
           <span>Add Workspace User</span>
@@ -298,8 +298,8 @@ export const AdminUsers: React.FC = () => {
         <Building2 className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
         <div>
           <p className="text-xs font-display font-bold text-indigo-400 uppercase tracking-wider">Google Workspace Integration</p>
-          <p className="text-xs text-navy-dark/60 font-sans mt-0.5 leading-relaxed">
-            Pre-authorize workspace emails (<span className="font-mono text-indigo-500">@tgpcopcouncil.online</span>) or any Gmail account here. 
+          <p className="text-xs text-white/60 font-sans mt-0.5 leading-relaxed">
+            Pre-authorize workspace emails (<span className="font-mono text-indigo-400">@tgpcopcouncil.online</span>) or any Gmail account here. 
             When they sign in with Google for the first time, their role is automatically applied.
           </p>
         </div>
@@ -307,11 +307,11 @@ export const AdminUsers: React.FC = () => {
 
       {/* Pending Pre-Authorized Users */}
       {preAuthorized.length > 0 && (
-        <div className="bg-white border border-amber-400/30 rounded-2xl shadow-xs overflow-hidden">
+        <div className="bg-[#0D1B3E]/40 backdrop-blur-md border border-amber-400/20 rounded-2xl shadow-lg overflow-hidden">
           <div className="flex items-center justify-between px-5 py-3 bg-amber-400/5 border-b border-amber-400/20">
             <div className="flex items-center space-x-2">
               <Mail className="w-4 h-4 text-amber-500" />
-              <span className="text-xs font-display font-extrabold text-amber-600 uppercase tracking-widest">
+              <span className="text-xs font-display font-extrabold text-amber-500 uppercase tracking-widest">
                 Pending Authorization — Awaiting First Login
               </span>
             </div>
@@ -319,16 +319,16 @@ export const AdminUsers: React.FC = () => {
               {preAuthorized.length} pending
             </span>
           </div>
-          <div className="divide-y divide-amber-400/10">
+          <div className="divide-y divide-white/5">
             {preAuthorized.map(entry => (
-              <div key={entry.id} className="flex items-center justify-between px-5 py-3">
+              <div key={entry.id} className="flex items-center justify-between px-5 py-3 hover:bg-white/[0.01] transition-colors">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-amber-400/10 border border-amber-400/25 flex items-center justify-center text-amber-600 font-display font-bold text-xs shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-amber-400/10 border border-amber-400/25 flex items-center justify-center text-amber-500 font-display font-bold text-xs shrink-0">
                     {entry.full_name?.[0]?.toUpperCase() || '?'}
                   </div>
                   <div>
-                    <span className="block font-display font-bold text-sm text-navy-dark">{entry.full_name}</span>
-                    <span className="block text-[10px] font-mono text-navy-dark/50">{entry.email}</span>
+                    <span className="block font-display font-bold text-sm text-white">{entry.full_name}</span>
+                    <span className="block text-[10px] font-mono text-white/40">{entry.email}</span>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -351,52 +351,52 @@ export const AdminUsers: React.FC = () => {
       )}
 
       {/* Filter and Search Controls */}
-      <div className="bg-white border border-navy-dark/10 p-4 rounded-2xl shadow-xs flex flex-col md:flex-row gap-4">
+      <div className="bg-[#0D1B3E]/40 backdrop-blur-md border border-white/10 p-4 rounded-2xl shadow-lg flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-navy-dark/40" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search users by email or full name..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-navy-dark/10 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/10 outline-none text-xs font-sans text-navy-dark transition-all bg-[#050B18]/[0.02]"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-xs font-sans text-white transition-all bg-white/5 placeholder:text-white/30"
           />
         </div>
         <div className="w-full md:w-64 relative flex items-center">
-          <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-navy-dark/40" />
+          <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-full pl-10 pr-8 py-2.5 rounded-xl border border-navy-dark/10 focus:border-orange-burnt outline-none text-xs font-display font-bold uppercase tracking-wider text-navy-dark/70 bg-[#050B18]/[0.02] appearance-none cursor-pointer"
+            className="w-full pl-10 pr-8 py-2.5 rounded-xl border border-white/10 focus:border-orange-burnt/50 outline-none text-xs font-display font-bold uppercase tracking-wider text-white/70 bg-white/5 appearance-none cursor-pointer"
           >
-            <option value="all">Filter by Role (All)</option>
+            <option value="all" className="bg-[#0D1B3E] text-white">Filter by Role (All)</option>
             {ASSIGNABLE_ROLES.map(r => (
-              <option key={r} value={r}>{getRoleDisplayName(r)}</option>
+              <option key={r} value={r} className="bg-[#0D1B3E] text-white">{getRoleDisplayName(r)}</option>
             ))}
           </select>
         </div>
       </div>
 
       {/* Users Table */}
-      <div className="bg-white border border-navy-dark/10 rounded-2xl shadow-xs overflow-hidden">
+      <div className="bg-[#0D1B3E]/30 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg overflow-hidden">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-24 text-navy-dark/45 space-y-3">
+          <div className="flex flex-col items-center justify-center py-24 text-white/40 space-y-3">
             <Loader2 className="w-8 h-8 animate-spin text-orange-burnt" />
             <span className="font-display text-xs uppercase tracking-widest font-bold">Fetching Roster Profiles...</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-navy-dark/[0.03] border-b border-navy-dark/5">
+              <thead className="bg-white/5 border-b border-white/10">
                 <tr>
                   {['Student Profile / Email', 'Assigned Role', 'Account Status', 'Registration Date', 'Access Actions'].map(h => (
-                    <th key={h} className="px-5 py-3 text-left text-[10px] font-extrabold uppercase tracking-widest text-navy-dark/50">{h}</th>
+                    <th key={h} className="px-5 py-3 text-left text-[10px] font-extrabold uppercase tracking-widest text-white/40">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-navy-dark/5">
+              <tbody className="divide-y divide-white/5">
                 {filteredUsers.map(user => (
-                  <tr key={user.id} className="hover:bg-navy-dark/[0.01] transition-colors select-none">
+                  <tr key={user.id} className="hover:bg-white/[0.02] transition-colors select-none">
                     <td className="px-5 py-4">
                       <div className="flex items-center space-x-3">
                         {user.avatar_url ? (
@@ -407,10 +407,10 @@ export const AdminUsers: React.FC = () => {
                           </div>
                         )}
                         <div className="min-w-0">
-                          <span className="block font-display font-bold text-sm text-navy-dark leading-tight truncate">
+                          <span className="block font-display font-bold text-sm text-white leading-tight truncate">
                             {user.full_name || 'Unregistered'}
                           </span>
-                          <span className="block text-[10px] text-navy-dark/50 font-sans mt-0.5 truncate font-semibold">
+                          <span className="block text-[10px] text-white/40 font-sans mt-0.5 truncate font-semibold">
                             {user.email}
                           </span>
                           {/* Workspace badge */}
@@ -431,10 +431,10 @@ export const AdminUsers: React.FC = () => {
                         <select
                           value={user.role}
                           onChange={e => handleRoleChange(user, e.target.value as Role)}
-                          className="text-[10px] font-display font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border bg-[#050B18]/[0.02] border-navy-dark/10 text-navy-dark/85 outline-none cursor-pointer hover:border-orange-burnt transition-colors"
+                          className="text-[10px] font-display font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border bg-white/5 border-white/10 text-white/80 outline-none cursor-pointer hover:border-orange-burnt transition-colors"
                         >
                           {ASSIGNABLE_ROLES.map(r => (
-                            <option key={r} value={r} className="bg-white text-navy-dark normal-case">{getRoleDisplayName(r)}</option>
+                            <option key={r} value={r} className="bg-[#0D1B3E] text-white">{getRoleDisplayName(r)}</option>
                           ))}
                         </select>
                       )}
@@ -442,19 +442,19 @@ export const AdminUsers: React.FC = () => {
 
                     <td className="px-5 py-4 whitespace-nowrap">
                       {user.is_active ? (
-                        <span className="inline-flex items-center space-x-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                        <span className="inline-flex items-center space-x-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                           <ShieldCheck className="w-3.5 h-3.5" />
                           <span>Active</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center space-x-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-500/10 text-red-500 border border-red-500/20">
+                        <span className="inline-flex items-center space-x-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
                           <ShieldAlert className="w-3.5 h-3.5" />
                           <span>Suspended</span>
                         </span>
                       )}
                     </td>
 
-                    <td className="px-5 py-4 text-xs font-semibold text-navy-dark/50 whitespace-nowrap">
+                    <td className="px-5 py-4 text-xs font-semibold text-white/40 whitespace-nowrap">
                       {new Date(user.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
 
@@ -463,9 +463,9 @@ export const AdminUsers: React.FC = () => {
                         {user.id !== myUserId && user.role !== 'super_admin' && (
                           <>
                             <button
-                              onClick={() => handleToggleActive(user)}
-                              title={user.is_active ? 'Suspend Account' : 'Reactivate Account'}
-                              className={`p-2 rounded-xl transition-all border cursor-pointer hover:scale-105 active:scale-95 ${user.is_active ? 'bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20'}`}
+                                onClick={() => handleToggleActive(user)}
+                                title={user.is_active ? 'Suspend Account' : 'Reactivate Account'}
+                                className={`p-2 rounded-xl transition-all border cursor-pointer hover:scale-105 active:scale-95 ${user.is_active ? 'bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20'}`}
                             >
                               <Ban className="w-3.5 h-3.5" />
                             </button>
@@ -486,7 +486,7 @@ export const AdminUsers: React.FC = () => {
             </table>
 
             {filteredUsers.length === 0 && (
-              <div className="text-center py-20 text-navy-dark/40 flex flex-col items-center">
+              <div className="text-center py-20 text-white/40 flex flex-col items-center">
                 <Users className="w-12 h-12 mb-3 opacity-30 text-orange-burnt animate-pulse" />
                 <p className="font-display text-sm font-bold uppercase tracking-wider">No matching roster users found.</p>
               </div>
@@ -497,22 +497,22 @@ export const AdminUsers: React.FC = () => {
 
       {/* ── Add Workspace User Modal ─────────────────────────────────────────── */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+          <div className="bg-[#0D1B3E] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md relative flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-navy-dark/10 shrink-0">
+            <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
               <div className="flex items-center space-x-3">
                 <div className="w-9 h-9 rounded-xl bg-orange-burnt/10 flex items-center justify-center">
                   <UserPlus className="w-5 h-5 text-orange-burnt" />
                 </div>
                 <div>
-                  <h3 className="font-display font-extrabold text-base text-navy-dark">Add Workspace User</h3>
-                  <p className="text-[10px] text-navy-dark/50 font-sans">Pre-authorize for Google OAuth login</p>
+                  <h3 className="font-display font-extrabold text-base text-white">Add Workspace User</h3>
+                  <p className="text-[10px] text-white/40 font-sans">Pre-authorize for Google OAuth login</p>
                 </div>
               </div>
               <button
                 onClick={() => { setShowAddModal(false); setShowSuggestions(false); }}
-                className="p-2 rounded-xl hover:bg-navy-dark/5 text-navy-dark/40 transition-colors"
+                className="p-2 rounded-xl hover:bg-white/5 text-white/40 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -522,13 +522,13 @@ export const AdminUsers: React.FC = () => {
 
               {/* Quick Suggestions */}
               <div>
-                <label className="block text-[10px] text-navy-dark/50 font-bold uppercase tracking-wider mb-2">
+                <label className="block text-[10px] text-white/40 font-bold uppercase tracking-wider mb-2">
                   Quick Select — Workspace Emails
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowSuggestions(v => !v)}
-                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-navy-dark/10 hover:border-orange-burnt text-xs font-display font-bold text-navy-dark/70 transition-colors bg-navy-dark/[0.02]"
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-white/10 hover:border-orange-burnt/50 text-xs font-display font-bold text-white/70 transition-colors bg-white/5"
                 >
                   <span className="flex items-center space-x-2">
                     <Building2 className="w-4 h-4 text-indigo-400" />
@@ -538,20 +538,20 @@ export const AdminUsers: React.FC = () => {
                 </button>
 
                 {showSuggestions && (
-                  <div className="mt-1 border border-navy-dark/10 rounded-xl shadow-lg bg-white max-h-56 overflow-y-auto scrollbar-thin">
+                  <div className="mt-1 border border-white/10 rounded-xl shadow-lg bg-[#0B1628] max-h-56 overflow-y-auto scrollbar-thin">
                     {filteredSuggestions.length === 0 ? (
-                      <p className="text-center text-xs text-navy-dark/40 py-4 font-display">All workspace emails already added ✓</p>
+                      <p className="text-center text-xs text-white/40 py-4 font-display">All workspace emails already added ✓</p>
                     ) : (
                       filteredSuggestions.map(s => (
                         <button
                           key={s.email}
                           type="button"
                           onClick={() => applySuggestion(s)}
-                          className="w-full flex items-center justify-between px-4 py-3 hover:bg-orange-burnt/5 transition-colors border-b border-navy-dark/5 last:border-0 text-left"
+                          className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 text-left"
                         >
                           <div>
-                            <span className="block text-xs font-display font-bold text-navy-dark">{s.label}</span>
-                            <span className="block text-[10px] font-mono text-navy-dark/50">{s.email}</span>
+                            <span className="block text-xs font-display font-bold text-white">{s.label}</span>
+                            <span className="block text-[10px] font-mono text-white/40">{s.email}</span>
                           </div>
                           <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${RoleBadgeMap[s.role]}`}>
                             {getRoleDisplayName(s.role)}
@@ -563,22 +563,22 @@ export const AdminUsers: React.FC = () => {
                 )}
               </div>
 
-              <div className="border-t border-navy-dark/5 pt-4 space-y-4">
-                <p className="text-[10px] text-navy-dark/40 font-semibold uppercase tracking-wider">— Or enter manually —</p>
+              <div className="border-t border-white/5 pt-4 space-y-4">
+                <p className="text-[10px] text-white/30 font-semibold uppercase tracking-wider">— Or enter manually —</p>
 
                 {/* Email */}
                 <div>
-                  <label className="block text-[10px] text-navy-dark/50 font-bold uppercase tracking-wider mb-1.5">
+                  <label className="block text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1.5">
                     Email Address *
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-navy-dark/30" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                     <input
                       type="email"
                       value={newEmail}
                       onChange={e => setNewEmail(e.target.value)}
                       placeholder="developer@tgpcopcouncil.online"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-navy-dark/10 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/10 outline-none text-xs font-sans text-navy-dark transition-all"
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-xs font-sans text-white transition-all bg-white/5 placeholder:text-white/30"
                       required
                     />
                   </div>
@@ -586,7 +586,7 @@ export const AdminUsers: React.FC = () => {
 
                 {/* Full Name */}
                 <div>
-                  <label className="block text-[10px] text-navy-dark/50 font-bold uppercase tracking-wider mb-1.5">
+                  <label className="block text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1.5">
                     Display Name (optional)
                   </label>
                   <input
@@ -594,22 +594,22 @@ export const AdminUsers: React.FC = () => {
                     value={newName}
                     onChange={e => setNewName(e.target.value)}
                     placeholder="e.g. Developer"
-                    className="w-full px-4 py-2.5 rounded-xl border border-navy-dark/10 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/10 outline-none text-xs font-sans text-navy-dark transition-all"
+                    className="w-full px-4 py-2.5 rounded-xl border border-white/10 focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 outline-none text-xs font-sans text-white transition-all bg-white/5 placeholder:text-white/30"
                   />
                 </div>
 
                 {/* Role */}
                 <div>
-                  <label className="block text-[10px] text-navy-dark/50 font-bold uppercase tracking-wider mb-1.5">
+                  <label className="block text-[10px] text-white/40 font-bold uppercase tracking-wider mb-1.5">
                     Assign Role *
                   </label>
                   <select
                     value={newRole}
                     onChange={e => setNewRole(e.target.value as Role)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-navy-dark/10 focus:border-orange-burnt outline-none text-xs font-display font-bold uppercase tracking-wider text-navy-dark/85 cursor-pointer"
+                    className="w-full px-4 py-2.5 rounded-xl border border-white/10 focus:border-orange-burnt/50 outline-none text-xs font-display font-bold uppercase tracking-wider text-white/70 bg-white/5 appearance-none cursor-pointer"
                   >
                     {ASSIGNABLE_ROLES.filter(r => r !== 'student').map(r => (
-                      <option key={r} value={r} className="bg-white text-navy-dark normal-case">
+                      <option key={r} value={r} className="bg-[#0D1B3E] text-white">
                         {getRoleDisplayName(r)}
                       </option>
                     ))}
@@ -618,7 +618,7 @@ export const AdminUsers: React.FC = () => {
               </div>
 
               {/* Info box */}
-              <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 text-[10px] text-blue-600 font-sans leading-relaxed">
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-[10px] text-blue-300 font-sans leading-relaxed">
                 💡 <strong>How it works:</strong> This pre-authorizes the email with the selected role. When the user signs in with <strong>Google OAuth</strong>, their role is automatically applied and they'll be redirected to the correct dashboard.
               </div>
 
@@ -627,14 +627,14 @@ export const AdminUsers: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => { setShowAddModal(false); setShowSuggestions(false); }}
-                  className="flex-1 py-2.5 rounded-xl border border-navy-dark/10 text-xs font-display font-bold text-navy-dark/60 hover:bg-navy-dark/5 transition-colors"
+                  className="flex-1 py-2.5 rounded-xl border border-white/10 text-xs font-display font-bold text-white/60 hover:bg-white/5 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isAdding}
-                  className="flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-orange-burnt hover:bg-orange-burnt/90 text-white font-display font-bold text-xs transition-all shadow-sm active:scale-98 disabled:opacity-60"
+                  className="flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display font-bold text-xs transition-all shadow-md active:scale-98 disabled:opacity-60"
                 >
                   {isAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                   <span>{isAdding ? 'Adding...' : 'Add & Authorize'}</span>

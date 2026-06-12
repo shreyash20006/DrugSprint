@@ -10,20 +10,23 @@ import {
 
 type BugStatus = 'pending' | 'in_progress' | 'resolved';
 
-const STATUS_CONFIG: Record<BugStatus, { label: string; color: string; icon: React.ReactNode }> = {
+const STATUS_CONFIG: Record<BugStatus, { label: string; classes: string; dot: string; icon: React.ReactNode }> = {
   pending: {
     label: 'Pending',
-    color: 'bg-amber-50 text-amber-700 border-amber-200',
+    classes: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    dot: 'bg-amber-400',
     icon: <Clock className="w-3 h-3" />,
   },
   in_progress: {
     label: 'In Progress',
-    color: 'bg-blue-50 text-blue-700 border-blue-200',
+    classes: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    dot: 'bg-blue-400',
     icon: <Loader2 className="w-3 h-3 animate-spin" />,
   },
   resolved: {
     label: 'Resolved',
-    color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    classes: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    dot: 'bg-emerald-400',
     icon: <CheckCircle2 className="w-3 h-3" />,
   },
 };
@@ -124,26 +127,27 @@ export const AdminBugs: React.FC = () => {
     }
   };
 
-  // Summary counts
   const pendingCount = bugs.filter(b => b.status === 'pending').length;
   const inProgressCount = bugs.filter(b => b.status === 'in_progress').length;
   const resolvedCount = bugs.filter(b => b.status === 'resolved').length;
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between bg-white border border-navy-dark/10 p-5 rounded-2xl shadow-xs">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
-            <Bug className="w-5 h-5" />
+          <div className="p-2.5 bg-red-500/10 rounded-xl border border-red-500/20">
+            <Bug className="w-5 h-5 text-red-400" />
           </div>
           <div>
-            <h3 className="font-display font-extrabold text-base text-navy-dark">Glitch & Issue Reports</h3>
-            <p className="text-[10px] text-navy-dark/45 font-sans leading-none mt-0.5">Review and resolve problems submitted by students & users.</p>
+            <h2 className="font-display font-extrabold text-xl text-white">Glitch & Issue Reports</h2>
+            <p className="text-xs text-white/40 font-sans mt-0.5">Review and resolve problems submitted by students & users</p>
           </div>
         </div>
-        <button onClick={fetchBugs} className="flex items-center space-x-1.5 px-4 py-2 border border-navy-dark/15 rounded-lg text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors">
+        <button
+          onClick={fetchBugs}
+          className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl border border-white/10 text-white/60 font-display text-xs font-bold hover:bg-white/[0.05] hover:text-white transition-all"
+        >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Refresh</span>
         </button>
@@ -152,127 +156,139 @@ export const AdminBugs: React.FC = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Pending', count: pendingCount, color: 'amber', icon: <Clock className="w-5 h-5" />, filter: 'pending' as BugStatus },
-          { label: 'In Progress', count: inProgressCount, color: 'blue', icon: <AlertTriangle className="w-5 h-5" />, filter: 'in_progress' as BugStatus },
-          { label: 'Resolved', count: resolvedCount, color: 'emerald', icon: <CheckCircle2 className="w-5 h-5" />, filter: 'resolved' as BugStatus },
+          { label: 'Pending',     count: pendingCount,    key: 'pending' as BugStatus,     icon: <Clock className="w-4 h-4" />,          cls: STATUS_CONFIG.pending.classes },
+          { label: 'In Progress', count: inProgressCount, key: 'in_progress' as BugStatus, icon: <AlertTriangle className="w-4 h-4" />,   cls: STATUS_CONFIG.in_progress.classes },
+          { label: 'Resolved',    count: resolvedCount,   key: 'resolved' as BugStatus,    icon: <CheckCircle2 className="w-4 h-4" />,   cls: STATUS_CONFIG.resolved.classes },
         ].map(card => (
           <button
-            key={card.filter}
-            onClick={() => setStatusFilter(statusFilter === card.filter ? 'all' : card.filter)}
-            className={`bg-white border rounded-2xl p-4 text-left transition-all hover:shadow-md ${
-              statusFilter === card.filter ? `border-${card.color}-400 shadow-md shadow-${card.color}-100` : 'border-navy-dark/10'
-            }`}
+            key={card.key}
+            onClick={() => setStatusFilter(statusFilter === card.key ? 'all' : card.key)}
+            className={`rounded-2xl border p-4 text-left transition-all duration-200 hover:scale-[1.01] ${card.cls} ${statusFilter === card.key ? 'ring-2 ring-orange-burnt/50 scale-[1.02]' : ''}`}
           >
-            <div className={`w-8 h-8 rounded-full bg-${card.color}-500/10 text-${card.color}-600 flex items-center justify-center mb-3`}>
+            <div className="flex items-center space-x-1.5 mb-2 text-current opacity-70">
               {card.icon}
+              <span className="text-[10px] font-bold uppercase tracking-wider">{card.label}</span>
             </div>
-            <p className="font-display font-extrabold text-2xl text-navy-dark">{card.count}</p>
-            <p className="text-[10px] text-navy-dark/50 font-bold uppercase tracking-widest mt-0.5">{card.label}</p>
+            <p className="font-display font-extrabold text-2xl">{card.count}</p>
           </button>
         ))}
       </div>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
-        <div className="relative flex-grow max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-navy-dark/30" />
+        <div className="relative flex-grow max-w-sm">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
           <input
-            type="text" value={searchQuery}
+            type="text"
+            value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search by title, description, email..."
-            className="w-full pl-9 pr-4 py-2 rounded-lg border border-navy-dark/15 focus:border-red-400 outline-none text-xs font-sans text-navy-dark transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.03] text-white text-xs font-sans outline-none focus:border-red-400/50 transition-all placeholder-white/30"
           />
         </div>
         <select
-          value={statusFilter} onChange={e => setStatusFilter(e.target.value as BugStatus | 'all')}
-          className="px-4 py-2 rounded-lg border border-navy-dark/15 focus:border-red-400 outline-none text-xs font-sans text-navy-dark bg-white transition-colors"
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value as BugStatus | 'all')}
+          className="px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.03] text-white text-xs font-sans outline-none focus:border-red-400/50 transition-all appearance-none cursor-pointer"
         >
-          <option value="all">All Statuses</option>
-          <option value="pending">Pending</option>
-          <option value="in_progress">In Progress</option>
-          <option value="resolved">Resolved</option>
+          <option value="all" className="bg-[#0A1428]">All Statuses</option>
+          <option value="pending" className="bg-[#0A1428]">Pending</option>
+          <option value="in_progress" className="bg-[#0A1428]">In Progress</option>
+          <option value="resolved" className="bg-[#0A1428]">Resolved</option>
         </select>
       </div>
 
       {/* Bug List */}
       <div className="space-y-3">
         {isLoading ? (
-          <div className="flex items-center justify-center py-20 bg-white border border-navy-dark/10 rounded-2xl text-navy-dark/40">
-            <Loader2 className="w-8 h-8 animate-spin mr-3 text-red-400" />
+          <div className="flex flex-col items-center justify-center py-20 text-white/40">
+            <Loader2 className="w-8 h-8 animate-spin mb-3 text-red-400" />
             <span className="font-display text-sm">Loading reports...</span>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 bg-white border border-navy-dark/10 rounded-2xl text-navy-dark/40">
-            <Bug className="w-10 h-10 mx-auto mb-2 opacity-30" />
-            <p className="text-sm font-display">No bug reports found.</p>
+          <div className="text-center py-16 bg-white/[0.02] rounded-2xl border border-white/5">
+            <Bug className="w-12 h-12 text-white/10 mx-auto mb-3" />
+            <p className="text-white/50 text-sm font-display font-bold">No bug reports found</p>
           </div>
         ) : (
-          filtered.map(bug => (
-            <div key={bug.id} className={`bg-white border rounded-2xl p-5 shadow-xs transition-all hover:shadow-sm ${bug.status === 'resolved' ? 'opacity-70' : ''}`}>
-              <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div className="flex-grow min-w-0">
-                  <div className="flex items-center flex-wrap gap-2 mb-1">
-                    <span className={`inline-flex items-center space-x-1 text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${STATUS_CONFIG[bug.status as BugStatus]?.color}`}>
-                      {STATUS_CONFIG[bug.status as BugStatus]?.icon}
-                      <span className="ml-1">{STATUS_CONFIG[bug.status as BugStatus]?.label}</span>
-                    </span>
-                    <span className="text-[10px] text-navy-dark/40 font-medium">{bug.reporter_email}</span>
+          filtered.map(bug => {
+            const cfg = STATUS_CONFIG[bug.status as BugStatus] || STATUS_CONFIG.pending;
+            return (
+              <div
+                key={bug.id}
+                className={`bg-white/[0.03] backdrop-blur-sm rounded-2xl border border-white/10 p-5 hover:border-white/20 hover:bg-white/[0.05] transition-all duration-200 ${bug.status === 'resolved' ? 'opacity-60' : ''}`}
+              >
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="flex-grow min-w-0">
+                    <div className="flex items-center flex-wrap gap-2 mb-2">
+                      <span className={`inline-flex items-center space-x-1.5 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg border ${cfg.classes}`}>
+                        {cfg.icon}
+                        <span>{cfg.label}</span>
+                      </span>
+                      <span className="text-[10px] text-white/35 font-mono">{bug.reporter_email}</span>
+                    </div>
+                    <h4 className="font-display font-bold text-sm text-white mb-1">{bug.issue_title}</h4>
+                    <p className="text-xs text-white/55 font-sans leading-relaxed mb-2">{bug.issue_description}</p>
+                    <p className="text-[10px] text-white/30 font-mono">
+                      Submitted: {new Date(bug.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    </p>
+                    {bug.status === 'resolved' && (
+                      <div className="mt-3 p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+                        <p className="text-[10px] font-bold text-emerald-400 mb-0.5">Resolved by: {bug.resolved_by}</p>
+                        {bug.resolution_notes && (
+                          <p className="text-xs text-emerald-300/70 font-sans">{bug.resolution_notes}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  <h4 className="font-display font-bold text-sm text-navy-dark mb-1">{bug.issue_title}</h4>
-                  <p className="text-xs text-navy-dark/60 font-sans leading-relaxed mb-2">{bug.issue_description}</p>
-                  <p className="text-[10px] text-navy-dark/35 font-mono">
-                    Submitted: {new Date(bug.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                  </p>
-                  {bug.status === 'resolved' && (
-                    <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-                      <p className="text-[10px] font-bold text-emerald-700 mb-0.5">Resolved by: {bug.resolved_by}</p>
-                      {bug.resolution_notes && (
-                        <p className="text-xs text-emerald-800 font-sans">{bug.resolution_notes}</p>
+
+                  {bug.status !== 'resolved' && (
+                    <div className="flex items-center space-x-2 shrink-0">
+                      {bug.status === 'pending' && (
+                        <button
+                          onClick={() => handleStatusChange(bug, 'in_progress')}
+                          className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-colors"
+                        >
+                          → In Progress
+                        </button>
                       )}
+                      <button
+                        onClick={() => { setResolvingBug(bug); setResolutionNotes(''); }}
+                        className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition-colors flex items-center space-x-1"
+                      >
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>Resolve</span>
+                      </button>
                     </div>
                   )}
                 </div>
-
-                {/* Status change actions */}
-                {bug.status !== 'resolved' && (
-                  <div className="flex items-center space-x-2 shrink-0">
-                    {bug.status === 'pending' && (
-                      <button
-                        onClick={() => handleStatusChange(bug, 'in_progress')}
-                        className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-                      >
-                        → In Progress
-                      </button>
-                    )}
-                    <button
-                      onClick={() => { setResolvingBug(bug); setResolutionNotes(''); }}
-                      className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors flex items-center space-x-1"
-                    >
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>Resolve</span>
-                    </button>
-                  </div>
-                )}
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
-      {/* ── Resolve Modal ─────────────────────────────────────────────────── */}
+      {/* Resolve Modal */}
       {resolvingBug && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-navy-dark/10 overflow-hidden">
-            <div className="bg-emerald-600 text-white px-6 py-4 flex items-center justify-between">
-              <h4 className="font-display font-extrabold text-sm">✅ Resolve Bug Report</h4>
-              <button onClick={() => setResolvingBug(null)} className="p-1 rounded-lg hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div className="bg-[#0A1428] w-full max-w-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-600/20 to-transparent border-b border-emerald-500/20 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-emerald-500/20 rounded-lg">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                </div>
+                <h4 className="font-display font-extrabold text-sm text-white">Resolve Bug Report</h4>
+              </div>
+              <button onClick={() => setResolvingBug(null)} className="p-1.5 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
             </div>
             <form onSubmit={handleResolve} className="p-6 space-y-4">
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-                <p className="text-xs font-bold text-emerald-700">{resolvingBug.issue_title}</p>
+              <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+                <p className="text-xs font-bold text-emerald-400">{resolvingBug.issue_title}</p>
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/60 mb-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1.5">
                   Resolution Notes (Optional)
                 </label>
                 <textarea
@@ -280,20 +296,33 @@ export const AdminBugs: React.FC = () => {
                   onChange={e => setResolutionNotes(e.target.value)}
                   rows={3}
                   placeholder="Describe how the issue was resolved, what was fixed, etc..."
-                  className="w-full px-4 py-2.5 rounded-lg border border-navy-dark/15 focus:border-emerald-400 outline-none text-sm font-sans text-navy-dark transition-colors resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.04] text-white text-sm font-sans resize-none outline-none focus:border-emerald-500/50 transition-all placeholder-white/30"
                 />
               </div>
               <div className="flex space-x-3">
-                <button type="button" onClick={() => setResolvingBug(null)} className="flex-1 py-2.5 rounded-lg border border-navy-dark/15 text-navy-dark/60 font-display text-xs font-bold hover:bg-navy-dark/5 transition-colors">Cancel</button>
-                <button type="submit" disabled={isResolving} className="flex-1 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-display text-xs font-bold shadow-md transition-colors flex items-center justify-center space-x-1.5">
-                  {isResolving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Resolving...</span></> : <><CheckCircle2 className="w-3.5 h-3.5" /><span>Mark Resolved</span></>}
+                <button
+                  type="button"
+                  onClick={() => setResolvingBug(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/60 font-display text-xs font-bold hover:bg-white/5 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isResolving}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-display text-xs font-bold shadow-lg transition-all flex items-center justify-center space-x-1.5 hover:-translate-y-px hover:shadow-emerald-500/25 disabled:opacity-50"
+                >
+                  {isResolving ? (
+                    <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Resolving...</span></>
+                  ) : (
+                    <><CheckCircle2 className="w-3.5 h-3.5" /><span>Mark Resolved</span></>
+                  )}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-
     </div>
   );
 };

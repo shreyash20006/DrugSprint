@@ -203,17 +203,17 @@ export const AdminPayments: React.FC = () => {
     <div className="space-y-6">
       
       {/* Page Title Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-navy-dark/10 pb-4">
+      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/10 pb-4">
         <div className="flex items-center space-x-3">
           <CreditCard className="w-6 h-6 text-orange-burnt animate-pulse" />
-          <h2 className="font-display font-extrabold text-xl text-navy-dark">
+          <h2 className="font-display font-extrabold text-xl text-white">
             Payments & Collections Ledger
           </h2>
         </div>
         <button
           onClick={handleExportCSV}
           disabled={filteredPayments.length === 0}
-          className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-navy-dark text-white font-display text-xs font-bold hover:bg-orange-burnt transition-all cursor-pointer shadow-md disabled:opacity-50"
+          className="flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold shadow-md hover:shadow-[0_4px_15px_rgba(214,90,30,0.4)] hover:-translate-y-px transition-all cursor-pointer disabled:opacity-50"
         >
           <Download className="w-3.5 h-3.5" />
           <span>Download CSV Report</span>
@@ -223,75 +223,75 @@ export const AdminPayments: React.FC = () => {
       {/* Stats Summary Widgets Ribbon */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {/* Successful */}
-        <div className="bg-white rounded-xl border border-navy-dark/10 p-4 shadow-sm flex items-center justify-between">
+        <div className="bg-[#0D1B3E]/40 backdrop-blur-md rounded-xl border border-white/10 p-4 shadow-lg flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-navy-dark/40 mb-1">Successful</p>
-            <h3 className="text-2xl font-display font-extrabold text-emerald-600">{stats.totalCompleted}</h3>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Successful</p>
+            <h3 className="text-2xl font-display font-extrabold text-emerald-400">{stats.totalCompleted}</h3>
           </div>
-          <div className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center border border-emerald-100">
+          <div className="w-9 h-9 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
             <CheckCircle className="w-4 h-4" />
           </div>
         </div>
 
         {/* Failed */}
-        <div className="bg-white rounded-xl border border-navy-dark/10 p-4 shadow-sm flex items-center justify-between">
+        <div className="bg-[#0D1B3E]/40 backdrop-blur-md rounded-xl border border-white/10 p-4 shadow-lg flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-navy-dark/40 mb-1">Failed</p>
-            <h3 className="text-2xl font-display font-extrabold text-red-500">{stats.totalFailed}</h3>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Failed</p>
+            <h3 className="text-2xl font-display font-extrabold text-red-400">{stats.totalFailed}</h3>
           </div>
-          <div className="w-9 h-9 rounded-full bg-red-50 text-red-500 flex items-center justify-center border border-red-100">
+          <div className="w-9 h-9 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center border border-red-500/20">
             <span className="text-base">❌</span>
           </div>
         </div>
 
         {/* Pending */}
-        <div className="bg-white rounded-xl border border-navy-dark/10 p-4 shadow-sm flex items-center justify-between">
+        <div className="bg-[#0D1B3E]/40 backdrop-blur-md rounded-xl border border-white/10 p-4 shadow-lg flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-navy-dark/40 mb-1">Pending</p>
-            <h3 className="text-2xl font-display font-extrabold text-amber-500">{stats.totalPending}</h3>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Pending</p>
+            <h3 className="text-2xl font-display font-extrabold text-amber-400">{stats.totalPending}</h3>
           </div>
-          <div className="w-9 h-9 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center border border-amber-100">
+          <div className="w-9 h-9 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
             <span className="text-base">⏳</span>
           </div>
         </div>
 
         {/* Today */}
-        <div className="bg-white rounded-xl border border-navy-dark/10 p-4 shadow-sm flex items-center justify-between">
+        <div className="bg-[#0D1B3E]/40 backdrop-blur-md rounded-xl border border-white/10 p-4 shadow-lg flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-navy-dark/40 mb-1">Today</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Today</p>
             <h3 className="text-2xl font-display font-extrabold text-orange-burnt">₹{stats.todayCollected}</h3>
           </div>
-          <div className="w-9 h-9 rounded-full bg-orange-50 text-orange-burnt flex items-center justify-center border border-orange-100">
+          <div className="w-9 h-9 rounded-full bg-orange-500/10 text-orange-burnt flex items-center justify-center border border-orange-500/20">
             <Calendar className="w-4 h-4" />
           </div>
         </div>
 
         {/* Total */}
-        <div className="bg-white rounded-xl border border-navy-dark/10 p-4 shadow-sm flex items-center justify-between">
+        <div className="bg-[#0D1B3E]/40 backdrop-blur-md rounded-xl border border-white/10 p-4 shadow-lg flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-navy-dark/40 mb-1">Total Collected</p>
-            <h3 className="text-2xl font-display font-extrabold text-indigo-600">₹{stats.totalAmount}</h3>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-1">Total Collected</p>
+            <h3 className="text-2xl font-display font-extrabold text-indigo-400">₹{stats.totalAmount}</h3>
           </div>
-          <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center border border-indigo-100">
+          <div className="w-9 h-9 rounded-full bg-indigo-500/10 text-indigo-450 flex items-center justify-center border border-indigo-500/20">
             <CreditCard className="w-4 h-4" />
           </div>
         </div>
       </div>
 
       {/* Control Panel: Filters, Purpose & Search */}
-      <div className="bg-white rounded-xl border border-navy-dark/10 p-5 shadow-sm space-y-4">
+      <div className="bg-[#0D1B3E]/40 backdrop-blur-md rounded-xl border border-white/10 p-5 shadow-lg space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           
           {/* Status Tabs */}
-          <div className="flex border border-navy-dark/10 rounded-xl p-1 w-full md:w-auto bg-gray-50 shrink-0">
+          <div className="flex border border-white/10 rounded-xl p-1 w-full md:w-auto bg-white/5 shrink-0">
             {(['all', 'completed', 'pending', 'failed'] as const).map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
                 className={`flex-1 md:flex-initial px-4 py-1.5 rounded-lg text-xs font-display font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   statusFilter === status
-                    ? 'bg-navy-dark text-white shadow-sm'
-                    : 'text-navy-dark/60 hover:text-navy-dark'
+                    ? 'bg-[#0D1B3E] text-white shadow-sm border border-white/10'
+                    : 'text-white/60 hover:text-white'
                 }`}
               >
                 {status}
@@ -301,50 +301,50 @@ export const AdminPayments: React.FC = () => {
 
           {/* Search Input bar */}
           <div className="relative w-full md:max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-navy-dark/30" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by student name or payment ID..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-navy-dark/15 focus:border-orange-burnt outline-none text-sm font-sans"
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-white/10 bg-white/5 text-white placeholder:text-white/30 focus:border-orange-burnt/50 outline-none text-sm font-sans transition-all"
             />
           </div>
         </div>
 
         {/* Purpose Filter dropdown */}
-        <div className="flex items-center space-x-2 pt-2 border-t border-navy-dark/5">
-          <Filter className="w-4 h-4 text-navy-dark/40" />
-          <span className="text-xs font-bold text-navy-dark/50">Filter by Purpose:</span>
+        <div className="flex items-center space-x-2 pt-2 border-t border-white/5">
+          <Filter className="w-4 h-4 text-white/40" />
+          <span className="text-xs font-bold text-white/40">Filter by Purpose:</span>
           <select
             value={purposeFilter}
             onChange={(e) => setPurposeFilter(e.target.value)}
-            className="px-3 py-1 text-xs font-sans font-bold border border-navy-dark/15 rounded-lg bg-white focus:outline-none focus:border-orange-burnt cursor-pointer"
+            className="px-3 py-1 text-xs font-sans font-bold border border-white/10 rounded-lg bg-[#0D1B3E] text-white focus:outline-none focus:border-orange-burnt/50 cursor-pointer"
           >
             {PURPOSES.map(p => (
-              <option key={p} value={p}>{p}</option>
+              <option key={p} value={p} className="bg-[#0D1B3E] text-white">{p}</option>
             ))}
           </select>
         </div>
       </div>
 
       {/* Ledger Records Table */}
-      <div className="bg-white rounded-xl border border-navy-dark/10 shadow-sm overflow-hidden select-none">
+      <div className="bg-[#0D1B3E]/30 backdrop-blur-md rounded-xl border border-white/10 shadow-lg overflow-hidden select-none">
         {loading ? (
-          <div className="p-16 text-center text-navy-dark/50">
+          <div className="p-16 text-center text-white/40">
             <div className="w-8 h-8 rounded-full border-2 border-orange-burnt border-t-transparent animate-spin mx-auto mb-3" />
             <span>Loading transaction ledger...</span>
           </div>
         ) : filteredPayments.length === 0 ? (
-          <div className="p-16 text-center text-navy-dark/40">
-            <CreditCard className="w-10 h-10 text-navy-dark/15 mx-auto mb-3" />
+          <div className="p-16 text-center text-white/40">
+            <CreditCard className="w-10 h-10 text-white/10 mx-auto mb-3" />
             <p className="font-semibold">No transactions match these filters.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-navy-dark/[0.02]">
-                <tr className="text-[10px] font-bold uppercase tracking-wider text-navy-dark/50 border-b border-navy-dark/5">
+              <thead className="bg-white/5 border-b border-white/10">
+                <tr className="text-[10px] font-bold uppercase tracking-wider text-white/40 border-b border-white/10">
                   <th className="text-left px-5 py-3.5">Student</th>
                   <th className="text-left px-5 py-3.5">Year</th>
                   <th className="text-left px-5 py-3.5">Purpose</th>
@@ -355,62 +355,62 @@ export const AdminPayments: React.FC = () => {
                   <th className="text-right px-5 py-3.5">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-navy-dark/5">
+              <tbody className="divide-y divide-white/5">
                 {filteredPayments.map((payment) => (
                   <tr 
                     key={payment.id} 
-                    className="hover:bg-orange-burnt/[0.02] transition-colors"
+                    className="hover:bg-white/[0.02] transition-colors"
                   >
                     {/* Name / Email */}
                     <td className="px-5 py-3.5">
-                      <span className="block font-semibold text-navy-dark leading-tight">
+                      <span className="block font-semibold text-white leading-tight">
                         {payment.student_name}
                       </span>
-                      <span className="block text-xs text-navy-dark/50 leading-relaxed">
+                      <span className="block text-xs text-white/40 leading-relaxed">
                         {payment.student_email}
                       </span>
                     </td>
 
                     {/* Year badge */}
                     <td className="px-5 py-3.5">
-                      <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-200 text-[10px] font-bold">
+                      <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold">
                         {payment.student_year}
                       </span>
                     </td>
 
                     {/* Purpose */}
                     <td className="px-5 py-3.5">
-                      <span className="font-semibold text-navy-dark/80 text-xs">
+                      <span className="font-semibold text-white/80 text-xs">
                         {payment.purpose}
                       </span>
                     </td>
 
                     {/* Amount */}
-                    <td className="px-5 py-3.5 font-display font-extrabold text-navy-dark">
+                    <td className="px-5 py-3.5 font-display font-extrabold text-white">
                       ₹{payment.amount}
                     </td>
 
                     {/* Transaction ID */}
-                    <td className="px-5 py-3.5 font-mono text-xs text-navy-dark/65">
+                    <td className="px-5 py-3.5 font-mono text-xs text-white/50">
                       {payment.payment_id || '—'}
                     </td>
 
                     {/* Status badge */}
                     <td className="px-5 py-3.5 text-center">
                       {payment.status === 'completed' && (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold">
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
                           <span>✅</span>
                           <span>Completed</span>
                         </span>
                       )}
                       {payment.status === 'pending' && (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 text-[10px] font-bold">
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold">
                           <span>⏳</span>
                           <span>Pending</span>
                         </span>
                       )}
                       {payment.status === 'failed' && (
-                        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold">
+                        <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] font-bold">
                           <span>❌</span>
                           <span>Failed</span>
                         </span>
@@ -418,7 +418,7 @@ export const AdminPayments: React.FC = () => {
                     </td>
 
                     {/* Date */}
-                    <td className="px-5 py-3.5 text-xs text-navy-dark/50">
+                    <td className="px-5 py-3.5 text-xs text-white/40">
                       {new Date(payment.created_at).toLocaleDateString('en-IN', {
                         day: '2-digit',
                         month: 'short',
@@ -432,7 +432,7 @@ export const AdminPayments: React.FC = () => {
                       <button
                         onClick={() => setSelectedPayment(payment)}
                         title="View Full Ledger Details"
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-navy-dark/10 hover:border-orange-burnt hover:bg-orange-burnt/5 text-navy-dark/50 hover:text-orange-burnt transition-all cursor-pointer"
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-white/10 hover:border-orange-burnt hover:bg-orange-burnt/10 text-white/50 hover:text-white transition-all cursor-pointer"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
@@ -442,7 +442,7 @@ export const AdminPayments: React.FC = () => {
                         onClick={() => handleResendReceipt(payment)}
                         disabled={payment.status !== 'completed' || resendingId === payment.id}
                         title="Resend Receipt Email"
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-navy-dark/10 hover:border-orange-burnt hover:bg-orange-burnt/5 text-navy-dark/50 hover:text-orange-burnt transition-all cursor-pointer disabled:opacity-35"
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-white/10 hover:border-orange-burnt hover:bg-orange-burnt/10 text-white/50 hover:text-white transition-all cursor-pointer disabled:opacity-35"
                       >
                         <Mail className="w-4 h-4" />
                       </button>
@@ -452,7 +452,7 @@ export const AdminPayments: React.FC = () => {
                         <button
                           onClick={() => handleDeletePayment(payment.id)}
                           title="Delete Permanently"
-                          className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-red-500/10 hover:border-red-500 hover:bg-red-500/5 text-red-500/50 hover:text-red-500 transition-all cursor-pointer"
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-red-500/20 hover:border-red-500 hover:bg-red-500/10 text-red-400 hover:text-red-500 transition-all cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -468,59 +468,54 @@ export const AdminPayments: React.FC = () => {
 
       {/* View Full details Modal panel */}
       {selectedPayment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none">
-          {/* Backdrop Overlay */}
-          <div 
-            onClick={() => setSelectedPayment(null)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
-          />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md select-none">
 
           {/* Modal Container */}
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6 sm:p-8 relative border border-navy-dark/10 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="font-display font-extrabold text-lg text-navy-dark border-b border-navy-dark/10 pb-3 mb-5 uppercase tracking-wide flex items-center space-x-2">
+          <div className="bg-[#0D1B3E] rounded-2xl max-w-md w-full shadow-2xl p-6 sm:p-8 relative border border-white/10 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200 text-white">
+            <h3 className="font-display font-extrabold text-lg text-white border-b border-white/10 pb-3 mb-5 uppercase tracking-wide flex items-center space-x-2">
               <CreditCard className="w-5 h-5 text-orange-burnt" />
               <span>Full Transaction Details</span>
             </h3>
 
-            <div className="space-y-4 text-sm text-navy-dark">
+            <div className="space-y-4 text-sm text-white/80">
               <div>
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">Student Name</span>
-                <span className="font-semibold text-navy-dark text-base">{selectedPayment.student_name}</span>
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Student Name</span>
+                <span className="font-semibold text-white text-base">{selectedPayment.student_name}</span>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">Email</span>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Email</span>
                   <span className="font-semibold break-all text-xs">{selectedPayment.student_email}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">WhatsApp Phone</span>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">WhatsApp Phone</span>
                   <span className="font-semibold text-xs">{selectedPayment.student_phone || '—'}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">Year / branch</span>
-                  <span className="px-2.5 py-0.5 inline-block rounded-full bg-blue-50 text-blue-600 border border-blue-200 text-[10px] font-bold mt-1">
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Year / branch</span>
+                  <span className="px-2.5 py-0.5 inline-block rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold mt-1">
                     {selectedPayment.student_year}
                   </span>
                 </div>
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">Status</span>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Status</span>
                   <div className="mt-1">
                     {selectedPayment.status === 'completed' && (
-                      <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold">
+                      <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
                         <span>✅ Completed</span>
                       </span>
                     )}
                     {selectedPayment.status === 'pending' && (
-                      <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 text-[10px] font-bold">
+                      <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold">
                         <span>⏳ Pending</span>
                       </span>
                     )}
                     {selectedPayment.status === 'failed' && (
-                      <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold">
+                      <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] font-bold">
                         <span>❌ Failed</span>
                       </span>
                     )}
@@ -530,28 +525,28 @@ export const AdminPayments: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">Purpose</span>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Purpose</span>
                   <span className="font-bold text-xs">{selectedPayment.purpose}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">Amount Paid</span>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Amount Paid</span>
                   <span className="font-extrabold text-orange-burnt text-base">₹{selectedPayment.amount}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">Payment ID</span>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Payment ID</span>
                   <span className="font-mono text-xs font-semibold">{selectedPayment.payment_id || '—'}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">Receipt Sent</span>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Receipt Sent</span>
                   <span className="font-semibold text-xs">{selectedPayment.receipt_sent ? '📧 Resent Successfully' : '❌ Not Sent'}</span>
                 </div>
 
                 {selectedPayment.receipt_url && (
                   <div>
-                    <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">Receipt PDF</span>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Receipt PDF</span>
                     <a
                       href={selectedPayment.receipt_url}
                       target="_blank"
@@ -566,7 +561,7 @@ export const AdminPayments: React.FC = () => {
               </div>
 
               <div>
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-navy-dark/45 mb-0.5">Created Date & Time</span>
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-0.5">Created Date & Time</span>
                 <span className="font-semibold text-xs">
                   {new Date(selectedPayment.created_at).toLocaleString('en-IN', {
                     day: '2-digit',
@@ -581,7 +576,7 @@ export const AdminPayments: React.FC = () => {
 
             <button
               onClick={() => setSelectedPayment(null)}
-              className="mt-6 w-full py-2.5 rounded-xl border border-navy-dark/15 hover:bg-navy-dark hover:text-white text-navy-dark font-display text-xs font-bold transition-all uppercase tracking-widest cursor-pointer"
+              className="mt-6 w-full py-2.5 rounded-xl border border-white/10 hover:bg-white/5 text-white/60 font-display text-xs font-bold transition-all uppercase tracking-widest cursor-pointer"
             >
               Close details
             </button>
