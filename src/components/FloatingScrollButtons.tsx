@@ -39,17 +39,28 @@ export const FloatingScrollButtons: React.FC = () => {
     
     const amount = 350; // pixels to scroll per click
     
+    // Fallback for Admin Portal since it uses a <main> container instead of the document body
+    if (target === document.documentElement || target === document.body) {
+      const adminMain = document.getElementById('admin-main-scroll');
+      if (adminMain && adminMain.scrollHeight > adminMain.clientHeight) {
+        target = adminMain;
+      }
+    }
+    
     if (target === document.documentElement || target === document.body) {
       window.scrollBy({ top: direction === 'up' ? -amount : amount, behavior: 'smooth' });
     } else {
       const style = window.getComputedStyle(target);
-      const isScrollableY = (style.overflowY === 'auto' || style.overflowY === 'scroll') && target.scrollHeight > target.clientHeight;
+      const isScrollableY = (style.overflowY === 'auto' || style.overflowY === 'scroll') && Math.ceil(target.scrollHeight) > target.clientHeight;
+      const isScrollableX = (style.overflowX === 'auto' || style.overflowX === 'scroll') && Math.ceil(target.scrollWidth) > target.clientWidth;
       
       if (isScrollableY) {
         target.scrollBy({ top: direction === 'up' ? -amount : amount, behavior: 'smooth' });
-      } else {
-        // If it's only horizontally scrollable, up=left, down=right
+      } else if (isScrollableX) {
         target.scrollBy({ left: direction === 'up' ? -amount : amount, behavior: 'smooth' });
+      } else {
+        // Ultimate fallback if strict checks fail but we know it's a target
+        target.scrollBy({ top: direction === 'up' ? -amount : amount, behavior: 'smooth' });
       }
     }
   };

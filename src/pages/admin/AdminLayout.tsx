@@ -112,7 +112,7 @@ export const AdminLayout: React.FC = () => {
           />
 
           {/* Scrollable Contents Pane */}
-          <main className="flex-grow overflow-y-auto p-6 md:p-8">
+          <main id="admin-main-scroll" className="flex-grow overflow-y-auto p-6 md:p-8 custom-scrollbar">
             <Outlet context={{ refreshBadge: fetchPendingQuestions }} />
           </main>
 
