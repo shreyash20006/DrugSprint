@@ -72,9 +72,11 @@ export const Home: React.FC = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
   const [trendingNotices, setTrendingNotices] = useState<any[]>([]);
   
-  // Real-time counter metrics
-  const [noticesCount, setNoticesCount] = useState<number>(14);
-  const [eventsCount, setEventsCount] = useState<number>(9);
+  // Real-time counter metrics (all from Supabase)
+  const [noticesCount, setNoticesCount] = useState<number>(0);
+  const [eventsCount, setEventsCount] = useState<number>(0);
+  const [studentsCount, setStudentsCount] = useState<number>(0);
+  const [membersCount, setMembersCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchPollData = async () => {
@@ -129,6 +131,14 @@ export const Home: React.FC = () => {
 
         const { count: eVal } = await supabase.from('events').select('*', { count: 'exact', head: true });
         if (eVal !== null) setEventsCount(eVal);
+
+        // Real student count from student_verifications table
+        const { count: sVal } = await supabase.from('student_verifications').select('*', { count: 'exact', head: true });
+        if (sVal !== null) setStudentsCount(sVal);
+
+        // Real active council members count
+        const { count: mVal } = await supabase.from('council_members').select('*', { count: 'exact', head: true });
+        if (mVal !== null) setMembersCount(mVal);
 
         // Fetch Trending Notices safely (fallback if views column not yet created)
         try {
@@ -326,9 +336,9 @@ export const Home: React.FC = () => {
           <motion.div variants={fadeUpVariants} className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6 w-full">
             {[
               {
-                value: 500,
+                value: studentsCount,
                 label: 'Total Students',
-                desc: 'Aspiring pharmacists representing unified student leadership at Nagpur.',
+                desc: 'Verified student records representing unified student leadership at Nagpur.',
                 icon: <Users className="w-5 h-5 text-white" />,
                 suffix: '+'
               },
@@ -347,7 +357,7 @@ export const Home: React.FC = () => {
                 suffix: ''
               },
               {
-                value: 13,
+                value: membersCount,
                 label: 'Active Members',
                 desc: 'Elected council executives representing semesters and student welfare.',
                 icon: <Award className="w-5 h-5 text-white" />,
