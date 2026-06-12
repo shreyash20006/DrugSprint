@@ -15,9 +15,10 @@ export const AdminStudentVerification: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
+      // Fetch verifications and optionally join with profiles to get the email if a user is linked
       const { data, error } = await supabase
         .from('student_verifications')
-        .select('*')
+        .select('*, profiles:user_id(email)')
         .order('created_at', { ascending: false });
         
       if (error) throw error;
@@ -40,8 +41,26 @@ export const AdminStudentVerification: React.FC = () => {
 
   const filteredRecords = records.filter(r => 
     r.prn.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    r.student_name.toLowerCase().includes(searchTerm.toLowerCase())
+    r.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (r.profiles?.email && r.profiles.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const handleRevoke = async (id: string) => {
+    if (!window.confirm("Are you sure you want to revoke this PRN? It will be unlinked from the student's account and reset to pending.")) return;
+    try {
+      const { error } = await supabase.from('student_verifications').update({
+        user_id: null,
+        verification_status: 'pending'
+      }).eq('id', id);
+      
+      if (error) throw error;
+      // Refresh the list locally
+      fetchData();
+    } catch (e: any) {
+      console.error(e);
+      alert('Error revoking PRN: ' + e.message);
+    }
+  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -218,8 +237,10 @@ export const AdminStudentVerification: React.FC = () => {
                       <tr className="text-[10px] font-bold uppercase tracking-wider text-white/40">
                         <th className="p-3 border-b border-white/5">PRN</th>
                         <th className="p-3 border-b border-white/5">Student Name</th>
+                        <th className="p-3 border-b border-white/5">Linked Email</th>
                         <th className="p-3 border-b border-white/5">Sem</th>
-                        <th className="p-3 border-b border-white/5 text-right">Status</th>
+                        <th className="p-3 border-b border-white/5">Status</th>
+                        <th className="p-3 border-b border-white/5 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
@@ -231,10 +252,13 @@ export const AdminStudentVerification: React.FC = () => {
                           <td className="p-3 text-xs text-white font-medium">
                             {record.student_name}
                           </td>
+                          <td className="p-3 text-xs text-white/70">
+                            {record.profiles?.email ? record.profiles.email : <span className="text-white/30 italic">Unlinked</span>}
+                          </td>
                           <td className="p-3 text-[10px] text-white/50">
                             {record.semester || 'N/A'}
                           </td>
-                          <td className="p-3 text-right">
+                          <td className="p-3">
                             <span className={`inline-block text-[9px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded border ${
                               record.verification_status === 'verified' 
                                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
@@ -244,6 +268,17 @@ export const AdminStudentVerification: React.FC = () => {
                             }`}>
                               {record.verification_status}
                             </span>
+                          </td>
+                          <td className="p-3 text-right">
+                            {record.verification_status === 'verified' && (
+                              <button 
+                                onClick={() => handleRevoke(record.id)}
+                                title="Revoke PRN and Unlink"
+                                className="p-1.5 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded border border-red-500/20 transition-colors"
+                              >
+                                <XCircle className="w-4 h-4" />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
