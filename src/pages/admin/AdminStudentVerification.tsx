@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BadgeCheck, Users, Upload, Search, Clock, XCircle, FileSpreadsheet, Loader2, Plus } from 'lucide-react';
+import { BadgeCheck, Users, Search, Clock, XCircle, Loader2, Plus } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export const AdminStudentVerification: React.FC = () => {
