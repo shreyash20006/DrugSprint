@@ -73,6 +73,35 @@ export const AdminLayout: React.FC = () => {
     return () => clearInterval(timer);
   }, [location.pathname]);
 
+  // Phone auto-logout: 60s screen off / tab switch
+  useEffect(() => {
+    const isPhone = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isPhone) return;
+
+    let logoutTimer: any = null;
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'hidden') {
+        // Switch tab or turn off screen: start 60s countdown
+        logoutTimer = setTimeout(async () => {
+          await supabase.auth.signOut();
+        }, 60000);
+      } else {
+        // User came back before 60s: clear timer
+        if (logoutTimer) {
+          clearTimeout(logoutTimer);
+          logoutTimer = null;
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (logoutTimer) clearTimeout(logoutTimer);
+    };
+  }, []);
+
   const pageTitle = getPageTitle(location.pathname);
 
   return (
