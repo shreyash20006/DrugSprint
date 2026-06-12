@@ -181,80 +181,10 @@ export const AdminStudentVerification: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Data Management */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-[#0A1428] border border-white/10 rounded-3xl p-6 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-burnt/5 rounded-full blur-[40px] pointer-events-none" />
-            
-            <h3 className="font-display font-bold text-white mb-4 flex items-center">
-              <Upload className="w-4 h-4 mr-2 text-orange-burnt" /> Database Import
-            </h3>
-
-            <div className="space-y-4">
-              <button className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-emerald-500/10 rounded-lg">
-                    <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-bold text-white">Import CSV File</p>
-                    <p className="text-[10px] text-white/40">Upload official database</p>
-                  </div>
-                </div>
-                <Upload className="w-4 h-4 text-white/50" />
-              </button>
-
-              <button className="w-full flex items-center justify-between p-4 rounded-xl bg-orange-burnt/10 border border-orange-burnt/20 hover:bg-orange-burnt/20 transition-all">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-orange-burnt/20 rounded-lg">
-                    <BadgeCheck className="w-5 h-5 text-orange-burnt" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-bold text-orange-400">Run Auto-Verify</p>
-                    <p className="text-[10px] text-orange-400/50">Match unverified users</p>
-                  </div>
-                </div>
-              </button>
-
-              <div className="p-3 bg-emerald-500/10 rounded-xl border border-dashed border-emerald-500/20 text-center">
-                <p className="text-[10px] text-emerald-400 leading-relaxed font-bold">
-                  Official records received. Phase 3 Verification is currently active.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Verification Roadmap */}
-          <div className="bg-[#0A1428] border border-white/10 rounded-3xl p-6 shadow-xl relative overflow-hidden">
-            <h3 className="font-display font-bold text-white mb-4 flex items-center">
-              <Clock className="w-4 h-4 mr-2 text-orange-burnt" /> Verification Roadmap
-            </h3>
-
-            <div className="space-y-4 text-xs font-sans">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                <span className="text-emerald-400 font-bold">Phase 1: Foundation</span>
-                <span className="text-emerald-400">✅</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                <span className="text-emerald-400 font-bold">Phase 2: Database Upload</span>
-                <span className="text-emerald-400">✅</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                <span className="text-amber-400 font-bold">Phase 3: Automatic Verification</span>
-                <span className="text-amber-500 animate-pulse">⏳</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
-                <span className="text-white/70 font-medium">Phase 4: Verified Student Features</span>
-                <span className="text-amber-500/50">⏳</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Search & Records */}
-        <div className="lg:col-span-2">
-          <div className="bg-[#0A1428] border border-white/10 rounded-3xl p-6 shadow-xl h-full flex flex-col">
+      <div className="grid grid-cols-1 gap-6">
+        {/* Full Column: Search & Records */}
+        <div className="col-span-1">
+          <div className="bg-[#0A1428] border border-white/10 rounded-3xl p-6 shadow-xl h-full flex flex-col min-h-[500px]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <h3 className="font-display font-bold text-white flex items-center">
                 <Users className="w-4 h-4 mr-2 text-orange-burnt" /> Verification Records
