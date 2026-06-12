@@ -61,49 +61,41 @@ interface AttachedFile {
 
 const performWebSearch = async (query: string): Promise<string> => {
   try {
-    const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-    
-    const res = await fetch(proxyUrl);
-    if (!res.ok) throw new Error("Search proxy failed");
-    
-    const data = await res.json();
-    const htmlContent = data.contents;
-    
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlContent, 'text/html');
-    const results: string[] = [];
-    
-    const resultDivs = doc.querySelectorAll('.result');
-    const limit = Math.min(resultDivs.length, 5); // get top 5 results
-    
-    for (let i = 0; i < limit; i++) {
-      const div = resultDivs[i];
-      const titleEl = div.querySelector('.result__title a');
-      const snippetEl = div.querySelector('.result__snippet');
-      if (titleEl && snippetEl) {
-        const title = titleEl.textContent?.trim() || '';
-        let link = titleEl.getAttribute('href') || '';
-        
-        // Decode DDG redirect URL if needed (e.g. //duckduckgo.com/l/?uddg=URL)
-        if (link.includes('uddg=')) {
-          const parts = link.split('uddg=');
-          if (parts[1]) {
-            link = decodeURIComponent(parts[1].split('&')[0]);
-          }
-        }
-        if (link.startsWith('//')) link = 'https:' + link;
-        const snippet = snippetEl.textContent?.trim() || '';
-        results.push(`- **[${title}](${link})**: ${snippet}`);
+    // 1. Try our Vercel Serverless Function
+    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        return data.results.map((r: any) => `- **[${r.title}](${r.url})**: ${r.snippet}`).join('\n\n');
       }
     }
-    
-    if (results.length === 0) return "No results found.";
-    return results.join('\n\n');
   } catch (err) {
-    console.error("Search error:", err);
-    return "Search failed.";
+    console.warn("Backend search failed or local dev 404. Falling back to direct client-side search.", err);
   }
+
+  // 2. Client-side fallback: Direct Wikipedia search (CORS-friendly, never blocked)
+  try {
+    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=5&namespace=0&format=json&origin=*`;
+    const res = await fetch(wikiUrl);
+    if (res.ok) {
+      const data = await res.json();
+      // wikiData structure: [query, titles, descriptions, links]
+      if (data && data[1] && data[1].length > 0) {
+        const titles = data[1];
+        const snippets = data[2] || [];
+        const urls = data[3] || [];
+        
+        const results = titles.map((title: string, i: number) => {
+          return `- **[${title}](${urls[i]})**: ${snippets[i] || 'No description available.'}`;
+        });
+        return results.join('\n\n');
+      }
+    }
+  } catch (wikiErr) {
+    console.error("Client-side Wikipedia search failed:", wikiErr);
+  }
+
+  return "No search results found.";
 };
 
 interface ChatMessage {
