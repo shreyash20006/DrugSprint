@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Sparkles, Loader2, Bot, FileUp, FileText, Globe, Maximize2, Minimize2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import * as pdfjsLib from 'pdfjs-dist';
 import { bPharmSyllabus } from '../data/syllabus';
 import { examsData } from '../data/exams';
@@ -60,8 +61,10 @@ interface AttachedFile {
 }
 
 const performWebSearch = async (query: string): Promise<string> => {
+  const allResults: string[] = [];
+
+  // 1. Try our Vercel Serverless Function (production)
   try {
-    // 1. Try our Vercel Serverless Function
     const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
     if (res.ok) {
       const data = await res.json();
@@ -73,26 +76,48 @@ const performWebSearch = async (query: string): Promise<string> => {
     console.warn("Backend search failed or local dev 404. Falling back to direct client-side search.", err);
   }
 
-  // 2. Client-side fallback: Direct Wikipedia search (CORS-friendly, never blocked)
+  // 2. DuckDuckGo Instant Answer API (CORS-friendly, no API key needed)
   try {
-    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=5&namespace=0&format=json&origin=*`;
+    const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+    const ddgRes = await fetch(ddgUrl);
+    if (ddgRes.ok) {
+      const ddgData = await ddgRes.json();
+      if (ddgData.AbstractText) {
+        allResults.push(`- **[${ddgData.Heading || query}](${ddgData.AbstractURL || '#'})**: ${ddgData.AbstractText}`);
+      }
+      if (ddgData.RelatedTopics && ddgData.RelatedTopics.length > 0) {
+        ddgData.RelatedTopics.slice(0, 3).forEach((topic: any) => {
+          if (topic.Text && topic.FirstURL) {
+            allResults.push(`- **[${topic.Text.split(' - ')[0] || 'Related'}](${topic.FirstURL})**: ${topic.Text}`);
+          }
+        });
+      }
+    }
+  } catch (ddgErr) {
+    console.warn("DuckDuckGo Instant Answer failed:", ddgErr);
+  }
+
+  // 3. Wikipedia OpenSearch (CORS-friendly, never blocked)
+  try {
+    const wikiUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=4&namespace=0&format=json&origin=*`;
     const res = await fetch(wikiUrl);
     if (res.ok) {
       const data = await res.json();
-      // wikiData structure: [query, titles, descriptions, links]
       if (data && data[1] && data[1].length > 0) {
         const titles = data[1];
         const snippets = data[2] || [];
         const urls = data[3] || [];
-        
-        const results = titles.map((title: string, i: number) => {
-          return `- **[${title}](${urls[i]})**: ${snippets[i] || 'No description available.'}`;
+        titles.forEach((title: string, i: number) => {
+          allResults.push(`- **[${title}](${urls[i]})**: ${snippets[i] || 'No description available.'}`);
         });
-        return results.join('\n\n');
       }
     }
   } catch (wikiErr) {
     console.error("Client-side Wikipedia search failed:", wikiErr);
+  }
+
+  if (allResults.length > 0) {
+    return allResults.join('\n\n');
   }
 
   return "No search results found.";
@@ -396,7 +421,7 @@ When providing links, use markdown format like this: [Click here for Notices](/n
           model: modelToUse,
           messages: apiMessages,
           temperature: 0.5,
-          max_tokens: 250
+          max_tokens: 1024
         })
       });
 
@@ -634,6 +659,7 @@ When providing links, use markdown format like this: [Click here for Notices](/n
                     )}
                     {msg.role === 'assistant' ? (
                       <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
                         components={{
                           a: ({ node, ...props }) => {
                             if (props.href?.startsWith('/')) {
