@@ -108,6 +108,34 @@ interface ChatMessage {
   };
 }
 
+const CodeBlock: React.FC<{ language: string; value: string }> = ({ language, value }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="my-3 rounded-xl overflow-hidden border border-navy-dark/10 bg-[#0d1b3e] text-white shadow-lg font-mono text-xs max-w-full">
+      <div className="flex justify-between items-center bg-[#152852] px-4 py-2 text-[11px] text-white/60 border-b border-white/5 font-sans">
+        <span className="font-bold uppercase tracking-wider">{language || 'code'}</span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="px-2.5 py-1 rounded-md bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all font-medium cursor-pointer"
+        >
+          {copied ? "Copied!" : "Copy"}
+        </button>
+      </div>
+      <pre className="p-4 overflow-x-auto leading-relaxed text-left">
+        <code className="block select-text whitespace-pre">{value}</code>
+      </pre>
+    </div>
+  );
+};
+
 export const AIChatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -176,6 +204,56 @@ export const AIChatbot: React.FC = () => {
       const mistralKey = import.meta.env.VITE_MISTRAL_API_KEY;
       
       if (!groqKey && !mistralKey) {
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          console.warn("AI keys are missing. Using mock response for local UI testing.");
+          
+          let mockReply = `### 🩺 Study Assistant (Local Test Mode)
+
+Here is a mock response demonstrating the new **premium formatted Markdown** rendering:
+
+#### 1. Labeled Organ Diagram
+\`\`\`text
+                 [ KIDNEY ANATOMY ]
+             
+         +-------------------------------+  <- Renal Capsule
+         |   =========================   |  
+         |  /  _____________________  \\  |  <- Renal Cortex
+         | /  /   _     _     _     \\  \\ |  
+         | | |   (_)   (_)   (_)     | | |  <- Renal Pyramids (Medulla)
+         | | |    \\     /     /      | | |  
+         | \\ \\     \\___/_____/       / / |  <- Renal Pelvis
+         |  \\ \\_______||____________/ /  |  
+         +------------||-----------------+  
+                      ||                    <- Ureter (To Bladder)
+                      v
+\`\`\`
+
+#### 2. Key Structures & Functions
+- **Renal Cortex**: The outer zone of the kidney containing the nephrons.
+- **Medulla**: Contains renal pyramids regulating water and salt balance.
+- **Renal Pelvis**: Funnel-like dilated proximal part of the ureter.
+
+#### 3. Functional Matrix
+
+| Region | Primary Function | Clinical Relevance |
+|:---|:---|:---|
+| **Cortex** | Ultrafiltration | Glomerulonephritis |
+| **Medulla** | Urine concentration | Acute tubular necrosis |
+| **Pelvis** | Urine collection | Kidney stones (Calculi) |
+
+> 💡 **Tip:** Add \`VITE_MISTRAL_API_KEY\` to your \`.env.local\` to activate the live LLM assistant!`;
+
+          if (shouldSearch && searchResults) {
+            mockReply += `\n\n**Web Search Results (Wikipedia Fallback):**\n${searchResults}`;
+          }
+
+          setTimeout(() => {
+            setMessages(prev => [...prev, { role: 'assistant', content: mockReply }]);
+            setIsTyping(false);
+          }, 1000);
+          return;
+        }
+        
         throw new Error("AI is not configured. Missing API Key (Groq or Mistral).");
       }
 
@@ -562,7 +640,58 @@ When providing links, use markdown format like this: [Click here for Notices](/n
                               return <Link to={props.href} className="text-[#E06D2B] font-bold hover:underline" onClick={() => setIsOpen(false)}>{props.children}</Link>;
                             }
                             return <a {...props} className="text-[#E06D2B] font-bold hover:underline" target="_blank" rel="noopener noreferrer">{props.children}</a>;
-                          }
+                          },
+                          code: ({ node, className, children, ...props }) => {
+                            const match = /language-(\w+)/.exec(className || '');
+                            const isInline = !className;
+                            const codeString = String(children).replace(/\n$/, '');
+                            if (!isInline) {
+                              return <CodeBlock language={match ? match[1] : 'text'} value={codeString} />;
+                            }
+                            return (
+                              <code className="bg-[#374151] text-[#93c5fd] px-1.5 py-0.5 rounded font-mono text-xs font-semibold" {...props}>
+                                {children}
+                              </code>
+                            );
+                          },
+                          table: ({ node, ...props }) => (
+                            <div className="overflow-x-auto my-3 rounded-xl border border-navy-dark/10 shadow-sm max-w-full">
+                              <table className="min-w-full divide-y divide-navy-dark/10 text-left text-xs" {...props} />
+                            </div>
+                          ),
+                          thead: ({ node, ...props }) => (
+                            <thead className="bg-gray-50 font-bold text-navy-dark uppercase tracking-wider" {...props} />
+                          ),
+                          th: ({ node, ...props }) => (
+                            <th className="px-4 py-2.5 font-bold border-b border-navy-dark/10" {...props} />
+                          ),
+                          td: ({ node, ...props }) => (
+                            <td className="px-4 py-2 border-b border-navy-dark/5 text-navy-dark/80" {...props} />
+                          ),
+                          blockquote: ({ node, ...props }) => (
+                            <blockquote className="border-l-4 border-teal-600 pl-4 italic text-navy-dark/70 my-3 bg-teal-50/20 py-2 pr-3 rounded-r-lg" {...props} />
+                          ),
+                          ul: ({ node, ...props }) => (
+                            <ul className="list-disc pl-5 my-2 space-y-1 text-navy-dark/95" {...props} />
+                          ),
+                          ol: ({ node, ...props }) => (
+                            <ol className="list-decimal pl-5 my-2 space-y-1 text-navy-dark/95" {...props} />
+                          ),
+                          li: ({ node, ...props }) => (
+                            <li className="pl-1" {...props} />
+                          ),
+                          h1: ({ node, ...props }) => (
+                            <h1 className="text-lg font-bold text-navy-dark mt-4 mb-2 first:mt-0" {...props} />
+                          ),
+                          h2: ({ node, ...props }) => (
+                            <h2 className="text-base font-bold text-navy-dark mt-3 mb-1.5 first:mt-0" {...props} />
+                          ),
+                          h3: ({ node, ...props }) => (
+                            <h3 className="text-sm font-bold text-navy-dark mt-2 mb-1 first:mt-0" {...props} />
+                          ),
+                          p: ({ node, ...props }) => (
+                            <p className="my-1.5 leading-relaxed text-navy-dark/90" {...props} />
+                          )
                         }}
                       >
                         {msg.content}
