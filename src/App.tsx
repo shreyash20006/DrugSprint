@@ -142,7 +142,7 @@ const AppContent: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-gray-light font-sans text-navy-dark antialiased">
       {!isAdminRoute && <Navbar />}
       {!isAdminRoute && <ScrollProgressBar />}
-      <FloatingScrollButtons />
+      {isAdminRoute && <FloatingScrollButtons />}
 
       <main className="flex-grow">
         <Suspense fallback={
