@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, Search, Bell } from 'lucide-react';
 import { useAuth } from '../../lib/AuthProvider';
 
 interface AdminHeaderProps {
@@ -22,22 +22,41 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ title, onMenuClick }) 
 
   return (
     <header className="bg-[#0A1428]/60 backdrop-blur-md border border-white/10 h-[72px] px-6 mx-4 md:mx-8 mt-4 md:mt-8 rounded-2xl flex items-center justify-between shrink-0 shadow-[0_8px_30px_rgba(0,0,0,0.4)] z-20">
-      {/* Left side: Hamburger (Mobile) + Title */}
-      <div className="flex items-center space-x-4">
-        <button
-          onClick={onMenuClick}
-          className="md:hidden p-2 rounded-xl text-white hover:bg-white/10 transition-colors focus:outline-none backdrop-blur-sm border border-white/5"
-          aria-label="Open sidebar"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-        <h1 className="font-display font-extrabold text-lg md:text-xl text-white tracking-tight uppercase drop-shadow-md">
-          {title}
-        </h1>
+      {/* Left side: Hamburger (Mobile) + Title & Search */}
+      <div className="flex items-center space-x-6 flex-1">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={onMenuClick}
+            className="md:hidden p-2 rounded-xl text-white hover:bg-white/10 transition-colors focus:outline-none backdrop-blur-sm border border-white/5"
+            aria-label="Open sidebar"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <h1 className="font-display font-extrabold text-lg md:text-xl text-white tracking-tight uppercase drop-shadow-md hidden sm:block">
+            {title}
+          </h1>
+        </div>
+
+        {/* Global Search Bar */}
+        <div className="hidden md:flex relative max-w-md w-full group">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-white/40 group-focus-within:text-orange-burnt transition-colors duration-300" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search across portal..."
+            className="block w-full pl-10 pr-3 py-2 border border-white/10 rounded-xl leading-5 bg-white/5 text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-orange-burnt/50 focus:border-orange-burnt/50 focus:bg-white/10 transition-all duration-300 sm:text-sm shadow-inner"
+          />
+        </div>
       </div>
 
       {/* Right side: Admin Email + Avatar Monogram + Role Badge */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-4 shrink-0">
+        <button className="p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all focus:outline-none relative group border border-transparent hover:border-white/10">
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-burnt rounded-full border border-[#0A1428] animate-pulse"></span>
+        </button>
+        <div className="h-8 w-px bg-white/10 hidden sm:block"></div>
         <div className="hidden sm:flex flex-col text-right">
           <div className="flex items-center justify-end space-x-2">
             <span className="text-[9px] font-bold text-white/40 uppercase tracking-wider">

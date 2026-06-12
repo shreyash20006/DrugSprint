@@ -158,8 +158,8 @@ export const EventModal: React.FC<EventModalProps> = ({
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Name */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70 mb-1.5">
+        <div className="space-y-1.5">
+          <label className="block text-[11px] font-bold text-white/60 uppercase tracking-widest ml-1">
             Event / Competition Name *
           </label>
           <input
@@ -168,67 +168,67 @@ export const EventModal: React.FC<EventModalProps> = ({
             placeholder="e.g. Pharma Quiz 2026"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-sm bg-white transition-colors"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 transition-all placeholder:text-white/20 shadow-inner"
           />
         </div>
 
-        {/* Type Toggle (Radio buttons as requested: ○ Event  ● Competition) */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70 mb-2.5">
+        {/* Type Toggle */}
+        <div className="space-y-2">
+          <label className="block text-[11px] font-bold text-white/60 uppercase tracking-widest ml-1">
             Type *
           </label>
           <div className="flex space-x-6">
-            <label className="flex items-center space-x-2.5 cursor-pointer select-none">
+            <label className="flex items-center space-x-2.5 cursor-pointer select-none group">
               <input
                 type="radio"
                 name="type"
                 value="event"
                 checked={formData.type === 'event'}
                 onChange={() => setFormData({ ...formData, type: 'event' })}
-                className="w-4 h-4 text-orange-burnt focus:ring-orange-burnt border-navy-dark/20 cursor-pointer"
+                className="w-4 h-4 text-orange-burnt focus:ring-orange-burnt/50 border-white/20 bg-white/5 cursor-pointer"
               />
-              <span className="text-sm font-semibold text-navy-dark">Timeline Event</span>
+              <span className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">Timeline Event</span>
             </label>
-            <label className="flex items-center space-x-2.5 cursor-pointer select-none">
+            <label className="flex items-center space-x-2.5 cursor-pointer select-none group">
               <input
                 type="radio"
                 name="type"
                 value="competition"
                 checked={formData.type === 'competition'}
                 onChange={() => setFormData({ ...formData, type: 'competition' })}
-                className="w-4 h-4 text-orange-burnt focus:ring-orange-burnt border-navy-dark/20 cursor-pointer"
+                className="w-4 h-4 text-orange-burnt focus:ring-orange-burnt/50 border-white/20 bg-white/5 cursor-pointer"
               />
-              <span className="text-sm font-semibold text-navy-dark">Student Competition</span>
+              <span className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">Student Competition</span>
             </label>
           </div>
         </div>
 
         {/* Active Toggle */}
         <div>
-          <label className="flex items-center space-x-3 cursor-pointer py-1 select-none">
+          <label className="flex items-center space-x-3 cursor-pointer py-1 select-none group">
             <input
               type="checkbox"
               checked={formData.is_active}
               onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-              className="rounded border-navy-dark/15 text-orange-burnt focus:ring-orange-burnt w-4 h-4 cursor-pointer"
+              className="rounded border-white/20 bg-white/5 text-orange-burnt focus:ring-orange-burnt/50 w-4 h-4 cursor-pointer"
             />
-            <span className="text-xs font-bold uppercase tracking-wider text-navy-dark/70">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-400/80 group-hover:text-emerald-400 transition-colors">
               Mark as Active ✅
             </span>
           </label>
         </div>
 
         {/* Description */}
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="block text-[11px] font-bold text-white/60 uppercase tracking-widest ml-1">
               Description *
             </label>
             <button
               type="button"
               onClick={handleGenerateDescription}
               disabled={isGenerating}
-              className="flex items-center space-x-1 px-2.5 py-1 rounded-md bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 border border-purple-500/20 transition-all text-[10px] font-bold uppercase tracking-wider disabled:opacity-50"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-orange-burnt/10 hover:bg-orange-burnt/20 text-orange-400 border border-orange-burnt/20 transition-all text-[10px] font-bold uppercase tracking-wider disabled:opacity-50"
             >
               {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
               <span>{isGenerating ? 'Generating...' : 'AI Enhance'}</span>
@@ -240,13 +240,13 @@ export const EventModal: React.FC<EventModalProps> = ({
             placeholder="Provide comprehensive details about the occurrence..."
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-sm bg-white transition-colors resize-none font-sans"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 transition-all placeholder:text-white/20 shadow-inner resize-none custom-scrollbar"
           />
         </div>
 
         {/* Target Deadline */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70 mb-1.5">
+        <div className="space-y-1.5">
+          <label className="block text-[11px] font-bold text-white/60 uppercase tracking-widest ml-1">
             Target Deadline / Date {formData.type === 'competition' ? '*' : '(Optional)'}
           </label>
           <input
@@ -254,13 +254,13 @@ export const EventModal: React.FC<EventModalProps> = ({
             required={formData.type === 'competition'}
             value={formData.deadline}
             onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-sm bg-white transition-colors"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 transition-all shadow-inner [color-scheme:dark]"
           />
         </div>
 
         {/* Prize Info */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70 mb-1.5">
+        <div className="space-y-1.5">
+          <label className="block text-[11px] font-bold text-white/60 uppercase tracking-widest ml-1">
             Prize / Participation Info (Optional)
           </label>
           <input
@@ -268,13 +268,13 @@ export const EventModal: React.FC<EventModalProps> = ({
             placeholder="e.g. Cash prizes up to ₹5,000 + trophies"
             value={formData.prize_info}
             onChange={(e) => setFormData({ ...formData, prize_info: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-sm bg-white transition-colors"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 transition-all placeholder:text-white/20 shadow-inner"
           />
         </div>
 
         {/* Google Form Link */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-navy-dark/70 mb-1.5">
+        <div className="space-y-1.5">
+          <label className="block text-[11px] font-bold text-white/60 uppercase tracking-widest ml-1">
             Google Form Link (Optional)
           </label>
           <input
@@ -282,27 +282,27 @@ export const EventModal: React.FC<EventModalProps> = ({
             placeholder="e.g. https://forms.gle/XYZ"
             value={formData.google_form_link}
             onChange={(e) => setFormData({ ...formData, google_form_link: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border border-navy-dark/15 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt outline-none text-sm bg-white transition-colors"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white focus:outline-none focus:border-orange-burnt/50 focus:ring-1 focus:ring-orange-burnt/50 transition-all placeholder:text-white/20 shadow-inner"
           />
         </div>
 
         {/* Action Buttons panel */}
-        <div className="flex space-x-3 pt-3 border-t border-navy-dark/10">
+        <div className="flex space-x-3 pt-6 border-t border-white/10">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 border border-navy-dark/15 hover:bg-navy-dark/5 text-navy-dark font-display text-sm font-semibold rounded-lg transition-colors"
+            className="flex-1 px-4 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-all font-bold text-sm"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSaving}
-            className="flex-1 py-2.5 bg-orange-burnt hover:bg-orange-burnt/95 text-white font-display text-sm font-semibold rounded-lg shadow-md transition-all flex items-center justify-center space-x-1.5"
+            className="flex-1 px-4 py-3.5 bg-gradient-to-r from-orange-burnt to-[#FF8C42] hover:from-[#b04a18] hover:to-orange-burnt text-white rounded-xl transition-all font-bold text-sm disabled:opacity-50 flex justify-center items-center shadow-[0_4px_15px_rgba(214,90,30,0.4)]"
           >
             {isSaving ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
                 <span>Saving Event...</span>
               </>
             ) : (
