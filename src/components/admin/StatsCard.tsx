@@ -50,9 +50,9 @@ export const StatsCard: React.FC<StatsCardProps> = ({
   const styles = getColorStyles(trendColor);
 
   return (
-    <div className={`glass-panel glow-card p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group flex items-center justify-between border border-white/5 bg-[#0F1E42]/10`}>
+    <div className={`p-6 rounded-2xl shadow-xl hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all duration-500 relative overflow-hidden group flex items-center justify-between border border-white/10 bg-[#0A1428]/60 backdrop-blur-md hover:-translate-y-1`}>
       {/* Dynamic Glow Corner Blob */}
-      <div className={`absolute top-0 right-0 w-16 h-16 ${styles.bg} rounded-bl-full opacity-20 pointer-events-none group-hover:scale-115 transition-transform duration-500`} />
+      <div className={`absolute -top-10 -right-10 w-32 h-32 ${styles.bg.split(' ')[0]} rounded-full blur-[30px] opacity-30 pointer-events-none group-hover:scale-150 transition-transform duration-700`} />
       
       <div className="space-y-2 z-10">
         <span className="text-[10px] font-bold uppercase tracking-widest text-white/40 block">

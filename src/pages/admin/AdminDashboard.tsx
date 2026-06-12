@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { StatsCard } from '../../components/admin/StatsCard';
 import { 
@@ -84,8 +85,21 @@ export const AdminDashboard: React.FC = () => {
     fetchStatsAndRecent();
   }, []);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-300 relative z-10">
+    <div className="space-y-8 relative z-10">
       
       {isLoading ? (
         <div className="h-96 flex flex-col items-center justify-center text-white/50">
@@ -95,32 +109,48 @@ export const AdminDashboard: React.FC = () => {
       ) : (
         <>
           {/* Stats Cards Grid (4 columns) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatsCard
-              label="Total Questions"
-              value={stats.totalQuestions}
-              icon={<HelpCircle className="w-5 h-5 text-white" />}
-              trendColor="navy"
-            />
-            <StatsCard
-              label="Pending Questions"
-              value={stats.pendingQuestions}
-              icon={<AlertCircle className="w-5 h-5 text-white" />}
-              trendColor="orange"
-            />
-            <StatsCard
-              label="Notices Published"
-              value={stats.noticesCount}
-              icon={<Megaphone className="w-5 h-5 text-white" />}
-              trendColor="amber"
-            />
-            <StatsCard
-              label="Active Events"
-              value={stats.activeEventsCount}
-              icon={<Calendar className="w-5 h-5 text-white" />}
-              trendColor="green"
-            />
-          </div>
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            <motion.div variants={itemVariants}>
+              <StatsCard
+                label="Total Questions"
+                value={stats.totalQuestions}
+                icon={<HelpCircle className="w-5 h-5" />}
+                trendColor="navy"
+              />
+            </motion.div>
+            
+            <motion.div variants={itemVariants}>
+              <StatsCard
+                label="Pending Reply"
+                value={stats.pendingQuestions}
+                icon={<AlertCircle className="w-5 h-5" />}
+                trendColor={stats.pendingQuestions > 0 ? 'orange' : 'green'}
+              />
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <StatsCard
+                label="Verified Students"
+                value={`${stats.verifiedPercentage}%`}
+                icon={<BadgeCheck className="w-5 h-5" />}
+                trendColor="green"
+              />
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <StatsCard
+                label="Active Events"
+                value={stats.activeEventsCount}
+                icon={<Calendar className="w-5 h-5" />}
+                trendColor="amber"
+              />
+            </motion.div>
+          </motion.div>
 
           {/* Bottom Grid: Recent Questions + Quick Actions Panel */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

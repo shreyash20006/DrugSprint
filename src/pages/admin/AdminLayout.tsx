@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AdminSidebar } from '../../components/admin/AdminSidebar';
 import { AdminHeader } from '../../components/admin/AdminHeader';
 import { supabase } from '../../lib/supabase';
@@ -76,10 +77,14 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <ToastProvider>
-      <div className="flex h-screen w-full bg-gray-light overflow-hidden font-sans antialiased">
+      <div className="flex h-screen w-full bg-[#050A15] text-white overflow-hidden font-sans antialiased relative selection:bg-orange-burnt/30 selection:text-white">
         
+        {/* Ambient Background Glows */}
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-orange-burnt/10 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-cyan-900/10 blur-[120px] pointer-events-none" />
+
         {/* 1. SIDEBAR FOR DESKTOP (Width: 240px, visible on md+) */}
-        <div className="hidden md:block h-full shrink-0 z-20 shadow-md">
+        <div className="hidden md:block h-full shrink-0 z-20">
           <AdminSidebar pendingQuestionsCount={pendingCount} />
         </div>
 
@@ -112,8 +117,19 @@ export const AdminLayout: React.FC = () => {
           />
 
           {/* Scrollable Contents Pane */}
-          <main id="admin-main-scroll" className="flex-grow overflow-y-auto p-6 md:p-8 custom-scrollbar">
-            <Outlet context={{ refreshBadge: fetchPendingQuestions }} />
+          <main id="admin-main-scroll" className="flex-grow overflow-y-auto p-6 md:p-8 custom-scrollbar relative z-10">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="h-full"
+              >
+                <Outlet context={{ refreshBadge: fetchPendingQuestions }} />
+              </motion.div>
+            </AnimatePresence>
           </main>
 
         </div>

@@ -204,10 +204,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   }
 
   return (
-    <div className="w-[240px] bg-navy-dark text-white flex flex-col justify-between h-full border-r border-white/5 shrink-0 overflow-y-auto">
+    <div className="w-[240px] bg-[#0A1428]/50 backdrop-blur-3xl text-white flex flex-col justify-between h-full border-r border-white/10 shrink-0 overflow-y-auto relative z-50 shadow-[4px_0_30px_rgba(0,0,0,0.3)]">
       <div>
         {/* Top Branding Section */}
-        <div className="p-5 border-b border-white/10 flex items-center space-x-3">
+        <div className="p-5 border-b border-white/5 flex items-center space-x-3 bg-white/[0.02]">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-burnt to-[#E06D2B] flex items-center justify-center text-white font-display font-extrabold text-xs shadow-lg shrink-0 shadow-orange-burnt/20">
             SC
           </div>
@@ -230,15 +230,20 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 key={item.path}
                 to={item.path}
                 onClick={onClose}
-                className={`w-full flex items-center justify-between px-6 py-3 font-display text-sm font-semibold transition-all duration-200 outline-none relative border-l-4 ${
+                className={`w-full flex items-center justify-between px-6 py-3.5 font-display text-sm font-semibold transition-all duration-300 outline-none relative border-l-[3px] group overflow-hidden ${
                   isActive
-                    ? 'text-orange-burnt bg-white/[0.03] border-orange-burnt'
-                    : 'text-white/70 hover:bg-orange-burnt/10 hover:text-orange-burnt border-transparent'
+                    ? 'text-white border-orange-burnt'
+                    : 'text-white/60 hover:bg-white/5 hover:text-white border-transparent hover:border-white/20 hover:pl-7'
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  {item.icon}
-                  <span>{item.name}</span>
+                {isActive && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-burnt/20 to-transparent pointer-events-none" />
+                )}
+                <div className="flex items-center space-x-3 relative z-10">
+                  <div className={`transition-colors duration-300 ${isActive ? 'text-orange-burnt drop-shadow-[0_0_8px_rgba(214,90,30,0.8)]' : 'text-white/40 group-hover:text-white/80'}`}>
+                    {item.icon}
+                  </div>
+                  <span className="tracking-wide">{item.name}</span>
                 </div>
                 {item.badge !== null && item.badge !== undefined && (
                   <span className="bg-orange-burnt border border-white/10 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full min-w-5 text-center shadow animate-in fade-in duration-200">
