@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BadgeCheck, Users, Upload, Search, Clock, XCircle, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { BadgeCheck, Users, Upload, Search, Clock, XCircle, FileSpreadsheet, Loader2, Plus } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export const AdminStudentVerification: React.FC = () => {
@@ -7,6 +7,10 @@ export const AdminStudentVerification: React.FC = () => {
   const [records, setRecords] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newPrn, setNewPrn] = useState('');
+  const [newName, setNewName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -76,6 +80,39 @@ export const AdminStudentVerification: React.FC = () => {
     }
   };
 
+  const handleAddPrn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPrn.trim() || !newName.trim()) return alert('Please enter both PRN and Student Name.');
+    setIsSubmitting(true);
+    try {
+      // Check if it already exists
+      const { data: existing } = await supabase.from('student_verifications').select('id').eq('prn', newPrn.trim()).single();
+      if (existing) {
+        alert('This PRN already exists in the database!');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      const { error } = await supabase.from('student_verifications').insert({
+        prn: newPrn.trim(),
+        student_name: newName.trim(),
+        verification_status: 'pending'
+      });
+      
+      if (error) throw error;
+      
+      setShowAddModal(false);
+      setNewPrn('');
+      setNewName('');
+      fetchData(); // refresh list
+    } catch (e: any) {
+      console.error(e);
+      alert('Error adding PRN: ' + e.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -84,6 +121,13 @@ export const AdminStudentVerification: React.FC = () => {
           <h2 className="text-2xl font-display font-extrabold text-white tracking-tight">Student Verification</h2>
           <p className="text-sm text-white/50 mt-1">Manage and verify PRN-based student accounts.</p>
         </div>
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center space-x-2 bg-orange-burnt hover:bg-[#b04a18] text-white px-4 py-2 rounded-xl transition-colors font-bold text-sm shadow-[0_0_15px_rgba(214,90,30,0.3)] active:scale-95"
+        >
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">Add PRN</span>
+        </button>
       </div>
 
       {/* Analytics Dashboard */}
@@ -311,6 +355,56 @@ export const AdminStudentVerification: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* Add PRN Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#0A1428] border border-white/10 rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
+            <h3 className="text-xl font-display font-extrabold text-white mb-6">Add New Student PRN</h3>
+            
+            <form onSubmit={handleAddPrn} className="space-y-5">
+              <div>
+                <label className="block text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1.5 ml-1">PRN Number</label>
+                <input 
+                  type="text" 
+                  required
+                  value={newPrn}
+                  onChange={e => setNewPrn(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-burnt transition-colors placeholder:text-white/20"
+                  placeholder="e.g. 240467311..."
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1.5 ml-1">Student Name</label>
+                <input 
+                  type="text" 
+                  required
+                  value={newName}
+                  onChange={e => setNewName(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-burnt transition-colors placeholder:text-white/20"
+                  placeholder="e.g. John Doe"
+                />
+              </div>
+              
+              <div className="flex space-x-3 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-colors font-bold text-sm"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 px-4 py-3 bg-orange-burnt hover:bg-[#b04a18] text-white rounded-xl transition-colors font-bold text-sm disabled:opacity-50 flex justify-center items-center shadow-lg"
+                >
+                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Add Student'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
