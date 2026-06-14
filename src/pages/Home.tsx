@@ -576,10 +576,10 @@ export const Home: React.FC = () => {
               </Link>
               
               <a
-                href="tel:+919876543210"
+                href="tel:+918806937481"
                 className="text-white/60 hover:text-orange-burnt text-xs font-sans font-bold transition-colors"
               >
-                📞 Call: +91 98765 43210
+                📞 Teju Mam: +91 88069 37481
               </a>
             </div>
           </div>
