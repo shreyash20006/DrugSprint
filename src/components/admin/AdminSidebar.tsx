@@ -27,7 +27,8 @@ import {
   AlertTriangle,
   Wrench,
   CreditCard,
-  GraduationCap
+  GraduationCap,
+  Camera
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -110,6 +111,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       path: '/admin/exams',
       name: 'Exam Schedule',
       icon: <GraduationCap className="w-5 h-5" />,
+    },
+    {
+      path: '/admin/stories',
+      name: 'Stories Manager',
+      icon: <Camera className="w-5 h-5" />,
     },
     {
       path: '/admin/gallery',

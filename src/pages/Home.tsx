@@ -21,7 +21,9 @@ import {
   Sparkles,
   TrendingUp,
   Megaphone,
-  Eye
+  Eye,
+  Plus,
+  X
 } from 'lucide-react';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -77,6 +79,72 @@ export const Home: React.FC = () => {
   const [eventsCount, setEventsCount] = useState<number>(0);
   const [studentsCount, setStudentsCount] = useState<number>(0);
   const [membersCount, setMembersCount] = useState<number>(0);
+
+  // Stories state
+  const [stories, setStories] = useState<any[]>([]);
+  const [activeStoryIndex, setActiveStoryIndex] = useState<number | null>(null);
+  const [storyPlayTime, setStoryPlayTime] = useState<number>(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Fetch active stories
+  useEffect(() => {
+    const fetchStories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('stories')
+          .select('*')
+          .gt('expires_at', new Date().toISOString())
+          .order('created_at', { ascending: true });
+        if (!error && data) {
+          setStories(data);
+        }
+      } catch (e) {
+        console.error('Error fetching active stories:', e);
+      }
+    };
+
+    const checkAdmin = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .maybeSingle();
+          if (profile && profile.role !== 'student') {
+            setIsAdmin(true);
+          }
+        }
+      } catch (e) {
+        console.error('Error checking admin status:', e);
+      }
+    };
+
+    fetchStories();
+    checkAdmin();
+  }, []);
+
+  // Story progression timer
+  useEffect(() => {
+    if (activeStoryIndex === null) return;
+    setStoryPlayTime(0);
+    const interval = setInterval(() => {
+      setStoryPlayTime((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          if (activeStoryIndex < stories.length - 1) {
+            setActiveStoryIndex(activeStoryIndex + 1);
+          } else {
+            setActiveStoryIndex(null);
+          }
+          return 0;
+        }
+        return prev + 2; // Increments to 100 over 5 seconds (50 steps of 100ms)
+      });
+    }, 100);
+    return () => clearInterval(interval);
+  }, [activeStoryIndex, stories]);
 
   useEffect(() => {
     const fetchPollData = async () => {
@@ -214,6 +282,26 @@ export const Home: React.FC = () => {
     }
   };
 
+  const handlePrevStory = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (activeStoryIndex === null) return;
+    if (activeStoryIndex > 0) {
+      setActiveStoryIndex(activeStoryIndex - 1);
+    } else {
+      setStoryPlayTime(0);
+    }
+  };
+
+  const handleNextStory = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (activeStoryIndex === null) return;
+    if (activeStoryIndex < stories.length - 1) {
+      setActiveStoryIndex(activeStoryIndex + 1);
+    } else {
+      setActiveStoryIndex(null);
+    }
+  };
+
   const getOptionPercentage = (option: string) => {
     if (pollVotes.length === 0) return 0;
     const matchCount = pollVotes.filter(v => v.selected_option === option).length;
@@ -290,6 +378,45 @@ export const Home: React.FC = () => {
 
       {/* 1. Hero Canvas */}
       <DNAHero />
+
+      {/* Instagram Stories Row */}
+      {(stories.length > 0 || isAdmin) && (
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 mb-12">
+          <div className="flex items-center space-x-4 overflow-x-auto py-3 px-4 bg-[#0D1B3E]/60 backdrop-blur-md rounded-2xl border border-white/5 shadow-2xl no-scrollbar">
+            {/* Admin add story button */}
+            {isAdmin && (
+              <Link to="/admin/stories" className="flex flex-col items-center shrink-0 space-y-1.5 group">
+                <div className="w-14 h-14 rounded-full border-2 border-dashed border-white/10 group-hover:border-orange-burnt flex items-center justify-center bg-white/5 transition-all">
+                  <Plus className="w-5 h-5 text-white/50 group-hover:text-orange-burnt" />
+                </div>
+                <span className="text-[10px] text-white/50 group-hover:text-orange-burnt font-sans font-bold">Add Story</span>
+              </Link>
+            )}
+
+            {/* Active stories bubbles */}
+            {stories.map((story, idx) => (
+              <button
+                key={story.id}
+                onClick={() => setActiveStoryIndex(idx)}
+                className="flex flex-col items-center shrink-0 space-y-1.5 group outline-none cursor-pointer"
+              >
+                <div className="w-15 h-15 rounded-full p-[2px] bg-gradient-to-tr from-orange-burnt to-gold-accent group-hover:scale-105 transition-transform duration-300">
+                  <div className="w-full h-full rounded-full p-[1.5px] bg-[#050B18]">
+                    <img
+                      src={story.media_url}
+                      alt={story.title || 'Story'}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  </div>
+                </div>
+                <span className="text-[10px] text-white/75 group-hover:text-orange-burnt font-sans font-bold max-w-[65px] truncate">
+                  {story.title || 'Campus Story'}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 2. Dynamic Notices Infinite Marquee */}
       <MarqueeStrip />
@@ -385,6 +512,77 @@ export const Home: React.FC = () => {
               </div>
             ))}
           </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Admissions Open Banner */}
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative bg-gradient-to-br from-[#0D1B3E]/90 to-[#0A1428]/95 border border-orange-burnt/30 backdrop-blur-[20px] rounded-3xl p-8 sm:p-12 shadow-2xl overflow-hidden"
+        >
+          {/* Decorative glowing gradient elements */}
+          <div className="absolute -top-20 -left-20 w-72 h-72 bg-orange-burnt/10 rounded-full blur-[80px] pointer-events-none" />
+          <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-gold-accent/10 rounded-full blur-[80px] pointer-events-none" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            <div className="lg:col-span-8 space-y-6">
+              <span className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-orange-burnt/10 text-orange-burnt border border-orange-burnt/30 animate-pulse">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Admission Open 2026 - 2027</span>
+              </span>
+              
+              <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-white leading-tight">
+                Secure Your Seat at Nagpur's Leading <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-burnt to-gold-accent">
+                  Pharmacy Education Destination
+                </span>
+              </h2>
+              
+              <p className="text-white/75 text-sm sm:text-base leading-relaxed font-sans">
+                Tulsiramji Gaikwad Patil College of Pharmacy (TGPCOP) offers premium degree and diploma programs with cutting-edge laboratories, experienced faculty, and dedicated career placement cells. Join the upcoming batch of healthcare pioneers!
+              </p>
+              
+              {/* Core programs list */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                {[
+                  { title: 'B.Pharm (Bachelor of Pharmacy)', duration: '4 Years Program', eligibility: '12th Science (PCM/PCB) passed' },
+                  { title: 'D.Pharm (Diploma in Pharmacy)', duration: '2 Years Program', eligibility: '12th Science (PCM/PCB) passed' }
+                ].map((course, idx) => (
+                  <div key={idx} className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 hover:border-orange-burnt/20 transition-colors">
+                    <div className="flex items-center space-x-2 text-orange-burnt font-display font-extrabold text-sm mb-1">
+                      <GraduationCap className="w-4.5 h-4.5" />
+                      <span>{course.title}</span>
+                    </div>
+                    <p className="text-white/60 text-xs font-semibold">{course.duration} • {course.eligibility}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="lg:col-span-4 flex flex-col items-center justify-center p-6 bg-white/[0.02] border border-white/10 rounded-2xl text-center space-y-4">
+              <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest font-sans">Enquire Instantly</span>
+              <div className="font-display font-extrabold text-lg text-white">Admissions Department</div>
+              <p className="text-white/60 text-xs font-sans">Get details about fees structure, scholarships, and seat availability.</p>
+              
+              <Link
+                to="/ask"
+                className="w-full text-center py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display font-bold text-xs uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg"
+              >
+                Submit Enquiry Form
+              </Link>
+              
+              <a
+                href="tel:+919876543210"
+                className="text-white/60 hover:text-orange-burnt text-xs font-sans font-bold transition-colors"
+              >
+                📞 Call: +91 98765 43210
+              </a>
+            </div>
+          </div>
         </motion.div>
       </section>
 
@@ -809,8 +1007,109 @@ export const Home: React.FC = () => {
           </div>
         )}
       </section>
+
+      {/* Fullscreen Stories Player Overlay */}
+      {activeStoryIndex !== null && stories[activeStoryIndex] && (
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-md transition-all duration-300"
+          onClick={() => {
+            setActiveStoryIndex(null);
+            setStoryPlayTime(0);
+          }}
+        >
+          {/* Main Story Container */}
+          <div 
+            className="relative w-full max-w-md h-[90vh] sm:h-[80vh] md:h-[85vh] bg-[#050B18] rounded-3xl overflow-hidden border border-white/10 flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.8)] mx-4 animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Progress Indicators */}
+            <div className="absolute top-4 inset-x-4 z-30 flex gap-1.5 px-1">
+              {stories.map((_, idx) => (
+                <div key={idx} className="h-1 bg-white/20 rounded-full overflow-hidden flex-1">
+                  <div
+                    className="h-full bg-white transition-all duration-100 ease-linear"
+                    style={{
+                      width: 
+                        idx < activeStoryIndex 
+                          ? '100%' 
+                          : idx === activeStoryIndex 
+                            ? `${storyPlayTime}%` 
+                            : '0%'
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Top Profile Header Info */}
+            <div className="absolute top-8 inset-x-4 z-30 flex items-center justify-between px-2">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-full p-[1.5px] bg-gradient-to-tr from-orange-burnt to-gold-accent flex items-center justify-center shrink-0">
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-orange-burnt to-[#E06D2B] flex items-center justify-center text-white font-display font-extrabold text-[10px]">
+                    SC
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <span className="font-display font-extrabold text-xs text-white drop-shadow block leading-none">
+                    TGPCOP Council
+                  </span>
+                  <span className="text-[9px] text-white/60 drop-shadow font-sans font-semibold mt-0.5 block">
+                    {stories[activeStoryIndex].created_at ? new Date(stories[activeStoryIndex].created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Campus Story'}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setActiveStoryIndex(null);
+                  setStoryPlayTime(0);
+                }}
+                className="p-1.5 rounded-full bg-black/40 hover:bg-black/60 text-white/80 hover:text-white transition-all outline-none"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Story Image Media Container */}
+            <div className="flex-1 bg-black relative flex items-center justify-center">
+              <img
+                src={stories[activeStoryIndex].media_url}
+                alt={stories[activeStoryIndex].title || 'Story'}
+                className="w-full h-full object-cover pointer-events-none"
+              />
+
+              {/* Navigation overlay zones */}
+              <div className="absolute inset-0 z-20 flex">
+                {/* Left zone for Prev Story */}
+                <button
+                  type="button"
+                  onClick={handlePrevStory}
+                  className="w-1/3 h-full cursor-w-resize focus:outline-none"
+                  aria-label="Previous story"
+                />
+                {/* Right zone for Next Story */}
+                <button
+                  type="button"
+                  onClick={handleNextStory}
+                  className="w-2/3 h-full cursor-e-resize focus:outline-none"
+                  aria-label="Next story"
+                />
+              </div>
+            </div>
+
+            {/* Bottom Caption Overlay */}
+            {stories[activeStoryIndex].title && (
+              <div className="absolute bottom-0 inset-x-0 z-30 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6 pt-12 text-center">
+                <p className="text-white font-sans font-bold text-sm leading-relaxed drop-shadow-md">
+                  {stories[activeStoryIndex].title}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Home;
+
