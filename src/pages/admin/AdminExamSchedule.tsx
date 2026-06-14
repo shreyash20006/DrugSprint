@@ -270,7 +270,7 @@ const AdminExamSchedule: React.FC = () => {
             placeholder="Search subject / code..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-sans placeholder:text-white/30 focus:outline-none focus:border-orange-burnt/50"
+            className="w-full pl-8 pr-3 py-2 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-xs font-sans placeholder:text-white/30 focus:outline-none focus:border-orange-burnt/50"
           />
         </div>
         {/* Semester filter */}
@@ -279,10 +279,10 @@ const AdminExamSchedule: React.FC = () => {
           <select
             value={filterSem}
             onChange={e => setFilterSem(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-sans focus:outline-none focus:border-orange-burnt/50 appearance-none"
+            className="w-full pl-8 pr-3 py-2 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-xs font-sans focus:outline-none focus:border-orange-burnt/50 appearance-none"
           >
-            <option value="">All Semesters</option>
-            {SEMESTERS.map(s => <option key={s} value={s}>{s}</option>)}
+            <option value="" className="bg-[#0A1428] text-white">All Semesters</option>
+            {SEMESTERS.map(s => <option key={s} value={s} className="bg-[#0A1428] text-white">{s}</option>)}
           </select>
         </div>
         {/* Year filter */}
@@ -291,21 +291,21 @@ const AdminExamSchedule: React.FC = () => {
           <select
             value={filterYear}
             onChange={e => setFilterYear(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-sans focus:outline-none focus:border-orange-burnt/50 appearance-none"
+            className="w-full pl-8 pr-3 py-2 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-xs font-sans focus:outline-none focus:border-orange-burnt/50 appearance-none"
           >
-            <option value="">All Years</option>
-            {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+            <option value="" className="bg-[#0A1428] text-white">All Years</option>
+            {YEARS.map(y => <option key={y} value={y} className="bg-[#0A1428] text-white">{y}</option>)}
           </select>
         </div>
         {/* Type filter */}
         <select
           value={filterType}
           onChange={e => setFilterType(e.target.value)}
-          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs font-sans focus:outline-none focus:border-orange-burnt/50 appearance-none"
+          className="w-full px-3 py-2 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-xs font-sans focus:outline-none focus:border-orange-burnt/50 appearance-none"
         >
-          <option value="">Regular + Supplementary</option>
-          <option value="Regular">Regular Only</option>
-          <option value="Supplementary">Supplementary Only</option>
+          <option value="" className="bg-[#0A1428] text-white">Regular + Supplementary</option>
+          <option value="Regular" className="bg-[#0A1428] text-white">Regular Only</option>
+          <option value="Supplementary" className="bg-[#0A1428] text-white">Supplementary Only</option>
         </select>
       </div>
 
@@ -432,7 +432,7 @@ const AdminExamSchedule: React.FC = () => {
                     placeholder="e.g. Pharmaceutical Organic Chemistry II"
                     value={form.subject_name}
                     onChange={e => setForm(f => ({ ...f, subject_name: e.target.value }))}
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-sans placeholder:text-white/25 focus:outline-none focus:border-orange-burnt/60"
+                    className="w-full px-3 py-2.5 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-sm font-sans placeholder:text-white/25 focus:outline-none focus:border-orange-burnt/60"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -442,7 +442,7 @@ const AdminExamSchedule: React.FC = () => {
                     placeholder="e.g. BP301T"
                     value={form.subject_code}
                     onChange={e => setForm(f => ({ ...f, subject_code: e.target.value.toUpperCase() }))}
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-mono placeholder:text-white/25 focus:outline-none focus:border-orange-burnt/60"
+                    className="w-full px-3 py-2.5 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-sm font-mono placeholder:text-white/25 focus:outline-none focus:border-orange-burnt/60"
                   />
                 </div>
               </div>
@@ -457,10 +457,10 @@ const AdminExamSchedule: React.FC = () => {
                     required
                     value={form.semester}
                     onChange={e => setForm(f => ({ ...f, semester: e.target.value }))}
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-sans focus:outline-none focus:border-orange-burnt/60 appearance-none"
+                    className="w-full px-3 py-2.5 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-sm font-sans focus:outline-none focus:border-orange-burnt/60 appearance-none"
                   >
-                    <option value="">Select Semester</option>
-                    {SEMESTERS.map(s => <option key={s} value={s}>{s}</option>)}
+                    <option value="" className="bg-[#0A1428] text-white">Select Semester</option>
+                    {SEMESTERS.map(s => <option key={s} value={s} className="bg-[#0A1428] text-white">{s}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1.5">
@@ -471,10 +471,10 @@ const AdminExamSchedule: React.FC = () => {
                     required
                     value={form.year}
                     onChange={e => setForm(f => ({ ...f, year: e.target.value }))}
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-sans focus:outline-none focus:border-orange-burnt/60 appearance-none"
+                    className="w-full px-3 py-2.5 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-sm font-sans focus:outline-none focus:border-orange-burnt/60 appearance-none"
                   >
-                    <option value="">Select Year</option>
-                    {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                    <option value="" className="bg-[#0A1428] text-white">Select Year</option>
+                    {YEARS.map(y => <option key={y} value={y} className="bg-[#0A1428] text-white">{y}</option>)}
                   </select>
                 </div>
               </div>
@@ -490,7 +490,7 @@ const AdminExamSchedule: React.FC = () => {
                     required
                     value={form.exam_date}
                     onChange={e => setForm(f => ({ ...f, exam_date: e.target.value }))}
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-sans focus:outline-none focus:border-orange-burnt/60 [color-scheme:dark]"
+                    className="w-full px-3 py-2.5 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-sm font-sans focus:outline-none focus:border-orange-burnt/60 [color-scheme:dark]"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -502,7 +502,7 @@ const AdminExamSchedule: React.FC = () => {
                     required
                     value={form.exam_time}
                     onChange={e => setForm(f => ({ ...f, exam_time: e.target.value }))}
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-sans focus:outline-none focus:border-orange-burnt/60 [color-scheme:dark]"
+                    className="w-full px-3 py-2.5 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-sm font-sans focus:outline-none focus:border-orange-burnt/60 [color-scheme:dark]"
                   />
                 </div>
               </div>
@@ -522,7 +522,7 @@ const AdminExamSchedule: React.FC = () => {
                             ? t === 'Regular'
                               ? 'bg-purple-500/20 text-purple-300 border-purple-500/50'
                               : 'bg-orange-500/20 text-orange-300 border-orange-500/50'
-                            : 'bg-white/5 text-white/40 border-white/10 hover:border-white/20'
+                            : 'bg-[#0D1B3E]/60 text-white/40 border-white/10 hover:border-white/20'
                         }`}
                       >
                         {t === 'Regular' ? '📘 Regular' : '📙 Supplementary'}
@@ -535,9 +535,9 @@ const AdminExamSchedule: React.FC = () => {
                   <select
                     value={form.status}
                     onChange={e => setForm(f => ({ ...f, status: e.target.value as ExamSchedule['status'] }))}
-                    className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-sans focus:outline-none focus:border-orange-burnt/60 appearance-none"
+                    className="w-full px-3 py-2.5 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-sm font-sans focus:outline-none focus:border-orange-burnt/60 appearance-none"
                   >
-                    {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                    {STATUSES.map(s => <option key={s} value={s} className="bg-[#0A1428] text-white">{s}</option>)}
                   </select>
                 </div>
               </div>
@@ -550,7 +550,7 @@ const AdminExamSchedule: React.FC = () => {
                   placeholder="e.g. Venue: Main Hall, Carry admit card, 3 hours duration..."
                   value={form.notes}
                   onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                  className="w-full px-3 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm font-sans placeholder:text-white/25 focus:outline-none focus:border-orange-burnt/60 resize-none"
+                  className="w-full px-3 py-2.5 bg-[#0D1B3E] border border-white/10 rounded-xl text-white text-sm font-sans placeholder:text-white/25 focus:outline-none focus:border-orange-burnt/60 resize-none"
                 />
               </div>
 
