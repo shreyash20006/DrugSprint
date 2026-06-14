@@ -44,6 +44,7 @@ const Contact = lazy(() => import('./pages/Contact'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Refunds = lazy(() => import('./pages/Refunds'));
 const Search = lazy(() => import('./pages/Search'));
+const ExamSchedule = lazy(() => import('./pages/ExamSchedule'));
 
 // Lazy load all admin pages
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
@@ -182,6 +183,8 @@ const AppContent: React.FC = () => {
             <Route path="/refunds" element={<Refunds />} />
             <Route path="/refunds-and-cancellations" element={<Refunds />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/exams" element={<ExamSchedule />} />
+            <Route path="/exam-schedule" element={<ExamSchedule />} />
 
             {/* Secure Admin Routes */}
             <Route path="/admin" element={<AdminLogin />} />

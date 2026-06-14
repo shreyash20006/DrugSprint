@@ -109,6 +109,7 @@ export const Navbar: React.FC = () => {
     { name: 'Message Board', path: '/board', icon: '💬', desc: 'Community board' },
     { name: 'Study Store', path: '/store', icon: '📚', desc: 'Syllabus handbooks & exam keys', desktopOnly: true },
     { name: 'My Calendar', path: '/calendar', icon: '📅', desc: 'Your saved events', desktopOnly: true },
+    { name: 'Exam Schedule', path: '/exams', icon: '🗓️', desc: 'B.Pharm semester timetables' },
     { name: 'Mentors', path: '/mentors', icon: '🤝', desc: 'Connect with senior guides' },
     { name: 'Newsletter', path: '/newsletter', icon: '📰', desc: 'Monthly publications' },
     { name: 'Pay Fees', path: '/pay', icon: '💳', desc: 'Secure online student payment' },
