@@ -88,13 +88,6 @@ export const Home: React.FC = () => {
 
   // Admissions Enquiry state
   const [showEnquiryModal, setShowEnquiryModal] = useState<boolean>(false);
-  const [enquiryName, setEnquiryName] = useState<string>('');
-  const [enquiryEmail, setEnquiryEmail] = useState<string>('');
-  const [enquiryPhone, setEnquiryPhone] = useState<string>('');
-  const [enquiryCourse, setEnquiryCourse] = useState<string>('B.Pharm');
-  const [enquiryMessage, setEnquiryMessage] = useState<string>('');
-  const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState<boolean>(false);
-  const [enquirySuccess, setEnquirySuccess] = useState<boolean>(false);
 
   // Fetch active stories
   useEffect(() => {
@@ -312,36 +305,7 @@ export const Home: React.FC = () => {
     }
   };
 
-  const handleEnquirySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!enquiryName || !enquiryPhone || !enquiryCourse) return;
 
-    setIsSubmittingEnquiry(true);
-    try {
-      const { error } = await supabase.from('admission_enquiries').insert({
-        name: enquiryName.trim(),
-        email: enquiryEmail.trim() || null,
-        phone: enquiryPhone.trim(),
-        course: enquiryCourse,
-        message: enquiryMessage.trim() || null
-      });
-
-      if (error) throw error;
-
-      setEnquirySuccess(true);
-      // Reset form
-      setEnquiryName('');
-      setEnquiryEmail('');
-      setEnquiryPhone('');
-      setEnquiryCourse('B.Pharm');
-      setEnquiryMessage('');
-    } catch (err: any) {
-      console.error('Error submitting enquiry:', err);
-      alert('Failed to submit enquiry: ' + err.message);
-    } finally {
-      setIsSubmittingEnquiry(false);
-    }
-  };
 
   const getOptionPercentage = (option: string) => {
     if (pollVotes.length === 0) return 0;
@@ -611,7 +575,6 @@ export const Home: React.FC = () => {
               
               <button
                 onClick={() => {
-                  setEnquirySuccess(false);
                   setShowEnquiryModal(true);
                 }}
                 className="w-full text-center py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display font-bold text-xs uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg cursor-pointer outline-none border border-white/5"
@@ -1161,28 +1124,28 @@ export const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Admission Enquiry Modal Form */}
+      {/* Admission Enquiry Modal Form (Google Form Embedded) */}
       {showEnquiryModal && (
         <div 
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md transition-all duration-300 p-4"
           onClick={() => setShowEnquiryModal(false)}
         >
           <div 
-            className="relative bg-[#0A1428] border border-white/10 rounded-3xl w-full max-w-lg shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+            className="relative bg-[#0A1428] border border-white/10 rounded-3xl w-full max-w-2xl h-[85vh] shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/[0.01]">
+            <div className="flex items-center justify-between p-5 border-b border-white/10 bg-white/[0.01] shrink-0">
               <div className="flex items-center space-x-2.5">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-burnt to-[#E06D2B] flex items-center justify-center text-white shrink-0 shadow-lg">
                   <GraduationCap className="w-4.5 h-4.5" />
                 </div>
                 <div>
                   <h3 className="font-display font-extrabold text-sm text-white uppercase tracking-wider">
-                    Admission Enquiry 2026-27
+                    Admission Enquiry Form
                   </h3>
                   <span className="text-[9px] text-orange-burnt block font-sans font-bold uppercase tracking-widest mt-0.5">
-                    TGPCOP Nagpur
+                    Academic Year 2026-27
                   </span>
                 </div>
               </div>
@@ -1194,116 +1157,18 @@ export const Home: React.FC = () => {
               </button>
             </div>
 
-            {/* Modal Content */}
-            {enquirySuccess ? (
-              <div className="p-10 text-center flex flex-col items-center justify-center space-y-4">
-                <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                  <CheckCircle2 className="w-7 h-7" />
-                </div>
-                <h4 className="font-display font-extrabold text-lg text-white">Enquiry Submitted Successfully!</h4>
-                <p className="text-white/60 text-xs font-sans leading-relaxed max-w-sm">
-                  Thank you for your interest in Tulsiramji Gaikwad Patil College of Pharmacy. Our admissions department will call you shortly to discuss fees, seat availability, and scholarships.
-                </p>
-                <button
-                  onClick={() => setShowEnquiryModal(false)}
-                  className="mt-4 px-6 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
-                >
-                  Close Window
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleEnquirySubmit} className="p-6 space-y-4">
-                {/* Form Fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Name */}
-                  <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">Full Name *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Enter student name"
-                      value={enquiryName}
-                      onChange={(e) => setEnquiryName(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-[#0D1B3E] text-white text-sm placeholder-white/35 outline-none focus:border-orange-burnt/50 transition-all font-sans"
-                    />
-                  </div>
-
-                  {/* Phone */}
-                  <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">Contact Number *</label>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="Enter mobile number"
-                      value={enquiryPhone}
-                      onChange={(e) => setEnquiryPhone(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-[#0D1B3E] text-white text-sm placeholder-white/35 outline-none focus:border-orange-burnt/50 transition-all font-sans"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Email */}
-                  <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">Email Address (Optional)</label>
-                    <input
-                      type="email"
-                      placeholder="student@example.com"
-                      value={enquiryEmail}
-                      onChange={(e) => setEnquiryEmail(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-[#0D1B3E] text-white text-sm placeholder-white/35 outline-none focus:border-orange-burnt/50 transition-all font-sans"
-                    />
-                  </div>
-
-                  {/* Course Interested */}
-                  <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">Course Interested *</label>
-                    <select
-                      value={enquiryCourse}
-                      onChange={(e) => setEnquiryCourse(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-[#0D1B3E] text-white text-sm outline-none focus:border-orange-burnt/50 transition-all font-sans"
-                    >
-                      <option value="B.Pharm" className="bg-[#0A1428] text-white">B.Pharm (Bachelor of Pharmacy)</option>
-                      <option value="D.Pharm" className="bg-[#0A1428] text-white">D.Pharm (Diploma in Pharmacy)</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Message */}
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">Queries / Message (Optional)</label>
-                  <textarea
-                    placeholder="Ask about fees structure, scholarships, eligibility, hostel, etc."
-                    value={enquiryMessage}
-                    onChange={(e) => setEnquiryMessage(e.target.value)}
-                    rows={3}
-                    className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-[#0D1B3E] text-white text-sm placeholder-white/35 outline-none focus:border-orange-burnt/50 transition-all resize-none font-sans"
-                  />
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex items-center space-x-3 pt-3 border-t border-white/5">
-                  <button
-                    type="button"
-                    onClick={() => setShowEnquiryModal(false)}
-                    className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/60 hover:text-white hover:bg-white/5 text-xs font-display font-bold uppercase transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmittingEnquiry || !enquiryName || !enquiryPhone}
-                    className="flex-grow py-2.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl disabled:opacity-50 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center space-x-1.5 border border-white/5"
-                  >
-                    {isSubmittingEnquiry ? (
-                      <span>Submitting...</span>
-                    ) : (
-                      <span>Submit Enquiry</span>
-                    )}
-                  </button>
-                </div>
-              </form>
-            )}
+            {/* Modal Content - Google Form Iframe */}
+            <div className="flex-1 w-full bg-[#050B18] overflow-y-auto relative p-1">
+              <iframe
+                src="https://docs.google.com/forms/d/e/1FAIpQLSeNhMWUUOF3rbmb4zU8owayxBplovO8X9JqoBYbrQwMyVxI5g/viewform?embedded=true"
+                width="100%"
+                height="100%"
+                style={{ border: 'none', minHeight: '600px' }}
+                title="TGPCOP Admission Enquiry Form"
+              >
+                Loading…
+              </iframe>
+            </div>
           </div>
         </div>
       )}
