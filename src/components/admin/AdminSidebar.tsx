@@ -28,7 +28,8 @@ import {
   Wrench,
   CreditCard,
   GraduationCap,
-  Camera
+  Camera,
+  UserPlus
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -116,6 +117,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       path: '/admin/stories',
       name: 'Stories Manager',
       icon: <Camera className="w-5 h-5" />,
+    },
+    {
+      path: '/admin/admissions',
+      name: 'Admissions Lead',
+      icon: <UserPlus className="w-5 h-5" />,
     },
     {
       path: '/admin/gallery',
