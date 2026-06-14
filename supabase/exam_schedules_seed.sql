@@ -1,0 +1,22 @@
+-- Seed data for DBATU Supplementary Summer 2026 B.Pharm Timetable
+INSERT INTO exam_schedules (subject_name, subject_code, semester, year, exam_date, exam_time, exam_type, status, notes) VALUES
+('Pharmaceutical Organic Chemistry II', 'BP301T', 'Sem III', '2nd Year', '2026-06-18', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Instrumental Methods of Analysis', 'BP701T', 'Sem VII', '4th Year (Final)', '2026-06-18', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Human Anatomy and Physiology I', 'BP101T', 'Sem I', '1st Year', '2026-06-19', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Medicinal Chemistry II', 'BP501T', 'Sem V', '3rd Year', '2026-06-19', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Physical Pharmaceutics I', 'BP302T', 'Sem III', '2nd Year', '2026-06-20', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Industrial Pharmacy II', 'BP702T', 'Sem VII', '4th Year (Final)', '2026-06-20', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Industrial Pharmacy I', 'BP502T', 'Sem V', '3rd Year', '2026-06-22', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Pharmaceutical Microbiology', 'BP303T', 'Sem III', '2nd Year', '2026-06-23', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Pharmacy Practice', 'BP703T', 'Sem VII', '4th Year (Final)', '2026-06-23', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Pharmaceutics I', 'BP103T', 'Sem I', '1st Year', '2026-06-24', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Pharmacology II', 'BP503T', 'Sem V', '3rd Year', '2026-06-24', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Pharmaceutical Engineering', 'BP304T', 'Sem III', '2nd Year', '2026-06-25', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Novel Drug Delivery System', 'BP704T', 'Sem VII', '4th Year (Final)', '2026-06-25', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Pharmaceutical Inorganic Chemistry', 'BP104T', 'Sem I', '1st Year', '2026-06-29', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Pharmacognosy and Phytochemistry II', 'BP504T', 'Sem V', '3rd Year', '2026-06-29', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Pharmaceutical Jurisprudence', 'BP505T', 'Sem V', '3rd Year', '2026-06-30', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 3 hours)'),
+('Pharmaceutical Analysis I', 'BP102T', 'Sem I', '1st Year', '2026-07-01', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Duration: 2 hours)'),
+('Communication Skills*', 'BP105T', 'Sem I', '1st Year', '2026-07-02', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Non-university, Duration: 3 hours)'),
+('Remedial Biology*', 'BP106RBT', 'Sem I', '1st Year', '2026-07-03', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Non-university, Duration: 2 hours)'),
+('Remedial Mathematics*', 'BP106RMT', 'Sem I', '1st Year', '2026-07-03', '10:00 AM', 'Supplementary', 'Scheduled', 'DBATU Supplementary Summer 2026 (Non-university, Duration: 2 hours)');
