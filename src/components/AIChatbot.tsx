@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Sparkles, Loader2, Bot, FileUp, FileText, Globe, Maximize2, Minimize2 } from 'lucide-react';
+import { X, Send, Sparkles, Loader2, Bot, FileUp, FileText, Globe, Maximize2, Minimize2, Trash2 } from 'lucide-react';
+import { useStudentAuth } from '../lib/StudentAuthProvider';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -131,7 +132,20 @@ interface ChatMessage {
     name: string;
     url?: string;
   };
+  timestamp?: number;
 }
+
+// Returns time-based greeting
+const getGreeting = (): string => {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'Good Morning';
+  if (hour >= 12 && hour < 17) return 'Good Afternoon';
+  if (hour >= 17 && hour < 21) return 'Good Evening';
+  return 'Good Night';
+};
+
+const HISTORY_KEY = (userId: string) => `tgpcop_chat_history_${userId}`;
+const MAX_HISTORY = 50; // max messages to persist
 
 const CodeBlock: React.FC<{ language: string; value: string }> = ({ language, value }) => {
   const [copied, setCopied] = useState(false);
@@ -162,10 +176,10 @@ const CodeBlock: React.FC<{ language: string; value: string }> = ({ language, va
 };
 
 export const AIChatbot: React.FC = () => {
+  const { studentProfile } = useStudentAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: 'assistant', content: 'Hi there! I am the TGPCOP Council AI Assistant. How can I help you today?' }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
@@ -175,6 +189,58 @@ export const AIChatbot: React.FC = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ── Build welcome message based on login state ──
+  const buildWelcomeMessage = useCallback((profile: typeof studentProfile): ChatMessage => {
+    const greeting = getGreeting();
+    const firstName = profile?.full_name?.split(' ')[0] || null;
+    const content = firstName
+      ? `${greeting}, **${firstName}**! 👋 I'm the TGPCOP Council AI Assistant. Great to see you again! How can I help you today?`
+      : `Hi there! I'm the TGPCOP Council AI Assistant. How can I help you today?`;
+    return { role: 'assistant', content, timestamp: Date.now() };
+  }, []);
+
+  // ── Load chat history from localStorage on mount / auth change ──
+  useEffect(() => {
+    const userId = studentProfile?.id || 'guest';
+    const key = HISTORY_KEY(userId);
+    try {
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        const parsed: ChatMessage[] = JSON.parse(stored);
+        if (parsed.length > 0) {
+          setMessages(parsed);
+          setHistoryLoaded(true);
+          return;
+        }
+      }
+    } catch (_) {}
+    // No history — show fresh welcome
+    setMessages([buildWelcomeMessage(studentProfile)]);
+    setHistoryLoaded(true);
+  }, [studentProfile?.id]); // re-run when user logs in/out
+
+  // ── Persist chat history to localStorage on every message update ──
+  useEffect(() => {
+    if (!historyLoaded) return;
+    const userId = studentProfile?.id || 'guest';
+    const key = HISTORY_KEY(userId);
+    try {
+      // Only keep last MAX_HISTORY messages, skip base64 image data to save space
+      const toSave = messages.slice(-MAX_HISTORY).map(m => ({
+        ...m,
+        attachment: m.attachment ? { ...m.attachment, url: undefined } : undefined
+      }));
+      localStorage.setItem(key, JSON.stringify(toSave));
+    } catch (_) {}
+  }, [messages, historyLoaded, studentProfile?.id]);
+
+  // ── Clear history handler ──
+  const handleClearHistory = () => {
+    const userId = studentProfile?.id || 'guest';
+    localStorage.removeItem(HISTORY_KEY(userId));
+    setMessages([buildWelcomeMessage(studentProfile)]);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -596,18 +662,36 @@ When providing links, use markdown format like this: [Click here for Notices](/n
             {/* Header */}
             <div className="bg-gradient-to-r from-navy-dark to-[#152852] p-4 flex items-center justify-between text-white shrink-0">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-purple-400" />
-                </div>
+                {studentProfile?.avatar_url ? (
+                  <img
+                    src={studentProfile.avatar_url}
+                    alt={studentProfile.full_name}
+                    className="w-8 h-8 rounded-full object-cover border border-white/20"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                  </div>
+                )}
                 <div>
-                  <h3 className="font-display font-bold text-sm leading-tight">Council AI Assistant</h3>
+                  <h3 className="font-display font-bold text-sm leading-tight">
+                    {studentProfile?.full_name ? `Hi, ${studentProfile.full_name.split(' ')[0]}!` : 'Council AI Assistant'}
+                  </h3>
                   <span className="text-[10px] text-white/60 flex items-center space-x-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>Online</span>
+                    <span>{studentProfile ? 'Logged in' : 'Online'}</span>
                   </span>
                 </div>
               </div>
               <div className="flex items-center space-x-1">
+                <button
+                  type="button"
+                  onClick={handleClearHistory}
+                  title="Clear chat history"
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-500/20 transition-colors group"
+                >
+                  <Trash2 className="w-4 h-4 text-white/50 group-hover:text-red-400 transition-colors" />
+                </button>
                 <button 
                   type="button"
                   onClick={() => setIsFullScreen(prev => !prev)}
