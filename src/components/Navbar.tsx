@@ -232,34 +232,36 @@ export const Navbar: React.FC = () => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 12, scale: 0.95 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
-                    className="absolute right-0 mt-2 w-64 bg-[#080F25]/95 backdrop-blur-2xl rounded-2xl shadow-2xl py-2.5 border border-white/10 z-50 overflow-hidden text-white"
+                    className="absolute right-0 mt-2 w-[480px] sm:w-[520px] bg-[#080F25]/95 backdrop-blur-2xl rounded-2xl shadow-2xl p-3 border border-white/10 z-50 overflow-hidden text-white"
                   >
-                    {moreLinks.map((subLink) => (
-                      <Link
-                        key={subLink.path}
-                        to={subLink.path}
-                        onClick={() => setIsMoreDropdownOpen(false)}
-                        className={`block px-4 py-3 hover:bg-white/5 transition-all duration-200 ${
-                          subLink.highlight ? 'bg-red-500/5 hover:bg-red-500/10 border-l-2 border-red-500' : ''
-                        }`}
-                      >
-                        <div className="flex items-start space-x-3">
-                          <span className="text-base mt-0.5">{subLink.icon}</span>
-                          <div>
-                            <span
-                              className={`block text-xs font-semibold ${
-                                subLink.highlight ? 'text-red-400 font-extrabold' : 'text-white hover:text-orange-burnt'
-                              }`}
-                            >
-                              {subLink.name}
-                            </span>
-                            <span className="block text-[10px] text-white/50 leading-tight mt-0.5">
-                              {subLink.desc}
-                            </span>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {moreLinks.map((subLink) => (
+                        <Link
+                          key={subLink.path}
+                          to={subLink.path}
+                          onClick={() => setIsMoreDropdownOpen(false)}
+                          className={`block px-3.5 py-3 hover:bg-white/5 rounded-xl transition-all duration-200 ${
+                            subLink.highlight ? 'bg-red-500/5 hover:bg-red-500/10 border-l-2 border-red-500' : ''
+                          }`}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <span className="text-base mt-0.5 shrink-0">{subLink.icon}</span>
+                            <div>
+                              <span
+                                className={`block text-xs font-semibold ${
+                                  subLink.highlight ? 'text-red-400 font-extrabold' : 'text-white hover:text-orange-burnt'
+                                }`}
+                              >
+                                {subLink.name}
+                              </span>
+                              <span className="block text-[10px] text-white/50 leading-tight mt-0.5">
+                                {subLink.desc}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      ))}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
