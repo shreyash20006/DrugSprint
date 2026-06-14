@@ -70,7 +70,7 @@ export const InstagramGrid: React.FC = () => {
   }, []);
 
   const handleFollowClick = () => {
-    window.open('https://www.instagram.com/tgpcop_nagpur/', '_blank', 'noopener,noreferrer');
+    window.open('https://www.instagram.com/tgpcop_nagpur?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==', '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -147,7 +147,7 @@ export const InstagramGrid: React.FC = () => {
               <p>📍 Nagpur, Maharashtra</p>
               <p className="leading-relaxed">Official page of Student Council of Tulsiramji Gaikwad Patil College of Pharmacy. 🎓</p>
               <a
-                href="https://www.instagram.com/tgpcop_nagpur/"
+                href="https://www.instagram.com/tgpcop_nagpur?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#0095f6] font-bold hover:underline block pt-1.5"
@@ -168,7 +168,7 @@ export const InstagramGrid: React.FC = () => {
             {posts.map((post) => (
               <a
                 key={post.id}
-                href="https://www.instagram.com/tgpcop_nagpur/"
+                href="https://www.instagram.com/tgpcop_nagpur?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="relative aspect-square rounded-lg sm:rounded-xl overflow-hidden bg-black border border-white/5 group shadow-md"
