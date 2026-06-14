@@ -5,7 +5,6 @@ import { DNAHero } from '../components/DNAHero';
 import { ScienceBackground } from '../components/ScienceBackground';
 import { MarqueeStrip } from '../components/MarqueeStrip';
 import { supabase } from '../lib/supabase';
-import { InstagramGrid } from '../components/InstagramGrid';
 import {
   FileText,
   HelpCircle,
@@ -1025,8 +1024,6 @@ export const Home: React.FC = () => {
         )}
       </section>
 
-      {/* 8. Instagram Feed Highlights Section */}
-      <InstagramGrid />
 
       {/* Fullscreen Stories Player Overlay */}
       {activeStoryIndex !== null && stories[activeStoryIndex] && (

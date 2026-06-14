@@ -3,6 +3,7 @@ import { GalleryGrid } from '../components/GalleryGrid';
 import { Images } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
 import { ScienceBackground } from '../components/ScienceBackground';
+import { InstagramGrid } from '../components/InstagramGrid';
 
 export const Gallery: React.FC = () => {
   return (
@@ -25,6 +26,9 @@ export const Gallery: React.FC = () => {
         {/* Masonry gallery Grid panel */}
         <GalleryGrid />
       </div>
+
+      {/* Instagram Feed Grid Section */}
+      <InstagramGrid />
     </div>
   );
 };
