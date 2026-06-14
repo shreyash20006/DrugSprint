@@ -7,9 +7,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "android:build": "npm run build && node node_modules/@capacitor/cli/bin/capacitor sync",
+    "android:open": "node node_modules/@capacitor/cli/bin/capacitor open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
     "@supabase/supabase-js": "^2.106.1",
     "@tailwindcss/typography": "^0.5.20",
     "@types/qrcode": "^1.5.6",
