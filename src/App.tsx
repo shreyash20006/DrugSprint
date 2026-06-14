@@ -69,6 +69,7 @@ const AdminComplaints = lazy(() => import('./pages/admin/AdminComplaints'));
 const AdminMentors = lazy(() => import('./pages/admin/AdminMentors'));
 const AdminDeveloper = lazy(() => import('./pages/admin/AdminDeveloper'));
 const AdminManageAdmins = lazy(() => import('./pages/admin/AdminManageAdmins'));
+const AdminExamSchedule = lazy(() => import('./pages/admin/AdminExamSchedule'));
 
 // Scroll to top helper
 const ScrollToTop: React.FC = () => {
@@ -221,6 +222,7 @@ const AppContent: React.FC = () => {
               <Route path="/admin/bugs" element={<AdminBugs />} />
               <Route path="/admin/developer" element={<AdminDeveloper />} />
               <Route path="/admin/manage-admins" element={<AdminManageAdmins />} />
+              <Route path="/admin/exams" element={<AdminExamSchedule />} />
             </Route>
           </Routes>
         </Suspense>

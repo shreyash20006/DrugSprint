@@ -13,6 +13,8 @@ export const AdminLayout: React.FC = () => {
 
   const getPageTitle = (path: string) => {
     switch (path) {
+      case '/admin/exams':
+        return 'Exam Schedule Manager';
       case '/admin/payments':
         return 'Payments & Collections Ledger';
       case '/admin/questions':
