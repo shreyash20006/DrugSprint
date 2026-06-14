@@ -568,12 +568,14 @@ export const Home: React.FC = () => {
               <div className="font-display font-extrabold text-lg text-white">Admissions Department</div>
               <p className="text-white/60 text-xs font-sans">Get details about fees structure, scholarships, and seat availability.</p>
               
-              <Link
-                to="/ask"
-                className="w-full text-center py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display font-bold text-xs uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg"
+              <a
+                href="https://wa.me/918806937481?text=Hello%20Teju%20Mam%2C%20I%20am%20enquiring%20about%20admissions%20at%20TGPCOP%20for%20the%20academic%20year%202026-27.%20Please%20provide%20more%20details."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full text-center py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-display font-bold text-xs uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg flex items-center justify-center space-x-2 border border-emerald-400/20"
               >
-                Submit Enquiry Form
-              </Link>
+                <span>💬 WhatsApp Enquiry</span>
+              </a>
               
               <a
                 href="tel:+918806937481"
@@ -1074,7 +1076,7 @@ export const Home: React.FC = () => {
               <img
                 src={stories[activeStoryIndex].media_url}
                 alt={stories[activeStoryIndex].title || 'Story'}
-                className="w-full h-full object-cover pointer-events-none"
+                className="w-full max-h-full object-contain pointer-events-none"
               />
 
               {/* Navigation overlay zones */}
