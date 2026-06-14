@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Heart, MessageCircle, Check, Loader2 } from 'lucide-react';
+import { Heart, MessageCircle, Check, Loader2, Video } from 'lucide-react';
 
 const Instagram: React.FC<{ className?: string }> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -13,6 +13,7 @@ const Instagram: React.FC<{ className?: string }> = ({ className }) => (
 interface InstagramPost {
   id: string;
   media_url: string;
+  media_type: 'image' | 'video';
   likes: number;
   comments: number;
 }
@@ -36,24 +37,40 @@ export const InstagramGrid: React.FC = () => {
       try {
         const { data, error } = await supabase
           .from('gallery')
-          .select('id, media_url')
-          .eq('media_type', 'image')
+          .select('id, media_url, media_type')
+          .in('media_type', ['image', 'video'])
           .order('created_at', { ascending: false })
           .limit(6);
 
         if (!error && data && data.length > 0) {
-          const formattedPosts = data.map((item) => ({
+          const formattedPosts: InstagramPost[] = data.map((item) => ({
             id: item.id,
             media_url: item.media_url,
+            media_type: item.media_type as 'image' | 'video',
             likes: Math.floor(Math.random() * 80) + 40, // Simulated likes for premium UI feel
             comments: Math.floor(Math.random() * 15) + 3,
           }));
-          setPosts(formattedPosts);
+
+          // If we have fewer than 6 items, append fallback images to complete the 3x2 grid
+          if (formattedPosts.length < 6) {
+            const neededCount = 6 - formattedPosts.length;
+            const extraFallbacks: InstagramPost[] = fallbackImages.slice(0, neededCount).map((url, idx) => ({
+              id: `fallback-${idx}`,
+              media_url: url,
+              media_type: 'image' as const,
+              likes: Math.floor(Math.random() * 120) + 80,
+              comments: Math.floor(Math.random() * 25) + 5,
+            }));
+            setPosts([...formattedPosts, ...extraFallbacks]);
+          } else {
+            setPosts(formattedPosts);
+          }
         } else {
-          // Use fallbacks
-          const formattedFallbacks = fallbackImages.map((url, idx) => ({
+          // Use fallbacks entirely
+          const formattedFallbacks: InstagramPost[] = fallbackImages.map((url, idx) => ({
             id: `fallback-${idx}`,
             media_url: url,
+            media_type: 'image' as const,
             likes: Math.floor(Math.random() * 120) + 80,
             comments: Math.floor(Math.random() * 25) + 5,
           }));
@@ -173,15 +190,38 @@ export const InstagramGrid: React.FC = () => {
                 rel="noopener noreferrer"
                 className="relative aspect-square rounded-lg sm:rounded-xl overflow-hidden bg-black border border-white/5 group shadow-md"
               >
-                <img
-                  src={post.media_url}
-                  alt="Instagram Post"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
+                {post.media_type === 'video' ? (
+                  <video
+                    src={post.media_url}
+                    muted
+                    playsInline
+                    loop
+                    onMouseEnter={(e) => (e.target as HTMLVideoElement).play().catch(() => {})}
+                    onMouseLeave={(e) => {
+                      const v = e.target as HTMLVideoElement;
+                      v.pause();
+                      v.currentTime = 0;
+                    }}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <img
+                    src={post.media_url}
+                    alt="Instagram Post"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                )}
+
+                {/* Video Type Tag on Top Right */}
+                {post.media_type === 'video' && (
+                  <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-md p-1.5 rounded-full text-white z-10">
+                    <Video className="w-3.5 h-3.5" />
+                  </div>
+                )}
                 
                 {/* Overlay hover panel */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-4 sm:space-x-6 z-10 text-white">
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-4 sm:space-x-6 z-20 text-white">
                   <div className="flex items-center space-x-1 sm:space-x-1.5 text-xs sm:text-sm font-bold">
                     <Heart className="w-4 h-4 sm:w-5 sm:h-5 fill-white text-white" />
                     <span className="font-sans">{post.likes}</span>
