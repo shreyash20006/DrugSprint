@@ -178,6 +178,13 @@ const CodeBlock: React.FC<{ language: string; value: string }> = ({ language, va
 export const AIChatbot: React.FC = () => {
   const { studentProfile } = useStudentAuth();
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.addEventListener('open-ai-chatbot', handleOpen);
+    return () => window.removeEventListener('open-ai-chatbot', handleOpen);
+  }, []);
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [input, setInput] = useState('');

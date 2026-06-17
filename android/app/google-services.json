@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "410389239939",
+    "project_id": "tgpcop-council-site",
+    "storage_bucket": "tgpcop-council-site.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410389239939:android:c228e8f8a72f51b8c9a3b6",
+        "android_client_info": {
+          "package_name": "com.tgpcop.council"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_4z8OUexvOSdrPYuDAA3uOFcVfcrakoQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

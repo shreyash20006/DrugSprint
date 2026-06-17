@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { Capacitor } from '@capacitor/core';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { ShieldCheck, ArrowLeft, Bug, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -88,7 +90,29 @@ export const AdminLogin: React.FC = () => {
   const handleGoogleLogin = async () => {
     setIsLoggingIn(true);
     setErrorMessage('');
+    const isNative = Capacitor.isNativePlatform();
     try {
+      if (isNative) {
+        console.log('[AdminAuth] Starting native Google Sign-in...');
+        GoogleAuth.initialize();
+        const googleUser = await GoogleAuth.signIn();
+        const idToken = googleUser.authentication.idToken;
+        
+        if (!idToken) {
+          throw new Error('Google Auth did not return an ID token.');
+        }
+
+        console.log('[AdminAuth] Logging in to Supabase with ID token...');
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: idToken,
+        });
+
+        if (error) throw error;
+        return;
+      }
+
+      // Web Fallback
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -98,7 +122,19 @@ export const AdminLogin: React.FC = () => {
       });
       if (error) throw error;
     } catch (err: any) {
-      const errMsg = err.message || 'Failed to initialize Google Sign-in.';
+      console.error('[AdminLogin] Google login error:', err);
+      let errMsg = 'Failed to initialize Google Sign-in.';
+      if (err) {
+        if (typeof err === 'string') {
+          errMsg = err;
+        } else if (err.message) {
+          errMsg = err.message;
+        } else if (err.error) {
+          errMsg = err.error;
+        } else {
+          errMsg = JSON.stringify(err);
+        }
+      }
       setErrorMessage(errMsg);
       toast.error(`❌ Google login failed! ${errMsg}`);
       setIsLoggingIn(false);
@@ -234,7 +270,7 @@ export const AdminLogin: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
                     <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 3.01-.97 4.14v3.45h1.59c3.27-3 5.43-7.42 5.43-12.44z"/>
                     <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.84-2.98c-1.07.72-2.44 1.15-4.12 1.15-3.17 0-5.85-2.14-6.81-5.02H1.23v3.1A11.996 11.996 0 0012 24z"/>
                     <path fill="#FBBC05" d="M5.19 14.24A7.2 7.2 0 014.8 12c0-.79.13-1.57.39-2.31V6.59H1.23A11.96 11.96 0 000 12c0 2.23.6 4.32 1.66 6.13l3.53-2.89z"/>

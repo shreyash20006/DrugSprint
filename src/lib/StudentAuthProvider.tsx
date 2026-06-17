@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { supabase } from './supabase';
+import { Capacitor } from '@capacitor/core';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
 export interface StudentProfile {
   id: string;
@@ -19,6 +21,7 @@ type StudentAuthContextType = {
   studentProfile: StudentProfile | null;
   isLoading: boolean;
   signInWithGoogle: () => Promise<void>;
+  loginWithEmailDemo: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 };
@@ -28,6 +31,7 @@ const StudentAuthContext = createContext<StudentAuthContextType>({
   studentProfile: null,
   isLoading: true,
   signInWithGoogle: async () => {},
+  loginWithEmailDemo: async () => {},
   signOut: async () => {},
   refreshProfile: async () => {},
 });
@@ -151,22 +155,124 @@ export const StudentAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const signInWithGoogle = async () => {
     setIsLoading(true);
+    const isNative = Capacitor.isNativePlatform();
+    
+    if (isNative) {
+      try {
+        console.log('[StudentAuth] Starting native Google Sign-in...');
+        GoogleAuth.initialize();
+        const googleUser = await GoogleAuth.signIn();
+        const idToken = googleUser.authentication.idToken;
+        
+        if (!idToken) {
+          throw new Error('Google Auth did not return an ID token.');
+        }
+
+        console.log('[StudentAuth] Logging in to Supabase with ID token...');
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: idToken,
+        });
+
+        if (error) throw error;
+      } catch (err) {
+        setIsLoading(false);
+        throw err;
+      }
+      return;
+    }
+
+    // Web OAuth Fallback
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: window.location.origin + '/profile',
         queryParams: {
-          // Show account picker every time
           prompt: 'select_account',
-          // Allow both Gmail AND Google Workspace accounts
-          // No 'hd' restriction — accept all Google accounts
           access_type: 'offline',
         },
       },
     });
+    
     if (error) {
       setIsLoading(false);
       throw error;
+    }
+  };
+
+  const generateUUID = () => {
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.randomUUID) {
+      try {
+        return window.crypto.randomUUID();
+      } catch (e) {
+        // ignore and fallback
+      }
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  };
+
+  const loginWithEmailDemo = async (email: string) => {
+    setIsLoading(true);
+    const demoId = generateUUID();
+    const fallbackProfile: StudentProfile = {
+      id: demoId,
+      user_id: demoId,
+      full_name: 'Demo Student',
+      email: email,
+      avatar_url: '',
+      year: 'First Year',
+      phone: '',
+      created_at: new Date().toISOString(),
+      role: 'student',
+      is_active: true
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+        
+      if (error || !data) {
+        if (error) {
+          console.warn('[StudentAuth] Database error in select, trying insertion fallback:', error);
+        }
+        // Try inserting it
+        try {
+          const { data: created, error: insertError } = await supabase
+            .from('profiles')
+            .insert([fallbackProfile])
+            .select()
+            .single();
+            
+          if (insertError) {
+            console.warn('[StudentAuth] Database insert failed, using local-only session:', insertError);
+            setStudentUser({ id: fallbackProfile.id, email: email });
+            setStudentProfile(fallbackProfile);
+          } else {
+            setStudentUser({ id: created.id, email: email });
+            setStudentProfile(created);
+          }
+        } catch (insertCatch) {
+          console.warn('[StudentAuth] Database insert catch, using local-only session:', insertCatch);
+          setStudentUser({ id: fallbackProfile.id, email: email });
+          setStudentProfile(fallbackProfile);
+        }
+      } else {
+        setStudentUser({ id: data.id, email: data.email });
+        setStudentProfile(data);
+      }
+    } catch (err) {
+      console.warn('[StudentAuth] Network/general error in demo login, using local-only session:', err);
+      setStudentUser({ id: fallbackProfile.id, email: email });
+      setStudentProfile(fallbackProfile);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -191,6 +297,7 @@ export const StudentAuthProvider: React.FC<{ children: ReactNode }> = ({ childre
         studentProfile,
         isLoading,
         signInWithGoogle,
+        loginWithEmailDemo,
         signOut,
         refreshProfile,
       }}

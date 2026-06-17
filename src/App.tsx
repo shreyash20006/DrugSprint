@@ -7,6 +7,9 @@ import { ThemeProvider } from './lib/ThemeProvider';
 import { StudentAuthProvider } from './lib/StudentAuthProvider';
 import { isMobile } from './lib/device';
 import OneSignal from 'react-onesignal';
+import { Capacitor } from '@capacitor/core';
+import { MobileLayout } from './mobile/layouts/MobileLayout';
+
 
 // Import core static layout components
 import { Navbar } from './components/Navbar';
@@ -45,6 +48,11 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Refunds = lazy(() => import('./pages/Refunds'));
 const Search = lazy(() => import('./pages/Search'));
 const ExamSchedule = lazy(() => import('./pages/ExamSchedule'));
+
+const MobileEventRegister = lazy(() => import('./mobile/screens/EventRegister'));
+const MobileEventFeedback = lazy(() => import('./mobile/screens/EventFeedback'));
+const MobilePay = lazy(() => import('./mobile/screens/Pay'));
+const MobilePaymentSuccess = lazy(() => import('./mobile/screens/PaymentSuccess'));
 
 // Lazy load all admin pages
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
@@ -141,6 +149,76 @@ const AppContent: React.FC = () => {
     
     return () => document.removeEventListener('wheel', handleWheel);
   }, []);
+
+  const isNative = Capacitor.isNativePlatform();
+
+  if (isNative) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#050B18] font-sans text-white antialiased">
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-[60vh] bg-[#050B18]">
+            <DNALoader />
+          </div>
+        }>
+          <Routes>
+            {/* Special full screen pages on mobile */}
+            <Route path="/register/:eventId" element={<MobileEventRegister />} />
+            <Route path="/feedback/:eventId" element={<MobileEventFeedback />} />
+            <Route path="/pay" element={<MobilePay />} />
+            <Route path="/payment-success" element={<MobilePaymentSuccess />} />
+
+            {/* Secure Admin Routes */}
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/super-admin" element={<AdminDashboard />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/developer" element={<AdminDashboard />} />
+              <Route path="/president" element={<AdminDashboard />} />
+              <Route path="/vice-president" element={<AdminDashboard />} />
+              <Route path="/general-secretary" element={<AdminDashboard />} />
+              <Route path="/secretary" element={<AdminDashboard />} />
+              <Route path="/treasurer" element={<AdminDashboard />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/payments" element={<AdminPayments />} />
+              <Route path="/admin/questions" element={<AdminQuestions />} />
+              <Route path="/admin/notices" element={<AdminNotices />} />
+              <Route path="/admin/events" element={<AdminEvents />} />
+              <Route path="/admin/gallery" element={<AdminGallery />} />
+              <Route path="/admin/registrations" element={<AdminRegistrations />} />
+              <Route path="/admin/verification" element={<AdminStudentVerification />} />
+              <Route path="/admin/polls" element={<AdminPolls />} />
+              <Route path="/admin/feedback" element={<AdminFeedback />} />
+              <Route path="/admin/messages" element={<AdminMessages />} />
+              <Route path="/admin/achievements" element={<AdminAchievements />} />
+              <Route path="/admin/newsletter" element={<AdminNewsletter />} />
+              <Route path="/admin/mentors" element={<AdminMentors />} />
+              <Route path="/admin/complaints" element={<AdminComplaints />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/logs" element={<AdminLogs />} />
+              <Route path="/admin/bugs" element={<AdminBugs />} />
+              <Route path="/admin/developer" element={<AdminDeveloper />} />
+              <Route path="/admin/manage-admins" element={<AdminManageAdmins />} />
+              <Route path="/admin/exams" element={<AdminExamSchedule />} />
+              <Route path="/admin/stories" element={<AdminStories />} />
+              <Route path="/admin/admissions" element={<AdminAdmissions />} />
+            </Route>
+
+            {/* Everything else maps to bottom-tabbed MobileLayout */}
+            <Route path="*" element={<MobileLayout />} />
+          </Routes>
+          <AIChatbot />
+        </Suspense>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-light font-sans text-navy-dark antialiased">
@@ -239,6 +317,7 @@ const AppContent: React.FC = () => {
       {!isAdminRoute && <AIChatbot />}
     </div>
   );
+
 };
 
 import { ToastProvider } from './components/admin/Toast';

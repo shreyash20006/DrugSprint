@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, GraduationCap, ChevronDown, Lock, Sun, Moon, Search, User } from 'lucide-react';
+import { Menu, X, GraduationCap, ChevronDown, Lock, Sun, Moon, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useThemeContext } from '../lib/ThemeProvider';
 import { useStudentAuth } from '../lib/StudentAuthProvider';
@@ -330,10 +330,15 @@ export const Navbar: React.FC = () => {
             ) : (
               <button
                 onClick={handleLogin}
-                className="ml-2 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-[10px] font-display font-bold uppercase tracking-widest text-white transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-1 shrink-0 cursor-pointer"
+                className="ml-2 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-burnt/30 text-[10px] font-display font-bold uppercase tracking-widest text-white transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-2 shrink-0 cursor-pointer shadow-lg shadow-black/10"
               >
-                <User className="w-3 h-3 text-orange-burnt" />
-                <span>Sign In</span>
+                <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 3.01-.97 4.14v3.45h1.59c3.27-3 5.43-7.42 5.43-12.44z"/>
+                  <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.84-2.98c-1.07.72-2.44 1.15-4.12 1.15-3.17 0-5.85-2.14-6.81-5.02H1.23v3.1A11.996 11.996 0 0012 24z"/>
+                  <path fill="#FBBC05" d="M5.19 14.24A7.2 7.2 0 014.8 12c0-.79.13-1.57.39-2.31V6.59H1.23A11.96 11.96 0 000 12c0 2.23.6 4.32 1.66 6.13l3.53-2.89z"/>
+                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.22 0 12 0 7.34 0 3.37 2.67 1.23 6.59l3.96 3.1c.96-2.88 3.64-5.02 6.81-5.02z"/>
+                </svg>
+                <span>Google Sign In</span>
               </button>
             )}
 
@@ -490,10 +495,15 @@ export const Navbar: React.FC = () => {
           ) : (
             <button
               onClick={() => { handleLogin(); setIsMobileMenuOpen(false); }}
-              className="w-full flex items-center justify-center space-x-2 py-3 px-4 mb-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-display text-xs font-bold uppercase tracking-wider cursor-pointer"
+              className="w-full flex items-center justify-center space-x-3 py-3 px-4 mb-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-burnt/30 text-white font-display text-xs font-bold uppercase tracking-wider cursor-pointer active:scale-98 transition-all shadow-lg shadow-black/10"
             >
-              <User className="w-4 h-4 text-orange-burnt" />
-              <span>Student Login</span>
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 3.01-.97 4.14v3.45h1.59c3.27-3 5.43-7.42 5.43-12.44z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.84-2.98c-1.07.72-2.44 1.15-4.12 1.15-3.17 0-5.85-2.14-6.81-5.02H1.23v3.1A11.996 11.996 0 0012 24z"/>
+                <path fill="#FBBC05" d="M5.19 14.24A7.2 7.2 0 014.8 12c0-.79.13-1.57.39-2.31V6.59H1.23A11.96 11.96 0 000 12c0 2.23.6 4.32 1.66 6.13l3.53-2.89z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.22 0 12 0 7.34 0 3.37 2.67 1.23 6.59l3.96 3.1c.96-2.88 3.64-5.02 6.81-5.02z"/>
+              </svg>
+              <span>Sign in with Google</span>
             </button>
           )}
 

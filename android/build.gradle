@@ -22,6 +22,7 @@ allprojects {
         google()
         mavenCentral()
     }
+    buildDir = "D:/tgpcop_build/${project.name}"
 }
 
 task clean(type: Delete) {

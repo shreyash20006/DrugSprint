@@ -4,4 +4,5 @@
     <string name="title_activity_main">TGPCOP Student Council</string>
     <string name="package_name">com.tgpcop.council</string>
     <string name="custom_url_scheme">com.tgpcop.council</string>
+    <string name="server_client_id">621820738648-e1ts3u438airf9upt42efl7ofitr45h0.apps.googleusercontent.com</string>
 </resources>
