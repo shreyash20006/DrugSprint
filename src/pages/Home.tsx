@@ -1025,6 +1025,32 @@ export const Home: React.FC = () => {
         )}
       </section>
 
+      {/* App Download Banner Image Link (Just Above Footer) */}
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative rounded-3xl overflow-hidden shadow-2xl group cursor-pointer border border-white/10"
+        >
+          {/* Subtle glowing backlight */}
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-burnt via-purple-600 to-gold-accent rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200 pointer-events-none" />
+          
+          <a 
+            href="https://drive.google.com/file/d/18ujun_VrhU3aeZ9441fGEkfxKG7tWkPT/view?usp=sharing" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="relative block w-full h-full overflow-hidden rounded-3xl"
+          >
+            <img 
+              src="https://res.cloudinary.com/dsqxboxoc/image/upload/q_auto/f_auto/v1781695316/ChatGPT_Image_Jun_17_2026_04_50_13_PM_ln5ggb.png" 
+              alt="Download TGPCOP Student Council App" 
+              className="w-full h-auto object-cover transform group-hover:scale-[1.015] transition-all duration-500 rounded-3xl"
+            />
+          </a>
+        </motion.div>
+      </section>
 
       {/* Fullscreen Stories Player Overlay */}
       {activeStoryIndex !== null && stories[activeStoryIndex] && (
