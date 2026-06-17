@@ -23,8 +23,7 @@ import {
   Megaphone,
   Eye,
   Plus,
-  X,
-  Download
+  X
 } from 'lucide-react';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -1026,71 +1025,6 @@ export const Home: React.FC = () => {
         )}
       </section>
 
-      {/* 8. Download CTA Banner */}
-      <section id="download-app-section" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="relative bg-gradient-to-br from-indigo-950/90 via-purple-950/80 to-[#1F0E05]/95 border border-white/10 backdrop-blur-[20px] rounded-3xl p-8 sm:p-12 shadow-2xl overflow-hidden text-center"
-        >
-          {/* Decorative glowing gradient elements */}
-          <div className="absolute -top-20 -left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
-          <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-orange-500/10 rounded-full blur-[80px] pointer-events-none" />
-          
-          <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-            <span className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-purple-500/10 text-purple-400 border border-purple-500/30">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Available for Android Devices</span>
-            </span>
-            
-            <h2 className="font-display font-black text-3xl sm:text-5xl text-white leading-tight">
-              Download the Official <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-blue-400 to-orange-400">
-                TGPCOP Student Council App
-              </span>
-            </h2>
-            
-            <p className="text-white/70 text-base sm:text-lg max-w-xl mx-auto leading-relaxed font-sans font-medium">
-              Everything you need, all in one place. Access notice boards, events, syllabus, calculations, and active polls on the go.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-              {/* Direct APK Download Button */}
-              <a
-                href="https://github.com/shreyash20006/tgpcop-concil/releases/latest"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-4 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display font-bold text-xs uppercase tracking-widest rounded-2xl hover:scale-[1.03] active:scale-[0.98] transition-all shadow-lg shadow-orange-burnt/25 border border-white/5 cursor-pointer outline-none"
-              >
-                <Download className="w-4.5 h-4.5" />
-                <span>Download Android APK</span>
-              </a>
-
-              {/* Google Play Store Badge (Coming Soon) */}
-              <div className="relative group w-full sm:w-auto">
-                <div className="w-full sm:w-auto inline-flex items-center justify-center space-x-3 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white/50 cursor-not-allowed select-none font-display font-bold text-xs uppercase tracking-widest">
-                  <svg className="w-5 h-5 opacity-40" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 5.27v13.46c0 .82.68 1.43 1.47 1.25l13.14-6.31c.71-.34.71-1.35 0-1.69L4.47 4.02C3.68 3.84 3 4.45 3 5.27z" />
-                  </svg>
-                  <div className="text-left">
-                    <span className="block text-[8px] text-white/30 font-sans font-bold leading-none">Get it on</span>
-                    <span className="block text-[11px] text-white/40 font-display font-black leading-tight mt-0.5">Google Play</span>
-                  </div>
-                </div>
-                <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-2.5 py-0.5 bg-purple-500 text-white text-[8px] font-bold uppercase tracking-widest rounded-full border border-purple-400/30 shadow-md">
-                  Coming Soon
-                </span>
-              </div>
-            </div>
-            
-            <p className="text-white/40 text-[10px] font-semibold uppercase tracking-wider pt-2">
-              Requires Android 8.0 or higher
-            </p>
-          </div>
-        </motion.div>
-      </section>
 
       {/* Fullscreen Stories Player Overlay */}
       {activeStoryIndex !== null && stories[activeStoryIndex] && (
