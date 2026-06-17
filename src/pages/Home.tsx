@@ -1043,11 +1043,13 @@ export const Home: React.FC = () => {
             {/* Left side content */}
             <div className="flex flex-col md:flex-row items-start gap-5 max-w-3xl">
               {/* Styled App Icon */}
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[20px] bg-gradient-to-br from-purple-600 via-indigo-600 to-orange-burnt p-0.5 flex-shrink-0 shadow-lg shadow-purple-500/20 relative group self-center md:self-start">
-                <div className="w-full h-full bg-[#050B1F] rounded-[18px] flex items-center justify-center">
-                  <span className="text-xl sm:text-2xl font-black font-display bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-orange-400">
-                    SC
-                  </span>
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[20px] bg-gradient-to-br from-purple-600 via-indigo-600 to-orange-burnt p-0.5 flex-shrink-0 shadow-lg shadow-purple-500/20 relative group self-center md:self-start overflow-hidden">
+                <div className="w-full h-full bg-[#050B1F] rounded-[18px] flex items-center justify-center overflow-hidden">
+                  <img
+                    src="https://res.cloudinary.com/dsqxboxoc/image/upload/q_auto/f_auto/v1779522116/WhatsApp_Image_2026-05-23_at_1.10.29_PM_susb5a.jpg"
+                    alt="TGPCOP Student Council Logo"
+                    className="w-full h-full object-cover rounded-[18px]"
+                  />
                 </div>
               </div>
 
