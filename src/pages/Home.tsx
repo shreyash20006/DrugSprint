@@ -1039,9 +1039,9 @@ export const Home: React.FC = () => {
           <div className="absolute -right-20 -bottom-20 w-72 h-72 bg-purple-600/10 rounded-full blur-[70px] pointer-events-none" />
           <div className="absolute -left-20 -top-20 w-72 h-72 bg-orange-500/10 rounded-full blur-[70px] pointer-events-none" />
 
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 relative z-10 text-left">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 relative z-10 text-center lg:text-left">
             {/* Left side content */}
-            <div className="flex flex-col md:flex-row items-start gap-5 max-w-3xl">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-5 max-w-3xl">
               {/* Styled App Icon */}
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[20px] bg-gradient-to-br from-purple-600 via-indigo-600 to-orange-burnt p-0.5 flex-shrink-0 shadow-lg shadow-purple-500/20 relative group self-center md:self-start overflow-hidden">
                 <div className="w-full h-full bg-[#050B1F] rounded-[18px] flex items-center justify-center overflow-hidden">
@@ -1054,7 +1054,7 @@ export const Home: React.FC = () => {
               </div>
 
               {/* Text content */}
-              <div className="space-y-3">
+              <div className="space-y-3 flex flex-col items-center md:items-start text-center md:text-left">
                 <h3 className="font-display font-extrabold text-lg sm:text-xl text-white flex items-center gap-2">
                   <span>📱 Download the TGPCOP Student Council App</span>
                 </h3>
@@ -1068,7 +1068,7 @@ export const Home: React.FC = () => {
                 </p>
 
                 {/* Features Row */}
-                <div className="flex flex-wrap items-center gap-y-2 gap-x-4 pt-1 text-[10px] sm:text-xs font-sans font-bold text-white/60">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-y-2 gap-x-4 pt-1 text-[10px] sm:text-xs font-sans font-bold text-white/60">
                   <span className="flex items-center gap-1">📢 Notices</span>
                   <span className="text-white/20">•</span>
                   <span className="flex items-center gap-1">📅 Events</span>
