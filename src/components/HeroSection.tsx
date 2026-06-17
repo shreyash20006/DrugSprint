@@ -88,13 +88,10 @@ export const HeroSection: React.FC = () => {
             className="lg:col-span-7 flex flex-col space-y-6 text-left"
           >
             {/* Small Badge */}
-            <div className="self-start flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10 backdrop-blur-md shadow-lg">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
-              </span>
-              <span className="text-white/80 text-[10px] sm:text-xs font-bold tracking-wider font-display uppercase flex items-center gap-1.5">
-                🚀 Official TGPCOP Student Council App
+            <div className="self-start flex items-center space-x-2 bg-orange-burnt/10 border border-orange-burnt/30 px-4 py-1.5 rounded-full">
+              <span className="w-2 h-2 rounded-full bg-orange-burnt animate-pulse" />
+              <span className="text-orange-burnt text-[10px] sm:text-xs font-bold tracking-wider uppercase font-display">
+                Tulsiramji Gaikwad Patil College of Pharmacy
               </span>
             </div>
 
