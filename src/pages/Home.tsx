@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import OneSignal from 'react-onesignal';
 import { motion } from 'framer-motion';
-import { DNAHero } from '../components/DNAHero';
+import { HeroSection } from '../components/HeroSection';
 import { ScienceBackground } from '../components/ScienceBackground';
 import { MarqueeStrip } from '../components/MarqueeStrip';
 import { supabase } from '../lib/supabase';
@@ -23,7 +24,9 @@ import {
   Megaphone,
   Eye,
   Plus,
-  X
+  X,
+  Bell,
+  Download
 } from 'lucide-react';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -382,7 +385,7 @@ export const Home: React.FC = () => {
       <div className="absolute inset-0 grid-bg-overlay opacity-15 z-0 pointer-events-none" />
 
       {/* 1. Hero Canvas */}
-      <DNAHero />
+      <HeroSection />
 
       {/* Instagram Stories Row */}
       {(stories.length > 0 || isAdmin) && (
@@ -597,6 +600,116 @@ export const Home: React.FC = () => {
               >
                 📞 Teju Mam: +91 88069 37481
               </a>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Web Push Notification Banner */}
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative bg-gradient-to-br from-[#0D1B3E]/90 to-[#0A1428]/95 border border-orange-burnt/30 backdrop-blur-[20px] rounded-3xl p-8 sm:p-12 shadow-2xl overflow-hidden"
+        >
+          {/* Decorative glowing gradient elements */}
+          <div className="absolute -top-20 -right-20 w-72 h-72 bg-orange-burnt/10 rounded-full blur-[80px] pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-72 h-72 bg-gold-accent/10 rounded-full blur-[80px] pointer-events-none" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            {/* Left Info Column */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              <span className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-orange-burnt/10 text-orange-burnt border border-orange-burnt/30">
+                <Bell className="w-3.5 h-3.5 text-orange-burnt animate-bounce" />
+                <span>Web Push Notifications</span>
+              </span>
+              
+              <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-white leading-tight">
+                Get Instant Updates Directly <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-burnt to-gold-accent">
+                  On Your Web Browser
+                </span>
+              </h2>
+              
+              <p className="text-white/75 text-sm sm:text-base leading-relaxed font-sans font-medium">
+                Subscribe to our official push notifications and receive real-time announcements, mid-sem exam schedules, and library timing notices directly on your browser—no app download required.
+              </p>
+              
+              {/* Features Checklist */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {[
+                  'Real-time Notice Board Alerts',
+                  'Instant Mid-Sem Exam Schedules',
+                  'Live Student Voting & Poll Updates',
+                  'No Mobile Storage Space Required',
+                ].map((feature, idx) => (
+                  <div key={idx} className="flex items-center space-x-2.5 text-white/80 text-xs sm:text-sm font-sans font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <button
+                  onClick={async () => {
+                    try {
+                      await OneSignal.Slidedown.promptPush();
+                    } catch (err) {
+                      console.error('Failed to trigger web push prompt:', err);
+                    }
+                  }}
+                  className="inline-flex items-center justify-center space-x-2 px-6 py-3.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display font-bold text-xs uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-orange-burnt/25 border border-white/5 cursor-pointer outline-none"
+                >
+                  <Bell className="w-4.5 h-4.5" />
+                  <span>Enable Web Notifications</span>
+                </button>
+              </div>
+            </div>
+            
+            {/* Right Graphic Column: Interactive Browser Notification Mockup */}
+            <div className="lg:col-span-5 flex justify-center items-center">
+              <div className="relative w-full max-w-sm bg-[#050B18] border border-white/10 rounded-2xl shadow-2xl p-5 overflow-hidden">
+                {/* Browser controls */}
+                <div className="flex items-center space-x-1.5 border-b border-white/5 pb-3 mb-4">
+                  <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                  <div className="h-4 bg-white/5 rounded px-4 text-[8px] text-white/40 flex items-center font-sans ml-4 flex-grow">
+                    tgpcop-council.com
+                  </div>
+                </div>
+
+                {/* Simulated Web Notification Popup */}
+                <motion.div 
+                  initial={{ x: 50, opacity: 0 }}
+                  whileInView={{ x: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="bg-[#0D1B3E] border-l-4 border-orange-burnt rounded-xl p-4 shadow-lg space-y-2 relative"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 rounded bg-gradient-to-br from-orange-burnt to-[#E06D2B] flex items-center justify-center text-[9px] text-white font-display font-extrabold shadow-md">SC</div>
+                      <div>
+                        <span className="block text-[10px] font-display font-extrabold text-white leading-none">TGPCOP Council</span>
+                        <span className="text-[7.5px] text-white/40 mt-0.5 block font-sans">Official Alert</span>
+                      </div>
+                    </div>
+                    <span className="text-[8px] text-white/30 font-sans">1m ago</span>
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <p className="text-[10px] font-sans font-bold text-white leading-snug">Exam Timetable Published 📅</p>
+                    <p className="text-[8.5px] font-sans text-white/60 leading-relaxed">B.Pharm winter semester examination schedule has been officially uploaded. Check notices now.</p>
+                  </div>
+                </motion.div>
+                
+                {/* Visual decoration: glowing bell wave */}
+                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-orange-burnt/10 rounded-full blur-2xl" />
+              </div>
             </div>
           </div>
         </motion.div>
@@ -1024,6 +1137,71 @@ export const Home: React.FC = () => {
         )}
       </section>
 
+      {/* 8. Download CTA Banner */}
+      <section id="download-app-section" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative bg-gradient-to-br from-indigo-950/90 via-purple-950/80 to-[#1F0E05]/95 border border-white/10 backdrop-blur-[20px] rounded-3xl p-8 sm:p-12 shadow-2xl overflow-hidden text-center"
+        >
+          {/* Decorative glowing gradient elements */}
+          <div className="absolute -top-20 -left-20 w-72 h-72 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
+          <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-orange-500/10 rounded-full blur-[80px] pointer-events-none" />
+          
+          <div className="relative z-10 max-w-3xl mx-auto space-y-6">
+            <span className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-purple-500/10 text-purple-400 border border-purple-500/30">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Available for Android Devices</span>
+            </span>
+            
+            <h2 className="font-display font-black text-3xl sm:text-5xl text-white leading-tight">
+              Download the Official <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-blue-400 to-orange-400">
+                TGPCOP Student Council App
+              </span>
+            </h2>
+            
+            <p className="text-white/70 text-base sm:text-lg max-w-xl mx-auto leading-relaxed font-sans font-medium">
+              Everything you need, all in one place. Access notice boards, events, syllabus, calculations, and active polls on the go.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+              {/* Direct APK Download Button */}
+              <a
+                href="https://github.com/shreyash20006/tgpcop-concil/releases/latest"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-8 py-4 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display font-bold text-xs uppercase tracking-widest rounded-2xl hover:scale-[1.03] active:scale-[0.98] transition-all shadow-lg shadow-orange-burnt/25 border border-white/5 cursor-pointer outline-none"
+              >
+                <Download className="w-4.5 h-4.5" />
+                <span>Download Android APK</span>
+              </a>
+
+              {/* Google Play Store Badge (Coming Soon) */}
+              <div className="relative group w-full sm:w-auto">
+                <div className="w-full sm:w-auto inline-flex items-center justify-center space-x-3 px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white/50 cursor-not-allowed select-none font-display font-bold text-xs uppercase tracking-widest">
+                  <svg className="w-5 h-5 opacity-40" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 5.27v13.46c0 .82.68 1.43 1.47 1.25l13.14-6.31c.71-.34.71-1.35 0-1.69L4.47 4.02C3.68 3.84 3 4.45 3 5.27z" />
+                  </svg>
+                  <div className="text-left">
+                    <span className="block text-[8px] text-white/30 font-sans font-bold leading-none">Get it on</span>
+                    <span className="block text-[11px] text-white/40 font-display font-black leading-tight mt-0.5">Google Play</span>
+                  </div>
+                </div>
+                <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-2.5 py-0.5 bg-purple-500 text-white text-[8px] font-bold uppercase tracking-widest rounded-full border border-purple-400/30 shadow-md">
+                  Coming Soon
+                </span>
+              </div>
+            </div>
+            
+            <p className="text-white/40 text-[10px] font-semibold uppercase tracking-wider pt-2">
+              Requires Android 8.0 or higher
+            </p>
+          </div>
+        </motion.div>
+      </section>
 
       {/* Fullscreen Stories Player Overlay */}
       {activeStoryIndex !== null && stories[activeStoryIndex] && (
