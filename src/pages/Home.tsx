@@ -23,7 +23,8 @@ import {
   Megaphone,
   Eye,
   Plus,
-  X
+  X,
+  Download
 } from 'lucide-react';
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -1025,6 +1026,84 @@ export const Home: React.FC = () => {
         )}
       </section>
 
+      {/* Compact App Promotion Section (Just Above Footer) */}
+      <section className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative bg-gradient-to-r from-[#0D1B3E]/95 via-[#0A1428]/95 to-[#150A21]/95 border border-purple-500/35 backdrop-blur-[20px] rounded-[20px] p-6 sm:p-8 shadow-[0_0_30px_rgba(168,85,247,0.15)] overflow-hidden"
+        >
+          {/* Subtle background glow blobs */}
+          <div className="absolute -right-20 -bottom-20 w-72 h-72 bg-purple-600/10 rounded-full blur-[70px] pointer-events-none" />
+          <div className="absolute -left-20 -top-20 w-72 h-72 bg-orange-500/10 rounded-full blur-[70px] pointer-events-none" />
+
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8 relative z-10 text-left">
+            {/* Left side content */}
+            <div className="flex flex-col md:flex-row items-start gap-5 max-w-3xl">
+              {/* Styled App Icon */}
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-[20px] bg-gradient-to-br from-purple-600 via-indigo-600 to-orange-burnt p-0.5 flex-shrink-0 shadow-lg shadow-purple-500/20 relative group self-center md:self-start">
+                <div className="w-full h-full bg-[#050B1F] rounded-[18px] flex items-center justify-center">
+                  <span className="text-xl sm:text-2xl font-black font-display bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-orange-400">
+                    SC
+                  </span>
+                </div>
+              </div>
+
+              {/* Text content */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-lg sm:text-xl text-white flex items-center gap-2">
+                  <span>📱 Download the TGPCOP Student Council App</span>
+                </h3>
+
+                <p className="text-xs sm:text-sm font-sans font-medium text-white/50 uppercase tracking-widest leading-none">
+                  Your Campus. Your Council. <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-orange-400 font-extrabold">Your App.</span>
+                </p>
+
+                <p className="text-white/75 text-xs sm:text-sm leading-relaxed font-sans font-medium">
+                  Get instant access to notices, events, exam schedules, achievements, resources, PRN verification and more — all in one place.
+                </p>
+
+                {/* Features Row */}
+                <div className="flex flex-wrap items-center gap-y-2 gap-x-4 pt-1 text-[10px] sm:text-xs font-sans font-bold text-white/60">
+                  <span className="flex items-center gap-1">📢 Notices</span>
+                  <span className="text-white/20">•</span>
+                  <span className="flex items-center gap-1">📅 Events</span>
+                  <span className="text-white/20">•</span>
+                  <span className="flex items-center gap-1">📝 Exams</span>
+                  <span className="text-white/20">•</span>
+                  <span className="flex items-center gap-1">🏆 Achievements</span>
+                  <span className="text-white/20">•</span>
+                  <span className="flex items-center gap-1">🎓 PRN Verification</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side buttons */}
+            <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-4 w-full lg:w-auto shrink-0 justify-center">
+              <a
+                href="https://drive.google.com/file/d/18ujun_VrhU3aeZ9441fGEkfxKG7tWkPT/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center justify-center space-x-2.5 px-6 py-3.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-orange-burnt/25 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 border border-white/5 cursor-pointer text-center w-full lg:w-48"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download App</span>
+              </a>
+
+              <a
+                href="https://drive.google.com/file/d/18ujun_VrhU3aeZ9441fGEkfxKG7tWkPT/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center justify-center space-x-2 px-6 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 cursor-pointer text-center w-full lg:w-48"
+              >
+                <span>🚀 Join Beta Testing</span>
+              </a>
+            </div>
+          </div>
+        </motion.div>
+      </section>
 
       {/* Fullscreen Stories Player Overlay */}
       {activeStoryIndex !== null && stories[activeStoryIndex] && (
