@@ -29,7 +29,21 @@ const YEARS = [
   'D.Pharm II Year',
 ];
 
-export const PaymentForm: React.FC = () => {
+export interface PaymentFormSummary {
+  studentName: string;
+  studentEmail: string;
+  studentYear: string;
+  purpose: string;
+  amount: number;
+  isSubmitting: boolean;
+}
+
+interface PaymentFormProps {
+  /** Called whenever form state changes — used by SummaryCard etc. */
+  onStateChange?: (state: PaymentFormSummary) => void;
+}
+
+export const PaymentForm: React.FC<PaymentFormProps> = ({ onStateChange }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const toast = useToast();
@@ -46,6 +60,12 @@ export const PaymentForm: React.FC = () => {
 
   const [isLocked, setIsLocked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Notify parent of current state (for SummaryCard live updates)
+  useEffect(() => {
+    onStateChange?.({ studentName, studentEmail, studentYear, purpose, amount, isSubmitting });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studentName, studentEmail, studentYear, purpose, amount, isSubmitting]);
 
   // Auto-fill from Supabase Auth user
   useEffect(() => {
