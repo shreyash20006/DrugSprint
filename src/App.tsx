@@ -20,6 +20,7 @@ import { DNALoader } from './components/DNALoader';
 import { DesktopOnlyWrapper } from './components/DesktopOnlyWrapper';
 import { AIChatbot } from './components/AIChatbot';
 import { FloatingScrollButtons } from './components/FloatingScrollButtons';
+import { SplashIntro } from './components/ui/SplashIntro';
 
 // Lazy load ALL pages for dynamic bundle code-splitting & minimal first-paint loading times
 const Home = lazy(() => import('./pages/Home'));
@@ -441,6 +442,7 @@ export const App: React.FC = () => {
             <ToastProvider>
               <Router>
                 <ScrollToTop />
+                <SplashIntro />
                 <AppContent />
               </Router>
             </ToastProvider>

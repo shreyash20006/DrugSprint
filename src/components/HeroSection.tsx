@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowUpRight, HelpCircle, Sparkles, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { AnimatedLogo } from './ui/AnimatedLogo';
 
 const isVideoUrl = (url: string | null): boolean => {
   if (!url) return false;
@@ -126,6 +127,16 @@ export const HeroSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-end">
           {/* LEFT — primary content */}
           <div className="lg:col-span-8 space-y-7">
+            {/* Mobile-only animated logo on top */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.7 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:hidden flex justify-start mb-2"
+            >
+              <AnimatedLogo size="md" variant="default" />
+            </motion.div>
+
             {/* Eyebrow / live badge */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -197,54 +208,61 @@ export const HeroSection: React.FC = () => {
             </motion.div>
           </div>
 
-          {/* RIGHT — vertical meta panel */}
+          {/* RIGHT — animated logo + vertical meta panel */}
           <motion.div
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 1.0 }}
             className="lg:col-span-4 hidden lg:block"
           >
-            <div className="relative rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md overflow-hidden">
-              <div className="noise-overlay noise-soft" />
-
-              <div className="relative p-6 space-y-5">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-gold-accent" strokeWidth={2.4} />
-                  <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/55 font-display">
-                    The Council Pulse
-                  </span>
-                </div>
-
-                <div className="space-y-1">
-                  <p className="text-white/45 text-[10px] font-sans uppercase tracking-[0.2em]">Established</p>
-                  <p className="font-display font-extrabold text-3xl text-white tracking-tight">2003</p>
-                </div>
-
-                <div className="h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-
-                <div className="space-y-1">
-                  <p className="text-white/45 text-[10px] font-sans uppercase tracking-[0.2em]">Active Programs</p>
-                  <p className="font-display font-extrabold text-3xl text-white tracking-tight">
-                    B.Pharm <span className="text-white/35 text-2xl">·</span> D.Pharm
-                  </p>
-                </div>
-
-                <div className="h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-
-                <div className="space-y-1">
-                  <p className="text-white/45 text-[10px] font-sans uppercase tracking-[0.2em]">Campus</p>
-                  <p className="font-display font-bold text-base text-white leading-snug">
-                    Nagpur, Maharashtra
-                    <span className="block text-orange-burnt text-xs mt-0.5 font-extrabold tracking-wider">
-                      INDIA
-                    </span>
-                  </p>
-                </div>
+            <div className="relative">
+              {/* Animated logo halo as visual anchor */}
+              <div className="flex justify-center mb-8">
+                <AnimatedLogo size="xl" variant="orbit" testId="hero-animated-logo" />
               </div>
 
-              {/* Decorative corner */}
-              <div className="absolute -top-px -right-px w-16 h-16 border-t border-r border-orange-burnt/50 rounded-tr-2xl pointer-events-none" />
-              <div className="absolute -bottom-px -left-px w-16 h-16 border-b border-l border-gold-accent/40 rounded-bl-2xl pointer-events-none" />
+              {/* Meta panel below */}
+              <div className="relative rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md overflow-hidden">
+                <div className="noise-overlay noise-soft" />
+
+                <div className="relative p-5 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-gold-accent" strokeWidth={2.4} />
+                    <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/55 font-display">
+                      The Council Pulse
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-0.5">
+                      <p className="text-white/45 text-[9px] font-sans uppercase tracking-[0.18em]">Since</p>
+                      <p className="font-display font-extrabold text-2xl text-white tracking-tight">2003</p>
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-white/45 text-[9px] font-sans uppercase tracking-[0.18em]">Campus</p>
+                      <p className="font-display font-bold text-sm text-white leading-tight">
+                        Nagpur
+                        <span className="block text-orange-burnt text-[10px] font-extrabold tracking-wider">
+                          MAHARASHTRA
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+                  <div className="space-y-0.5">
+                    <p className="text-white/45 text-[9px] font-sans uppercase tracking-[0.18em]">Programs</p>
+                    <p className="font-display font-extrabold text-base text-white">
+                      B.Pharm <span className="text-white/30 text-sm">·</span> D.Pharm
+                    </p>
+                  </div>
+                </div>
+
+                {/* Decorative corners */}
+                <div className="absolute -top-px -right-px w-12 h-12 border-t border-r border-orange-burnt/50 rounded-tr-2xl pointer-events-none" />
+                <div className="absolute -bottom-px -left-px w-12 h-12 border-b border-l border-gold-accent/40 rounded-bl-2xl pointer-events-none" />
+              </div>
             </div>
           </motion.div>
         </div>

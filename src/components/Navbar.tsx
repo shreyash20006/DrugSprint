@@ -151,8 +151,23 @@ export const Navbar: React.FC = () => {
         )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo & College Name */}
-          <Link to="/" className="flex items-center space-x-3 group relative z-50">
-            <div className="relative overflow-hidden w-10 h-10 rounded-xl bg-white/10 hover:bg-white/15 flex items-center justify-center shrink-0 border border-white/10 shadow-lg transition-colors">
+          <Link to="/" className="flex items-center space-x-3 group relative z-50" data-testid="navbar-logo-link">
+            <motion.div
+              className="relative w-10 h-10 rounded-xl shrink-0 overflow-hidden border border-white/10 shadow-lg group-hover:border-orange-burnt/50 transition-colors"
+              whileHover={{ scale: 1.08, rotate: 5 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 14 }}
+            >
+              {/* Animated gradient ring on hover */}
+              <motion.div
+                className="absolute inset-0 rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background:
+                    'conic-gradient(from 0deg, #D65A1E, #FFB338, #D65A1E, #142B5C, #D65A1E)',
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 6, ease: 'linear', repeat: Infinity }}
+              />
+              <div className="absolute inset-[2px] rounded-[10px] bg-[#050B18] group-hover:bg-[#0A1428] transition-colors" />
               <img
                 src="https://res.cloudinary.com/dsqxboxoc/image/upload/v1779522116/WhatsApp_Image_2026-05-23_at_1.10.29_PM_susb5a.jpg"
                 alt="TGPCOP Logo"
@@ -161,8 +176,8 @@ export const Navbar: React.FC = () => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <GraduationCap className="w-5 h-5 text-orange-burnt absolute" />
-            </div>
+              <GraduationCap className="w-5 h-5 text-orange-burnt absolute inset-0 m-auto" />
+            </motion.div>
             <div>
               <span
                 className="font-display font-extrabold text-lg sm:text-xl tracking-tight block leading-none group-hover:text-orange-burnt transition-colors"
