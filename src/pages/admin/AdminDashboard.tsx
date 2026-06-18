@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { StatsCard } from '../../components/admin/StatsCard';
 import {
-  Calendar, HelpCircle, AlertCircle, Loader2, Clock, ArrowUpRight, Plus,
+  Calendar, HelpCircle, AlertCircle, Loader2, Clock, ArrowUpRight,
   BadgeCheck, Sparkles, Image as ImageIcon, Megaphone, FileText, TrendingUp,
 } from 'lucide-react';
 

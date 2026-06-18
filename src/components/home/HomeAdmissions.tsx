@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, GraduationCap, MessageCircle, Phone, ClipboardList, X, ArrowUpRight } from 'lucide-react';
+import { Sparkles, GraduationCap, MessageCircle, Phone, ClipboardList, X } from 'lucide-react';
 import { Card, CardBadge } from '../ui/Card';
 import { Section } from './Section';
 
