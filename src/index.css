@@ -197,6 +197,75 @@ html.lenis, html.lenis body { height: auto; }
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
 }
 
+/* ============================================
+   THEME-AWARE CARD VARIANTS
+   Custom premium light-mode treatments
+   (overrides the global light-theme color inversion)
+   ============================================ */
+html.light .light-card {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  color: #0F1E42;
+}
+
+html.light .light-card--default {
+  border: 1px solid rgba(214, 90, 30, 0.12) !important;
+  box-shadow: 0 1px 2px rgba(15, 30, 66, 0.06), 0 6px 18px -8px rgba(15, 30, 66, 0.08) !important;
+}
+
+html.light .light-card--glow {
+  background: linear-gradient(135deg, #ffffff 0%, #FFF7EE 100%) !important;
+  border: 1px solid rgba(214, 90, 30, 0.20) !important;
+  box-shadow: 0 1px 2px rgba(15, 30, 66, 0.05), 0 12px 32px -10px rgba(214, 90, 30, 0.18) !important;
+}
+
+html.light .light-card--flat {
+  background-color: #F8FAFC !important;
+  border: 1px solid rgba(15, 30, 66, 0.06) !important;
+  box-shadow: none !important;
+}
+
+html.light .light-card--subtle {
+  background-color: #FCFCFC !important;
+  border: 1px solid rgba(15, 30, 66, 0.05) !important;
+  box-shadow: none !important;
+}
+
+html.light .light-card--highlight {
+  background: linear-gradient(135deg, #FFF7EE 0%, #FFE9D4 100%) !important;
+  border: 1.5px solid rgba(214, 90, 30, 0.35) !important;
+  box-shadow: 0 1px 2px rgba(214, 90, 30, 0.08), 0 14px 36px -10px rgba(214, 90, 30, 0.25) !important;
+}
+
+/* Card hover lift (theme-aware) */
+.card-hover-lift {
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+html.dark .card-hover-lift:hover,
+:root:not(.light) .card-hover-lift:hover {
+  border-color: rgba(214, 90, 30, 0.55) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 20px 45px -15px rgba(214, 90, 30, 0.25);
+}
+html.light .card-hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 1px 2px rgba(15, 30, 66, 0.08), 0 18px 36px -12px rgba(214, 90, 30, 0.22) !important;
+  border-color: rgba(214, 90, 30, 0.30) !important;
+}
+
+/* ============================================
+   GLOBAL ADMIN-AREA CARD CONSISTENCY
+   Adopt the new design tokens for old internal admin cards
+   (so the 27 un-migrated admin pages also look consistent)
+   ============================================ */
+html.dark [class*="bg-[#0A1428]/60"],
+html.dark [class*="bg-[#0A1428]/50"] {
+  background-color: rgba(13, 27, 62, 0.55) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  backdrop-filter: blur(12px);
+}
+
 /* Grid overlay */
 .grid-bg-overlay {
   background-image:

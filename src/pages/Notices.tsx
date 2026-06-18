@@ -60,15 +60,16 @@ export const Notices: React.FC = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
 
         {/* Filter Categories Bar */}
-        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 mb-16">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-14">
           {(['All', 'Academic', 'Event', 'Alert', 'General'] as const).map((filter) => (
             <button
               key={filter}
               onClick={() => handleFilter(filter)}
-              className={`px-5 py-2.5 sm:py-3 rounded-xl font-display text-xs sm:text-sm font-semibold tracking-wide transition-all duration-300 relative border ${
+              data-testid={`notice-filter-${filter.toLowerCase()}`}
+              className={`px-5 py-2.5 rounded-full font-display text-[11px] sm:text-xs font-bold uppercase tracking-[0.16em] transition-all duration-300 border ${
                 activeFilter === filter
-                  ? 'bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white border-transparent shadow-lg shadow-orange-burnt/15 scale-102'
-                  : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border-white/5'
+                  ? 'bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white border-transparent shadow-lg shadow-orange-burnt/15'
+                  : 'bg-white/[0.03] hover:bg-white/[0.06] text-white/65 hover:text-white border-white/[0.06] hover:border-white/15'
               }`}
             >
               {filter === 'Event' ? 'Events' : filter === 'Alert' ? 'Alerts' : filter}

@@ -17,17 +17,30 @@ interface CardProps {
   style?: React.CSSProperties;
 }
 
+/**
+ * Theme-aware Card variants.
+ * Both dark (default) and light themes get distinct premium treatments
+ * (not just inverted colors). Light mode uses subtle shadows + white surface,
+ * dark mode uses glass + glow.
+ */
 const VARIANT_STYLES: Record<CardVariant, string> = {
   default:
-    'bg-[#0D1B3E]/85 border border-orange-burnt/25 backdrop-blur-[16px] shadow-[0_8px_32px_rgba(5,11,24,0.4)]',
+    // dark
+    'bg-[#0D1B3E]/85 border border-orange-burnt/25 backdrop-blur-[16px] shadow-[0_8px_32px_rgba(5,11,24,0.4)] ' +
+    // light
+    'light-card light-card--default',
   glow:
-    'bg-gradient-to-br from-[#0D1B3E]/95 to-[#0A1428]/95 border border-orange-burnt/35 backdrop-blur-[20px] shadow-[0_8px_40px_rgba(214,90,30,0.12)]',
+    'bg-gradient-to-br from-[#0D1B3E]/95 to-[#0A1428]/95 border border-orange-burnt/35 backdrop-blur-[20px] shadow-[0_8px_40px_rgba(214,90,30,0.12)] ' +
+    'light-card light-card--glow',
   flat:
-    'bg-white/[0.03] border border-white/8 backdrop-blur-md',
+    'bg-white/[0.03] border border-white/8 backdrop-blur-md ' +
+    'light-card light-card--flat',
   subtle:
-    'bg-white/[0.02] border border-white/6',
+    'bg-white/[0.02] border border-white/6 ' +
+    'light-card light-card--subtle',
   highlight:
-    'bg-gradient-to-br from-orange-burnt/15 via-[#0D1B3E]/85 to-[#0A1428]/95 border border-orange-burnt/45 backdrop-blur-[20px] shadow-[0_8px_40px_rgba(214,90,30,0.18)]',
+    'bg-gradient-to-br from-orange-burnt/15 via-[#0D1B3E]/85 to-[#0A1428]/95 border border-orange-burnt/45 backdrop-blur-[20px] shadow-[0_8px_40px_rgba(214,90,30,0.18)] ' +
+    'light-card light-card--highlight',
 };
 
 const PADDING_STYLES: Record<CardPadding, string> = {
@@ -60,7 +73,7 @@ export const Card: React.FC<CardProps> = ({
   style,
 }) => {
   const baseClass = `relative rounded-2xl overflow-hidden transition-all duration-300 ${VARIANT_STYLES[variant]} ${PADDING_STYLES[padding]} ${
-    hover ? 'hover:border-orange-burnt/55 hover:-translate-y-1 hover:shadow-[0_20px_45px_-15px_rgba(214,90,30,0.25)]' : ''
+    hover ? 'card-hover-lift' : ''
   } ${onClick ? 'cursor-pointer' : ''} ${className}`;
 
   if (animate) {
