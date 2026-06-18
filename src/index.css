@@ -1,0 +1,405 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+@theme {
+  --color-navy-dark: #080F25;
+  --color-navy-card: #0F1E42;
+  --color-orange-burnt: #D65A1E;
+  --color-gold-accent: #FFB338;
+  --color-gray-light: #050B18;
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Poppins', sans-serif;
+}
+
+/* ============================================
+   DESIGN TOKENS — DARK (default) & LIGHT
+   ============================================ */
+
+:root,
+html.dark {
+  --bg-base:         #050B18;
+  --bg-card:         #0F1E42;
+  --bg-surface:      #0B1531;
+  --bg-nav:          rgba(6, 11, 28, 0.85);
+  --bg-drawer:       rgba(5, 11, 24, 0.97);
+  --bg-dropdown:     rgba(8, 15, 37, 0.97);
+  --bg-input:        rgba(15, 30, 66, 0.5);
+  --text-primary:    #F1F5F9;
+  --text-secondary:  rgba(241, 245, 249, 0.7);
+  --text-muted:      rgba(241, 245, 249, 0.45);
+  --border-subtle:   rgba(255, 255, 255, 0.06);
+  --border-mid:      rgba(255, 255, 255, 0.12);
+  --glass-bg:        rgba(15, 30, 66, 0.45);
+  --glass-dark-bg:   rgba(8, 15, 37, 0.7);
+  --shimmer-from:    rgba(255, 255, 255, 0.03);
+  --shimmer-mid:     rgba(255, 255, 255, 0.08);
+  --grid-line:       rgba(255, 255, 255, 0.007);
+  --scrollbar-track: #050B18;
+  --scrollbar-thumb: rgba(214, 90, 30, 0.2);
+  --card-shadow:     0 4px 32px rgba(0,0,0,0.4);
+}
+
+html.light {
+  --bg-base:         #F0F4FF;
+  --bg-card:         #FFFFFF;
+  --bg-surface:      #E8EDF8;
+  --bg-nav:          rgba(255, 255, 255, 0.92);
+  --bg-drawer:       rgba(255, 255, 255, 0.99);
+  --bg-dropdown:     rgba(255, 255, 255, 0.99);
+  --bg-input:        rgba(214, 90, 30, 0.06);
+  --text-primary:    #0F1E42;
+  --text-secondary:  rgba(15, 30, 66, 0.72);
+  --text-muted:      rgba(15, 30, 66, 0.48);
+  --border-subtle:   rgba(15, 30, 66, 0.09);
+  --border-mid:      rgba(15, 30, 66, 0.18);
+  --glass-bg:        rgba(255, 255, 255, 0.7);
+  --glass-dark-bg:   rgba(235, 241, 255, 0.85);
+  --shimmer-from:    rgba(0, 0, 0, 0.04);
+  --shimmer-mid:     rgba(0, 0, 0, 0.08);
+  --grid-line:       rgba(0, 0, 0, 0.03);
+  --scrollbar-track: #E8EDF8;
+  --scrollbar-thumb: rgba(214, 90, 30, 0.3);
+  --card-shadow:     0 2px 20px rgba(15,30,66,0.10);
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+@layer base {
+  html {
+    scroll-behavior: initial;
+    font-family: var(--font-sans);
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+  }
+
+  body {
+    overflow-x: hidden;
+    background-color: var(--bg-base);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+  border: 2px solid var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-orange-burnt); }
+
+/* ============================================
+   LENIS SMOOTH SCROLL
+   ============================================ */
+
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }
+
+/* ============================================
+   GLASSMORPHISM UTILITIES
+   ============================================ */
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  transform: translate3d(0, 0, 0);
+}
+
+.glass-panel-dark {
+  background: var(--glass-dark-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  transform: translate3d(0, 0, 0);
+}
+
+/* Glow card border on hover */
+.glow-card { position: relative; transition: all 0.3s ease; }
+.glow-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(to bottom right, rgba(214,90,30,0.4), rgba(255,179,56,0.1), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.glow-card:hover::after { opacity: 1; }
+
+/* Ambient orbs (Optimized with natural radial gradients, eliminating heavy filter blurs) */
+.ambient-orb-orange {
+  background: radial-gradient(circle at center, rgba(214,90,30,0.12) 0%, rgba(214,90,30,0.04) 40%, transparent 70%);
+}
+.ambient-orb-gold {
+  background: radial-gradient(circle at center, rgba(255,179,56,0.08) 0%, rgba(255,179,56,0.02) 40%, transparent 70%);
+}
+
+/* Grid overlay */
+.grid-bg-overlay {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* ============================================
+   SHIMMER SKELETON
+   ============================================ */
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--shimmer-from) 25%, var(--shimmer-mid) 37%, var(--shimmer-from) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+/* Blink dot */
+.blink-dot { animation: pulse-dot 1.8s infinite ease-in-out; }
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50%       { transform: scale(1.35); opacity: 1; }
+}
+
+/* ============================================
+   MARQUEE ANIMATION
+   ============================================ */
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ============================================
+   LIGHT MODE — COMPREHENSIVE OVERRIDES
+   These use CSS attribute substring selectors
+   to override ALL hardcoded Tailwind classes
+   that were designed for dark-mode-only.
+   ============================================ */
+
+/* ---- PAGE BACKGROUNDS ---- */
+/* Override any dark navy page/section backgrounds */
+html.light [class*="bg-[#0"],
+html.light [class*="bg-[#1"],
+html.light .bg-navy-dark,
+html.light .bg-navy-card,
+html.light .bg-gray-light {
+  background-color: var(--bg-surface) !important;
+}
+
+/* Cards that use bg-white/5 (barely visible in dark) → solid white in light */
+html.light [class*="bg-white/"] {
+  background-color: var(--bg-card) !important;
+}
+
+/* Dark gradient backgrounds → gentle light gradients */
+html.light [class*="from-[#0"],
+html.light [class*="from-[#1"],
+html.light [class*="from-navy"],
+html.light [class*="via-[#0"],
+html.light [class*="via-[#1"] {
+  --tw-gradient-from: var(--bg-surface) !important;
+  --tw-gradient-via: var(--bg-base) !important;
+  --tw-gradient-to: var(--bg-surface) !important;
+}
+
+/* ---- TEXT COLORS ---- */
+/* The #1 cause of invisible text: white text on white backgrounds */
+html.light [class*="text-white"] {
+  color: var(--text-primary) !important;
+}
+
+/* text-gray-* shades that are too dark for light mode */
+html.light [class*="text-slate-"],
+html.light [class*="text-gray-"] {
+  color: var(--text-secondary) !important;
+}
+
+/* Headings that inherit white */
+html.light h1[class*="text-white"],
+html.light h2[class*="text-white"],
+html.light h3[class*="text-white"],
+html.light h4[class*="text-white"] {
+  color: var(--text-primary) !important;
+}
+
+/* ---- BORDERS ---- */
+html.light [class*="border-white"] {
+  border-color: var(--border-mid) !important;
+}
+
+/* ---- NAVBAR ---- */
+/* Override dark nav background in light mode */
+html.light header#navbar {
+  background: var(--bg-nav) !important;
+  border-bottom-color: var(--border-subtle) !important;
+  box-shadow: 0 2px 24px rgba(15,30,66,0.08) !important;
+}
+
+/* Nav links in light mode */
+html.light header#navbar [class*="text-white"] {
+  color: #0F1E42 !important;
+}
+
+/* ---- MOBILE DRAWER ---- */
+html.light [class*="bg-[#050B18]"],
+html.light [class*="bg-[#060B1C]"],
+html.light [class*="bg-[#080F25]"] {
+  background-color: var(--bg-card) !important;
+}
+
+/* ---- DROPDOWN MENUS ---- */
+html.light [class*="bg-[#08"][class*="backdrop-blur"] {
+  background-color: var(--bg-dropdown) !important;
+}
+
+/* ---- CARDS & PANELS ---- */
+/* Any element using dark card styles */
+html.light [class*="bg-navy-card"] {
+  background-color: var(--bg-card) !important;
+  box-shadow: var(--card-shadow);
+}
+
+/* bg-[#0F1E42]/* based cards */
+html.light [class*="bg-[#0F1E"] {
+  background-color: var(--bg-card) !important;
+  box-shadow: var(--card-shadow);
+}
+
+/* ---- FORM INPUTS ---- */
+html.light input,
+html.light textarea,
+html.light select {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-mid) !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* ---- ADMIN PANEL ---- */
+/* Keep admin panel always dark for focus */
+html.light .admin-panel,
+html.light [data-admin="true"],
+html.light body:has([data-route*="/admin"]) {
+  /* Admin stays dark regardless */
+}
+
+/* ---- OPACITY BACKGROUNDS ---- */
+/* Semi-transparent dark overlays become light in light mode */
+html.light [class*="bg-black/"] {
+  background-color: rgba(15, 30, 66, 0.08) !important;
+}
+
+/* ---- ENSURE ORANGE & GOLD ACCENTS STAY VIVID ---- */
+html.light .text-orange-burnt { color: #D65A1E !important; }
+html.light .text-gold-accent  { color: #C8900A !important; } /* slightly darker gold for light bg contrast */
+
+/* ---- TRANSITION: only bg + border, NOT color (prevents flicker) ---- */
+html,
+body,
+.glass-panel,
+.glass-panel-dark {
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ============================================
+   PERFORMANCE & 120FPS GPU ACCELERATION
+   ============================================ */
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.motion-element {
+  will-change: transform, opacity;
+  transform: translateZ(0); /* force GPU layer */
+}
+
+html {
+  scroll-behavior: auto; /* lenis handles this */
+}
+
+canvas {
+  display: block;
+}
+
+/* Force GPU hardware-acceleration layers on heavy visual elements */
+.dna-canvas,
+.science-bg,
+.motion-card,
+.glass-panel,
+.glow-card,
+.glass-panel-dark {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
+}
+
+/* Reduce paint areas */
+.glassmorphism-card {
+  contain: layout style paint;
+}
+
+/* 120fps hint to browser */
+@media (min-resolution: 2dppx) {
+  .dna-canvas {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* ============================================
+   MOBILE PERFORMANCE CARD OVERRIDES (width < 768px)
+   ============================================ */
+@media (max-width: 767px) {
+  .bg-\[\#0D1B3E\]\/85,
+  .glass-panel,
+  .glow-card {
+    background: #0D1B3E !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(200, 75, 14, 0.3) !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    box-shadow: none !important;
+  }
+}
+
