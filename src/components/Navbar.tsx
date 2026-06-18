@@ -8,6 +8,7 @@ import { useStudentAuth } from '../lib/StudentAuthProvider';
 import { CommandPalette } from './CommandPalette';
 import { NotificationBell } from './NotificationBell';
 import { DNALoader } from './DNALoader';
+import { ProfileMenu } from './ProfileMenu';
 
 const getPortalPath = (role?: string | null): string => {
   if (!role) return '/admin';
@@ -321,27 +322,9 @@ export const Navbar: React.FC = () => {
               </motion.div>
             </button>
 
-            {/* Student Login / Profile Avatar */}
+            {/* Student Login / Profile Menu (role-aware portals) */}
             {studentProfile ? (
-              <Link
-                to="/profile"
-                className="flex items-center space-x-2 p-1 pl-2 pr-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-white shrink-0 ml-2"
-              >
-                {studentProfile.avatar_url ? (
-                  <img
-                    src={studentProfile.avatar_url}
-                    alt={studentProfile.full_name || 'Student'}
-                    className="w-6 h-6 rounded-full object-cover border border-orange-burnt"
-                  />
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-orange-burnt flex items-center justify-center text-[10px] font-bold">
-                    {(studentProfile.full_name || 'Student').charAt(0)}
-                  </div>
-                )}
-                <span className="text-[10px] font-display font-bold uppercase tracking-wider truncate max-w-[80px]">
-                  {(studentProfile.full_name || 'Student').split(' ')[0]}
-                </span>
-              </Link>
+              <ProfileMenu profile={studentProfile} />
             ) : (
               /* UNIFIED LOGIN — single entry, role-aware redirect on the login page itself */
               <Link

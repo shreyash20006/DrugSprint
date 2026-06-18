@@ -59,6 +59,8 @@ export const HeroSection: React.FC = () => {
   const [pulseCampusCountry, setPulseCampusCountry] = useState<string>('INDIA');
   const [logoRotationEnabled, setLogoRotationEnabled] = useState<boolean>(true);
   const [logoOrbitEnabled, setLogoOrbitEnabled] = useState<boolean>(true);
+  const [heroTextVisible, setHeroTextVisible] = useState<boolean>(true);
+  const [videoObjectFit, setVideoObjectFit] = useState<'cover' | 'contain'>('contain');
 
   // Scroll-linked parallax
   const { scrollY } = useScroll();
@@ -89,6 +91,8 @@ export const HeroSection: React.FC = () => {
           if (map['pulse_campus_country']) setPulseCampusCountry(map['pulse_campus_country']);
           if (map['hero_logo_rotation_enabled'] === 'false') setLogoRotationEnabled(false);
           if (map['hero_logo_orbit_enabled'] === 'false') setLogoOrbitEnabled(false);
+          if (map['hero_text_visible'] === 'false') setHeroTextVisible(false);
+          if (map['hero_video_object_fit'] === 'cover') setVideoObjectFit('cover');
         }
       } catch {
         setBannerUrl('https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2086&auto=format&fit=crop');
@@ -112,26 +116,50 @@ export const HeroSection: React.FC = () => {
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-[120%] object-cover select-none pointer-events-none scale-110"
+            className={`absolute inset-0 w-full h-[120%] select-none pointer-events-none ${
+              videoObjectFit === 'contain' ? 'object-contain bg-[#050B1F]' : 'object-cover scale-110'
+            }`}
             src={bannerUrl}
           />
         ) : (
           bannerUrl && (
             <div
-              className="absolute inset-0 bg-cover bg-center select-none scale-110"
+              className={`absolute inset-0 bg-center select-none ${
+                videoObjectFit === 'contain' ? 'bg-contain bg-no-repeat' : 'bg-cover scale-110'
+              }`}
               style={{ backgroundImage: `url(${bannerUrl})`, height: '120%' }}
             />
           )
         )}
       </motion.div>
 
-      {/* Layered overlays */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-b from-[#050B1F]/40 via-[#050B1F]/65 to-[#050B1F]" />
-      <div className="absolute inset-0 z-10 hero-spotlight pointer-events-none" />
-      <div className="absolute inset-0 z-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:48px_48px] opacity-50 pointer-events-none" />
-      <div className="noise-overlay z-10 noise-soft" />
+      {/* Layered overlays — lighter when text hidden (cinema mode) */}
+      <div className={`absolute inset-0 z-10 bg-gradient-to-b ${heroTextVisible ? 'from-[#050B1F]/40 via-[#050B1F]/65 to-[#050B1F]' : 'from-[#050B1F]/10 via-transparent to-[#050B1F]/40'}`} />
+      {heroTextVisible && (
+        <>
+          <div className="absolute inset-0 z-10 hero-spotlight pointer-events-none" />
+          <div className="absolute inset-0 z-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:48px_48px] opacity-50 pointer-events-none" />
+          <div className="noise-overlay z-10 noise-soft" />
+        </>
+      )}
 
-      {/* Asymmetric content */}
+      {/* Cinema mode — show only a tiny floating scroll hint */}
+      {!heroTextVisible && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, y: [0, 4, 0] }}
+          transition={{ opacity: { duration: 1, delay: 1 }, y: { duration: 1.6, repeat: Infinity, ease: 'easeInOut' } }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 pointer-events-none"
+        >
+          <span className="text-white/55 text-[9px] font-bold tracking-[0.28em] uppercase font-display drop-shadow-lg">
+            Scroll to Explore
+          </span>
+          <span className="text-orange-burnt text-xs">↓</span>
+        </motion.div>
+      )}
+
+      {/* Asymmetric content — hidden in cinema mode */}
+      {heroTextVisible && (
       <motion.div
         className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 sm:pt-40 sm:pb-32"
         style={{ y: contentY, opacity: contentOpacity }}
@@ -312,6 +340,7 @@ export const HeroSection: React.FC = () => {
           </div>
         </motion.div>
       </motion.div>
+      )}
     </section>
   );
 };
