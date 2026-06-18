@@ -26,3 +26,9 @@ dist-ssr
 # Local environment files
 .env
 .vercel
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials
