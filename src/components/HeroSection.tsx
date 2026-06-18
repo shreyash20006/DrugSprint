@@ -53,6 +53,12 @@ export const HeroSection: React.FC = () => {
   const [heroSubtitleText, setHeroSubtitleText] = useState<string>(
     'Your Voice. Our Future. | Together Towards Excellence'
   );
+  const [pulseSinceYear, setPulseSinceYear] = useState<string>('2003');
+  const [pulsePrograms, setPulsePrograms] = useState<string>('B.Pharm · D.Pharm');
+  const [pulseCampusCity, setPulseCampusCity] = useState<string>('Nagpur, Maharashtra');
+  const [pulseCampusCountry, setPulseCampusCountry] = useState<string>('INDIA');
+  const [logoRotationEnabled, setLogoRotationEnabled] = useState<boolean>(true);
+  const [logoOrbitEnabled, setLogoOrbitEnabled] = useState<boolean>(true);
 
   // Scroll-linked parallax
   const { scrollY } = useScroll();
@@ -77,6 +83,12 @@ export const HeroSection: React.FC = () => {
           if (map['hero_title_text_1']) setHeroTitleText1(map['hero_title_text_1']);
           if (map['hero_title_text_2']) setHeroTitleText2(map['hero_title_text_2']);
           if (map['hero_subtitle_text']) setHeroSubtitleText(map['hero_subtitle_text']);
+          if (map['pulse_since_year']) setPulseSinceYear(map['pulse_since_year']);
+          if (map['pulse_programs']) setPulsePrograms(map['pulse_programs']);
+          if (map['pulse_campus_city']) setPulseCampusCity(map['pulse_campus_city']);
+          if (map['pulse_campus_country']) setPulseCampusCountry(map['pulse_campus_country']);
+          if (map['hero_logo_rotation_enabled'] === 'false') setLogoRotationEnabled(false);
+          if (map['hero_logo_orbit_enabled'] === 'false') setLogoOrbitEnabled(false);
         }
       } catch {
         setBannerUrl('https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2086&auto=format&fit=crop');
@@ -218,7 +230,17 @@ export const HeroSection: React.FC = () => {
             <div className="relative">
               {/* Animated logo halo as visual anchor */}
               <div className="flex justify-center mb-8">
-                <AnimatedLogo size="xl" variant="orbit" testId="hero-animated-logo" />
+                <AnimatedLogo
+                  size="xl"
+                  variant={
+                    !logoRotationEnabled && !logoOrbitEnabled
+                      ? 'static'
+                      : logoOrbitEnabled
+                      ? 'orbit'
+                      : 'default'
+                  }
+                  testId="hero-animated-logo"
+                />
               </div>
 
               {/* Meta panel below */}
@@ -236,14 +258,14 @@ export const HeroSection: React.FC = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-0.5">
                       <p className="text-white/45 text-[9px] font-sans uppercase tracking-[0.18em]">Since</p>
-                      <p className="font-display font-extrabold text-2xl text-white tracking-tight">2003</p>
+                      <p className="font-display font-extrabold text-2xl text-white tracking-tight">{pulseSinceYear}</p>
                     </div>
                     <div className="space-y-0.5">
                       <p className="text-white/45 text-[9px] font-sans uppercase tracking-[0.18em]">Campus</p>
                       <p className="font-display font-bold text-sm text-white leading-tight">
-                        Nagpur
+                        {pulseCampusCity.split(',')[0]}
                         <span className="block text-orange-burnt text-[10px] font-extrabold tracking-wider">
-                          MAHARASHTRA
+                          {pulseCampusCountry}
                         </span>
                       </p>
                     </div>
@@ -254,7 +276,7 @@ export const HeroSection: React.FC = () => {
                   <div className="space-y-0.5">
                     <p className="text-white/45 text-[9px] font-sans uppercase tracking-[0.18em]">Programs</p>
                     <p className="font-display font-extrabold text-base text-white">
-                      B.Pharm <span className="text-white/30 text-sm">·</span> D.Pharm
+                      {pulsePrograms}
                     </p>
                   </div>
                 </div>

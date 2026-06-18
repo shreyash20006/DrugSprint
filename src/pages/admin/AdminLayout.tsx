@@ -24,6 +24,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/admin/mentors': 'Mentorship Connect',
   '/admin/users': 'User Administration',
   '/admin/settings': 'Portal Settings',
+  '/admin/homepage': 'Homepage Live Editor',
   '/admin/logs': 'Security Audit Trail',
   '/admin/bugs': 'Bug Reports',
   '/admin/verification': 'Student Verification',

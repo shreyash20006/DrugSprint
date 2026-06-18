@@ -100,6 +100,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     ];
 
     const content: NavItem[] = [
+      { path: '/admin/homepage', name: 'Homepage Settings', icon: <Sliders className="w-4 h-4 text-orange-burnt" strokeWidth={2.4} />, badgeText: 'NEW' },
       { path: '/admin/notices', name: 'Notices', icon: <Megaphone className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/events', name: 'Events', icon: <Calendar className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/exams', name: 'Exam Schedule', icon: <GraduationCap className="w-4 h-4" strokeWidth={2.2} /> },

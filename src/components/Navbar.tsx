@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, GraduationCap, ChevronDown, Lock, Sun, Moon, Search } from 'lucide-react';
+import { Menu, X, GraduationCap, ChevronDown, Sun, Moon, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useThemeContext } from '../lib/ThemeProvider';
 import { useStudentAuth } from '../lib/StudentAuthProvider';
@@ -343,28 +343,21 @@ export const Navbar: React.FC = () => {
                 </span>
               </Link>
             ) : (
-              <button
-                onClick={handleLogin}
-                className="ml-2 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-burnt/30 text-[10px] font-display font-bold uppercase tracking-widest text-white transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-2 shrink-0 cursor-pointer shadow-lg shadow-black/10"
+              /* UNIFIED LOGIN — single entry, role-aware redirect on the login page itself */
+              <Link
+                to="/login"
+                data-testid="navbar-signin-link"
+                className="ml-2 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-[10px] font-display font-bold uppercase tracking-widest text-white transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-2 shrink-0 shadow-lg shadow-orange-burnt/15 border border-white/10 hover:shadow-orange-burnt/25 cursor-pointer"
               >
                 <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 3.01-.97 4.14v3.45h1.59c3.27-3 5.43-7.42 5.43-12.44z"/>
-                  <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.84-2.98c-1.07.72-2.44 1.15-4.12 1.15-3.17 0-5.85-2.14-6.81-5.02H1.23v3.1A11.996 11.996 0 0012 24z"/>
-                  <path fill="#FBBC05" d="M5.19 14.24A7.2 7.2 0 014.8 12c0-.79.13-1.57.39-2.31V6.59H1.23A11.96 11.96 0 000 12c0 2.23.6 4.32 1.66 6.13l3.53-2.89z"/>
-                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.22 0 12 0 7.34 0 3.37 2.67 1.23 6.59l3.96 3.1c.96-2.88 3.64-5.02 6.81-5.02z"/>
+                  <path fill="#fff" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 3.01-.97 4.14v3.45h1.59c3.27-3 5.43-7.42 5.43-12.44z" opacity="0.85"/>
+                  <path fill="#fff" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.84-2.98c-1.07.72-2.44 1.15-4.12 1.15-3.17 0-5.85-2.14-6.81-5.02H1.23v3.1A11.996 11.996 0 0012 24z" opacity="0.85"/>
+                  <path fill="#fff" d="M5.19 14.24A7.2 7.2 0 014.8 12c0-.79.13-1.57.39-2.31V6.59H1.23A11.96 11.96 0 000 12c0 2.23.6 4.32 1.66 6.13l3.53-2.89z" opacity="0.85"/>
+                  <path fill="#fff" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.22 0 12 0 7.34 0 3.37 2.67 1.23 6.59l3.96 3.1c.96-2.88 3.64-5.02 6.81-5.02z" opacity="0.85"/>
                 </svg>
-                <span>Google Sign In</span>
-              </button>
+                <span>Sign In</span>
+              </Link>
             )}
-
-            {/* Portal Action button upgraded with gold active ring */}
-            <Link
-              to={getPortalPath(studentProfile?.role)}
-              className="ml-2 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-[10px] font-display font-bold uppercase tracking-widest text-white transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-1.5 shrink-0 shadow-lg shadow-orange-burnt/15 border border-white/10 hover:shadow-orange-burnt/25"
-            >
-              <Lock className="w-3 h-3 text-white" />
-              <span>Portal</span>
-            </Link>
           </nav>
 
           {/* Mobile Right Icons & Hamburger */}

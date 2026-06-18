@@ -66,6 +66,7 @@ const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
 const AdminGallery = lazy(() => import('./pages/admin/AdminGallery'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
+const AdminHomepageSettings = lazy(() => import('./pages/admin/AdminHomepageSettings'));
 const AdminLogs = lazy(() => import('./pages/admin/AdminLogs'));
 const AdminBugs = lazy(() => import('./pages/admin/AdminBugs'));
 const AdminRegistrations = lazy(() => import('./pages/admin/AdminRegistrations'));
@@ -170,6 +171,9 @@ const AppContent: React.FC = () => {
 
             {/* Secure Admin Routes */}
             <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/login" element={<AdminLogin />} />
+            <Route path="/signin" element={<AdminLogin />} />
+            <Route path="/portal" element={<AdminLogin />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route
               element={
@@ -203,6 +207,7 @@ const AppContent: React.FC = () => {
               <Route path="/admin/complaints" element={<AdminComplaints />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/homepage" element={<AdminHomepageSettings />} />
               <Route path="/admin/logs" element={<AdminLogs />} />
               <Route path="/admin/bugs" element={<AdminBugs />} />
               <Route path="/admin/developer" element={<AdminDeveloper />} />
@@ -269,6 +274,9 @@ const AppContent: React.FC = () => {
 
             {/* Secure Admin Routes */}
             <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/login" element={<AdminLogin />} />
+            <Route path="/signin" element={<AdminLogin />} />
+            <Route path="/portal" element={<AdminLogin />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route
               element={
@@ -302,6 +310,7 @@ const AppContent: React.FC = () => {
               <Route path="/admin/complaints" element={<AdminComplaints />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/homepage" element={<AdminHomepageSettings />} />
               <Route path="/admin/logs" element={<AdminLogs />} />
               <Route path="/admin/bugs" element={<AdminBugs />} />
               <Route path="/admin/developer" element={<AdminDeveloper />} />

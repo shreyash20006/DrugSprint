@@ -5,7 +5,7 @@ const LOGO_URL =
   'https://res.cloudinary.com/dsqxboxoc/image/upload/q_auto/f_auto/v1779522116/WhatsApp_Image_2026-05-23_at_1.10.29_PM_susb5a.jpg';
 
 type LogoSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-type LogoVariant = 'default' | 'minimal' | 'orbit' | 'pulse';
+type LogoVariant = 'default' | 'minimal' | 'orbit' | 'pulse' | 'static';
 
 interface AnimatedLogoProps {
   size?: LogoSize;
@@ -41,6 +41,18 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
       >
         <img src={LOGO_URL} alt="TGPCOP Logo" className="w-full h-full object-cover" />
       </motion.div>
+    );
+  }
+
+  // STATIC — fully static, no animation at all (admin can disable everything)
+  if (variant === 'static') {
+    return (
+      <div
+        className={`relative ${cfg.wrap} rounded-full overflow-hidden shadow-2xl ring-2 ring-orange-burnt/40 ${className}`}
+        data-testid={testId}
+      >
+        <img src={LOGO_URL} alt="TGPCOP Logo" className="w-full h-full object-cover" />
+      </div>
     );
   }
 
