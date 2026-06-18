@@ -24,6 +24,7 @@ export const DNAHero: React.FC = () => {
   const [heroSubtitleText, setHeroSubtitleText] = useState<string | null>('Your Voice. Our Future. | Together Towards Excellence');
   const [heroButtonText, setHeroButtonText] = useState<string | null>('');
   const [heroButtonLink, setHeroButtonLink] = useState<string | null>('');
+  const [heroButtonEnabled, setHeroButtonEnabled] = useState<boolean>(true);
 
   const [mobileMode, setMobileMode] = useState(false);
   const [stats, setStats] = useState({ students: 500, notices: 45, events: 30, members: 15 });
@@ -49,6 +50,7 @@ export const DNAHero: React.FC = () => {
           setHeroSubtitleText(map['hero_subtitle_text'] ?? 'Your Voice. Our Future. | Together Towards Excellence');
           setHeroButtonText(map['hero_button_text'] ?? '');
           setHeroButtonLink(map['hero_button_link'] ?? '');
+          setHeroButtonEnabled(map['hero_button_enabled'] !== 'false');
         }
       } catch (err) {
         console.error('Error fetching dynamic hero setting:', err);
@@ -209,7 +211,7 @@ export const DNAHero: React.FC = () => {
             )}
 
             <div className="flex flex-col gap-4 w-full max-w-xs mx-auto">
-              {heroButtonText && heroButtonLink && (
+              {heroButtonEnabled && heroButtonText && heroButtonLink && (
                 <Link
                   to={heroButtonLink}
                   className="flex items-center justify-center space-x-2 w-full px-6 py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg border border-white/5"
@@ -358,7 +360,7 @@ export const DNAHero: React.FC = () => {
                 }}
                 className="flex flex-col sm:flex-row items-center gap-4 w-full"
               >
-                {heroButtonText && heroButtonLink && (
+                {heroButtonEnabled && heroButtonText && heroButtonLink && (
                   <Link
                     to={heroButtonLink}
                     className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-emerald-500/25 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 border border-white/5"

@@ -34,6 +34,7 @@ export const AdminSettings: React.FC = () => {
   const [heroSubtitleText, setHeroSubtitleText] = useState('');
   const [heroButtonText, setHeroButtonText] = useState('');
   const [heroButtonLink, setHeroButtonLink] = useState('');
+  const [heroButtonEnabled, setHeroButtonEnabled] = useState(true);
 
   const [originalHeroBadgeText, setOriginalHeroBadgeText] = useState('');
   const [originalHeroTitleText1, setOriginalHeroTitleText1] = useState('');
@@ -41,6 +42,7 @@ export const AdminSettings: React.FC = () => {
   const [originalHeroSubtitleText, setOriginalHeroSubtitleText] = useState('');
   const [originalHeroButtonText, setOriginalHeroButtonText] = useState('');
   const [originalHeroButtonLink, setOriginalHeroButtonLink] = useState('');
+  const [originalHeroButtonEnabled, setOriginalHeroButtonEnabled] = useState(true);
   // --------------------------
 
   const [originalLogo, setOriginalLogo] = useState('');
@@ -159,6 +161,7 @@ export const AdminSettings: React.FC = () => {
       setHeroSubtitleText(map['hero_subtitle_text'] ?? 'Your Voice. Our Future. | Together Towards Excellence');
       setHeroButtonText(map['hero_button_text'] ?? '');
       setHeroButtonLink(map['hero_button_link'] ?? '');
+      setHeroButtonEnabled(map['hero_button_enabled'] !== 'false');
 
       setOriginalLogo(map['logo_url'] || '');
       setOriginalBanner(map['banner_url'] || '');
@@ -172,6 +175,7 @@ export const AdminSettings: React.FC = () => {
       setOriginalHeroSubtitleText(map['hero_subtitle_text'] ?? 'Your Voice. Our Future. | Together Towards Excellence');
       setOriginalHeroButtonText(map['hero_button_text'] ?? '');
       setOriginalHeroButtonLink(map['hero_button_link'] ?? '');
+      setOriginalHeroButtonEnabled(map['hero_button_enabled'] !== 'false');
 
       // Fetch personal profile details defensively
       const { data: profData } = await supabase
@@ -294,7 +298,8 @@ export const AdminSettings: React.FC = () => {
         { key: 'hero_title_text_2', value: heroTitleText2, updated_at: new Date().toISOString() },
         { key: 'hero_subtitle_text', value: heroSubtitleText, updated_at: new Date().toISOString() },
         { key: 'hero_button_text', value: heroButtonText, updated_at: new Date().toISOString() },
-        { key: 'hero_button_link', value: heroButtonLink, updated_at: new Date().toISOString() }
+        { key: 'hero_button_link', value: heroButtonLink, updated_at: new Date().toISOString() },
+        { key: 'hero_button_enabled', value: heroButtonEnabled ? 'true' : 'false', updated_at: new Date().toISOString() }
       ];
 
       const { error } = await supabase.from('settings').upsert(updates);
@@ -308,6 +313,7 @@ export const AdminSettings: React.FC = () => {
       setOriginalHeroSubtitleText(heroSubtitleText);
       setOriginalHeroButtonText(heroButtonText);
       setOriginalHeroButtonLink(heroButtonLink);
+      setOriginalHeroButtonEnabled(heroButtonEnabled);
 
       toast.success('✅ Hero text settings updated successfully!');
     } catch (err: any) {
@@ -833,13 +839,25 @@ export const AdminSettings: React.FC = () => {
 
           <div className="space-y-1.5">
             <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40">Custom Button Text</label>
-            <input
-              type="text"
-              value={heroButtonText}
-              onChange={e => setHeroButtonText(e.target.value)}
-              placeholder="Leave blank to hide"
-              className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-white/5 focus:border-orange-burnt/50 outline-none text-xs sm:text-sm font-sans text-white transition-colors"
-            />
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={heroButtonText}
+                onChange={e => setHeroButtonText(e.target.value)}
+                placeholder="Leave blank to hide"
+                className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-white/5 focus:border-orange-burnt/50 outline-none text-xs sm:text-sm font-sans text-white transition-colors"
+                disabled={!heroButtonEnabled}
+              />
+              <button
+                onClick={() => setHeroButtonEnabled(!heroButtonEnabled)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${heroButtonEnabled ? 'bg-orange-burnt' : 'bg-white/20'}`}
+                role="switch"
+                aria-checked={heroButtonEnabled}
+              >
+                <span className="sr-only">Enable Button</span>
+                <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${heroButtonEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
           </div>
 
           <div className="space-y-1.5">
@@ -847,19 +865,20 @@ export const AdminSettings: React.FC = () => {
             <select
               value={heroButtonLink}
               onChange={e => setHeroButtonLink(e.target.value)}
+              disabled={!heroButtonEnabled}
               className="w-full px-4 py-2.5 rounded-lg border border-white/10 bg-white/5 focus:border-orange-burnt/50 outline-none text-xs sm:text-sm font-sans text-white transition-colors"
             >
-              <option value="">Select a page...</option>
-              <option value="/">Home</option>
-              <option value="/council">Council</option>
-              <option value="/ask">Ask a Question</option>
-              <option value="/notices">Notices</option>
-              <option value="/events">Events</option>
-              <option value="/media">Gallery</option>
-              <option value="/contact">Contact</option>
-              <option value="/terms">Terms</option>
-              <option value="/refunds">Refunds</option>
-              <option value="/pay">Pay</option>
+              <option value="" className="bg-[#0D1B3E] text-white">Select a page...</option>
+              <option value="/" className="bg-[#0D1B3E] text-white">Home</option>
+              <option value="/council" className="bg-[#0D1B3E] text-white">Council</option>
+              <option value="/ask" className="bg-[#0D1B3E] text-white">Ask a Question</option>
+              <option value="/notices" className="bg-[#0D1B3E] text-white">Notices</option>
+              <option value="/events" className="bg-[#0D1B3E] text-white">Events</option>
+              <option value="/media" className="bg-[#0D1B3E] text-white">Gallery</option>
+              <option value="/contact" className="bg-[#0D1B3E] text-white">Contact</option>
+              <option value="/terms" className="bg-[#0D1B3E] text-white">Terms</option>
+              <option value="/refunds" className="bg-[#0D1B3E] text-white">Refunds</option>
+              <option value="/pay" className="bg-[#0D1B3E] text-white">Pay</option>
             </select>
           </div>
         </div>
@@ -867,7 +886,7 @@ export const AdminSettings: React.FC = () => {
         <div className="flex items-center space-x-3 pt-2">
           <button
             onClick={saveHeroText}
-            disabled={isSaving === 'hero_text' || (heroBadgeText === originalHeroBadgeText && heroTitleText1 === originalHeroTitleText1 && heroTitleText2 === originalHeroTitleText2 && heroSubtitleText === originalHeroSubtitleText && heroButtonText === originalHeroButtonText && heroButtonLink === originalHeroButtonLink)}
+            disabled={isSaving === 'hero_text' || (heroBadgeText === originalHeroBadgeText && heroTitleText1 === originalHeroTitleText1 && heroTitleText2 === originalHeroTitleText2 && heroSubtitleText === originalHeroSubtitleText && heroButtonText === originalHeroButtonText && heroButtonLink === originalHeroButtonLink && heroButtonEnabled === originalHeroButtonEnabled)}
             className="flex items-center space-x-1.5 px-5 py-2.5 bg-orange-burnt hover:bg-orange-burnt/90 text-white rounded-lg font-display text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-orange-burnt/15"
           >
             {isSaving === 'hero_text' ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Saving...</span></> : <><Check className="w-3.5 h-3.5" /><span>Save Hero Texts</span></>}
@@ -880,8 +899,9 @@ export const AdminSettings: React.FC = () => {
               setHeroSubtitleText(originalHeroSubtitleText);
               setHeroButtonText(originalHeroButtonText);
               setHeroButtonLink(originalHeroButtonLink);
+              setHeroButtonEnabled(originalHeroButtonEnabled);
             }}
-            disabled={heroBadgeText === originalHeroBadgeText && heroTitleText1 === originalHeroTitleText1 && heroTitleText2 === originalHeroTitleText2 && heroSubtitleText === originalHeroSubtitleText && heroButtonText === originalHeroButtonText && heroButtonLink === originalHeroButtonLink}
+            disabled={heroBadgeText === originalHeroBadgeText && heroTitleText1 === originalHeroTitleText1 && heroTitleText2 === originalHeroTitleText2 && heroSubtitleText === originalHeroSubtitleText && heroButtonText === originalHeroButtonText && heroButtonLink === originalHeroButtonLink && heroButtonEnabled === originalHeroButtonEnabled}
             className="flex items-center space-x-1.5 px-4 py-2.5 border border-white/10 rounded-lg text-white/60 font-display text-xs font-bold hover:bg-white/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-3.5 h-3.5" />

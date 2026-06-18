@@ -26,6 +26,7 @@ export const HeroSection: React.FC = () => {
   const [heroSubtitleText, setHeroSubtitleText] = useState<string | null>('Your Voice. Our Future. | Together Towards Excellence');
   const [heroButtonText, setHeroButtonText] = useState<string | null>('');
   const [heroButtonLink, setHeroButtonLink] = useState<string | null>('');
+  const [heroButtonEnabled, setHeroButtonEnabled] = useState<boolean>(true);
 
   // Fetch dynamic banner settings
   useEffect(() => {
@@ -46,6 +47,7 @@ export const HeroSection: React.FC = () => {
           setHeroSubtitleText(map['hero_subtitle_text'] ?? 'Your Voice. Our Future. | Together Towards Excellence');
           setHeroButtonText(map['hero_button_text'] ?? '');
           setHeroButtonLink(map['hero_button_link'] ?? '');
+          setHeroButtonEnabled(map['hero_button_enabled'] !== 'false');
         }
       } catch (err) {
         console.error('Error fetching dynamic hero setting:', err);
@@ -147,7 +149,7 @@ export const HeroSection: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4 w-full sm:w-auto"
           >
-            {heroButtonText && heroButtonLink && (
+            {heroButtonEnabled && heroButtonText && heroButtonLink && (
               <Link
                 to={heroButtonLink}
                 className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-9 py-4.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-2xl shadow-xl hover:shadow-emerald-500/25 hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 border border-white/5 cursor-pointer"
