@@ -5,6 +5,7 @@ import { ArrowUpRight, Users, Megaphone, Calendar, Award, Sparkles } from 'lucid
 import { Card } from '../ui/Card';
 import { Section } from './Section';
 import { AnimatedCounter } from './AnimatedCounter';
+import { Parallax } from '../ui/Reveal';
 
 interface HomeAboutProps {
   counts: { notices: number; events: number; students: number; members: number };
@@ -98,6 +99,7 @@ export const HomeAbout: React.FC<HomeAboutProps> = ({ counts }) => {
 
         {/* RIGHT — bento stats grid */}
         <motion.div variants={itemFade} className="lg:col-span-7">
+          <Parallax speed={0.15}>
           <div className="grid grid-cols-2 gap-4 sm:gap-5">
             {stats.map((stat, idx) => {
               const Icon = stat.icon;
@@ -163,6 +165,7 @@ export const HomeAbout: React.FC<HomeAboutProps> = ({ counts }) => {
               </div>
             </Card>
           </div>
+          </Parallax>
         </motion.div>
       </div>
     </Section>

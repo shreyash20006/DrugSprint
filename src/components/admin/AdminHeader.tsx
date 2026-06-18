@@ -1,5 +1,5 @@
-import React from 'react';
-import { Menu, Search, Bell } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Menu, Search, Bell, Command } from 'lucide-react';
 import { useAuth } from '../../lib/AuthProvider';
 
 interface AdminHeaderProps {
@@ -9,71 +9,96 @@ interface AdminHeaderProps {
 
 export const AdminHeader: React.FC<AdminHeaderProps> = ({ title, onMenuClick }) => {
   const { email, role, fullName } = useAuth();
-  
+  const [currentTime, setCurrentTime] = useState<string>('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(
+        now.toLocaleTimeString('en-IN', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        })
+      );
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const getInitials = () => {
-    if (fullName) {
-      return fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    }
-    if (email) {
-      return email.substring(0, 2).toUpperCase();
-    }
+    if (fullName) return fullName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
+    if (email) return email.substring(0, 2).toUpperCase();
     return 'AD';
   };
 
   return (
-    <header className="bg-[#0A1428]/60 backdrop-blur-md border border-white/10 h-[72px] px-4 sm:px-6 mx-3 sm:mx-4 md:mx-8 mt-3 sm:mt-4 md:mt-8 rounded-2xl flex items-center justify-between shrink-0 shadow-[0_8px_30px_rgba(0,0,0,0.4)] z-20">
-      {/* Left side: Hamburger (Mobile) + Title & Search */}
-      <div className="flex items-center space-x-3 sm:space-x-6 flex-1 min-w-0">
-        <div className="flex items-center space-x-2 sm:space-x-4 shrink-0 min-w-0">
-          <button
-            onClick={onMenuClick}
-            className="md:hidden p-2 rounded-xl text-white hover:bg-white/10 transition-colors focus:outline-none backdrop-blur-sm border border-white/5"
-            aria-label="Open sidebar"
+    <header
+      className="bg-[#080F22]/80 backdrop-blur-xl border-b border-white/[0.06] h-[64px] px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 sticky top-0 z-30"
+      data-testid="admin-header"
+    >
+      {/* Left: hamburger + title + breadcrumb */}
+      <div className="flex items-center gap-3 sm:gap-5 flex-1 min-w-0">
+        <button
+          onClick={onMenuClick}
+          className="md:hidden p-1.5 rounded-lg text-white/65 hover:text-white hover:bg-white/[0.05] transition border border-white/[0.06]"
+          aria-label="Open sidebar"
+        >
+          <Menu className="w-4 h-4" strokeWidth={2.2} />
+        </button>
+
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/35 mb-0.5">
+            <span>Admin</span>
+            <span className="text-white/15">/</span>
+            <span className="text-orange-burnt">{currentTime}</span>
+          </div>
+          <h1
+            data-testid="admin-page-title"
+            className="font-display font-extrabold text-[14px] sm:text-[15px] text-white tracking-tight truncate"
           >
-            <Menu className="w-5 h-5" />
-          </button>
-          <h1 className="font-display font-extrabold text-xs sm:text-sm md:text-base lg:text-lg text-white tracking-tight uppercase drop-shadow-md block line-clamp-1 max-w-[120px] sm:max-w-none">
             {title}
           </h1>
         </div>
-
-        {/* Global Search Bar */}
-        <div className="hidden md:flex relative max-w-md w-full group">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-white/40 group-focus-within:text-orange-burnt transition-colors duration-300" />
-          </div>
-          <input
-            type="text"
-            placeholder="Search across portal..."
-            className="block w-full pl-10 pr-3 py-2 border border-white/10 rounded-xl leading-5 bg-white/5 text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-orange-burnt/50 focus:border-orange-burnt/50 focus:bg-white/10 transition-all duration-300 sm:text-sm shadow-inner"
-          />
-        </div>
       </div>
 
-      {/* Right side: Admin Email + Avatar Monogram + Role Badge */}
-      <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
-        <button className="p-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all focus:outline-none relative group border border-transparent hover:border-white/10">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-burnt rounded-full border border-[#0A1428] animate-pulse"></span>
+      {/* Middle: command bar (desktop only) */}
+      <div className="hidden lg:flex items-center mx-6">
+        <button
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] text-white/55 hover:text-white text-xs font-sans font-medium transition-all min-w-[280px]"
+          data-testid="admin-cmd-search"
+        >
+          <Search className="w-3.5 h-3.5 shrink-0" strokeWidth={2.4} />
+          <span className="flex-1 text-left">Search portal…</span>
+          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-white/[0.05] border border-white/10 text-white/45">
+            <Command className="w-2.5 h-2.5" strokeWidth={2.8} />
+            K
+          </span>
         </button>
-        <div className="h-8 w-px bg-white/10 hidden sm:block"></div>
+      </div>
+
+      {/* Right: notifications + profile */}
+      <div className="flex items-center gap-3 shrink-0">
+        <button
+          data-testid="admin-notifications"
+          className="relative p-2 rounded-lg text-white/55 hover:text-white hover:bg-white/[0.05] transition border border-transparent hover:border-white/[0.06]"
+          aria-label="Notifications"
+        >
+          <Bell className="w-4 h-4" strokeWidth={2.2} />
+          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-orange-burnt rounded-full ring-2 ring-[#080F22]" />
+        </button>
+
         <div className="hidden sm:flex flex-col text-right">
-          <div className="flex items-center justify-end space-x-2">
-            <span className="text-[9px] font-bold text-white/40 uppercase tracking-wider">
-              Executive
-            </span>
-            {role && (
-              <span className="bg-orange-burnt/20 text-orange-400 border border-orange-burnt/30 text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded shadow-[0_0_10px_rgba(214,90,30,0.2)] leading-none shrink-0">
-                {role.replace('_', ' ')}
-              </span>
-            )}
-          </div>
-          <span className="text-xs font-semibold text-white/90 font-sans leading-none mt-1.5 drop-shadow-sm">
-            {email || 'Loading...'}
+          <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/35 leading-none">
+            {role ? role.replace(/_/g, ' ') : 'Executive'}
+          </span>
+          <span className="text-[11px] font-sans font-semibold text-white/85 leading-none mt-1 truncate max-w-[180px]">
+            {email || 'loading...'}
           </span>
         </div>
-        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-burnt to-[#FF8C42] border border-white/20 flex items-center justify-center text-white font-display font-extrabold text-sm shadow-[0_4px_15px_rgba(214,90,30,0.5)] shrink-0 cursor-default select-none relative overflow-hidden">
-          <div className="absolute inset-0 bg-white/20 rounded-full opacity-0 hover:opacity-100 transition-opacity" />
+
+        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-burnt to-[#E06D2B] border border-orange-burnt/30 flex items-center justify-center text-white font-display font-extrabold text-[11px] shadow-lg shadow-orange-burnt/15 shrink-0 cursor-default">
           {getInitials()}
         </div>
       </div>

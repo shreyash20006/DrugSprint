@@ -1,11 +1,12 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 interface SectionProps {
   children: React.ReactNode;
   id?: string;
   className?: string;
   noPadding?: boolean;
+  scrollReveal?: boolean;
 }
 
 const sectionVariants = {
@@ -17,18 +18,29 @@ const sectionVariants = {
   },
 };
 
-export const Section: React.FC<SectionProps> = ({ children, id, className = '', noPadding }) => (
-  <motion.section
-    id={id}
-    initial="hidden"
-    whileInView="visible"
-    viewport={{ once: true, margin: '-80px' }}
-    variants={sectionVariants}
-    className={`relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${noPadding ? '' : 'py-20 sm:py-24'} ${className}`}
-  >
-    {children}
-  </motion.section>
-);
+export const Section: React.FC<SectionProps> = ({ children, id, className = '', noPadding, scrollReveal = true }) => {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'center center'],
+  });
+  const opacity = useTransform(scrollYProgress, [0, 0.6], [0.55, 1]);
+
+  return (
+    <motion.section
+      ref={ref as any}
+      id={id}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: '-80px' }}
+      variants={sectionVariants}
+      style={scrollReveal ? { opacity } : undefined}
+      className={`relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${noPadding ? '' : 'py-20 sm:py-24'} ${className}`}
+    >
+      {children}
+    </motion.section>
+  );
+};
 
 interface SectionHeaderProps {
   eyebrow?: string;
