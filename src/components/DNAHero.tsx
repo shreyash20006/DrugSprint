@@ -25,6 +25,8 @@ export const DNAHero: React.FC = () => {
   const [heroButtonText, setHeroButtonText] = useState<string | null>('');
   const [heroButtonLink, setHeroButtonLink] = useState<string | null>('');
   const [heroButtonEnabled, setHeroButtonEnabled] = useState<boolean>(true);
+  const [heroAskButtonEnabled, setHeroAskButtonEnabled] = useState<boolean>(true);
+  const [heroNoticeButtonEnabled, setHeroNoticeButtonEnabled] = useState<boolean>(true);
 
   const [mobileMode, setMobileMode] = useState(false);
   const [stats, setStats] = useState({ students: 500, notices: 45, events: 30, members: 15 });
@@ -51,6 +53,8 @@ export const DNAHero: React.FC = () => {
           setHeroButtonText(map['hero_button_text'] ?? '');
           setHeroButtonLink(map['hero_button_link'] ?? '');
           setHeroButtonEnabled(map['hero_button_enabled'] !== 'false');
+          setHeroAskButtonEnabled(map['hero_ask_button_enabled'] !== 'false');
+          setHeroNoticeButtonEnabled(map['hero_notice_button_enabled'] !== 'false');
         }
       } catch (err) {
         console.error('Error fetching dynamic hero setting:', err);
@@ -221,21 +225,25 @@ export const DNAHero: React.FC = () => {
                 </Link>
               )}
 
-              <Link
-                to="/ask"
-                className="flex items-center justify-center space-x-2 w-full px-6 py-3.5 bg-orange-burnt text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg border border-white/5"
-              >
-                <span>Ask a Question</span>
-                <HelpCircle className="w-4.5 h-4.5 text-white/90" />
-              </Link>
+              {heroAskButtonEnabled && (
+                <Link
+                  to="/ask"
+                  className="flex items-center justify-center space-x-2 w-full px-6 py-3.5 bg-orange-burnt text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg border border-white/5"
+                >
+                  <span>Ask a Question</span>
+                  <HelpCircle className="w-4.5 h-4.5 text-white/90" />
+                </Link>
+              )}
               
-              <Link
-                to="/notices"
-                className="flex items-center justify-center space-x-2 w-full px-6 py-3.5 bg-white/10 border border-white/20 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg"
-              >
-                <span>Notice Board</span>
-                <ArrowRight className="w-4.5 h-4.5 text-orange-burnt" />
-              </Link>
+              {heroNoticeButtonEnabled && (
+                <Link
+                  to="/notices"
+                  className="flex items-center justify-center space-x-2 w-full px-6 py-3.5 bg-white/10 border border-white/20 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg"
+                >
+                  <span>Notice Board</span>
+                  <ArrowRight className="w-4.5 h-4.5 text-orange-burnt" />
+                </Link>
+              )}
             </div>
           </motion.div>
         </div>
@@ -370,21 +378,25 @@ export const DNAHero: React.FC = () => {
                   </Link>
                 )}
 
-                <Link
-                  to="/ask"
-                  className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-7 py-3.5 bg-orange-burnt hover:bg-orange-burnt/90 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-orange-burnt/25 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 border border-white/5"
-                >
-                  <span>Ask a Question</span>
-                  <HelpCircle className="w-4 h-4 group-hover:scale-110 transition-transform text-white/90" />
-                </Link>
+                {heroAskButtonEnabled && (
+                  <Link
+                    to="/ask"
+                    className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-7 py-3.5 bg-orange-burnt hover:bg-orange-burnt/90 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg hover:shadow-orange-burnt/25 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 border border-white/5"
+                  >
+                    <span>Ask a Question</span>
+                    <HelpCircle className="w-4 h-4 group-hover:scale-110 transition-transform text-white/90" />
+                  </Link>
+                )}
                 
-                <Link
-                  to="/notices"
-                  className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-7 py-3.5 bg-white/10 hover:bg-white/18 border border-white/15 hover:border-white/25 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg backdrop-blur-md hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
-                >
-                  <span>Notice Board</span>
-                  <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-0.5 transition-transform text-orange-burnt" />
-                </Link>
+                {heroNoticeButtonEnabled && (
+                  <Link
+                    to="/notices"
+                    className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-7 py-3.5 bg-white/10 hover:bg-white/18 border border-white/15 hover:border-white/25 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg backdrop-blur-md hover:scale-[1.03] active:scale-[0.98] transition-all duration-300"
+                  >
+                    <span>Notice Board</span>
+                    <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-0.5 transition-transform text-orange-burnt" />
+                  </Link>
+                )}
               </motion.div>
             </motion.div>
           </div>

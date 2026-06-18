@@ -27,6 +27,8 @@ export const HeroSection: React.FC = () => {
   const [heroButtonText, setHeroButtonText] = useState<string | null>('');
   const [heroButtonLink, setHeroButtonLink] = useState<string | null>('');
   const [heroButtonEnabled, setHeroButtonEnabled] = useState<boolean>(true);
+  const [heroAskButtonEnabled, setHeroAskButtonEnabled] = useState<boolean>(true);
+  const [heroNoticeButtonEnabled, setHeroNoticeButtonEnabled] = useState<boolean>(true);
 
   // Fetch dynamic banner settings
   useEffect(() => {
@@ -48,6 +50,8 @@ export const HeroSection: React.FC = () => {
           setHeroButtonText(map['hero_button_text'] ?? '');
           setHeroButtonLink(map['hero_button_link'] ?? '');
           setHeroButtonEnabled(map['hero_button_enabled'] !== 'false');
+          setHeroAskButtonEnabled(map['hero_ask_button_enabled'] !== 'false');
+          setHeroNoticeButtonEnabled(map['hero_notice_button_enabled'] !== 'false');
         }
       } catch (err) {
         console.error('Error fetching dynamic hero setting:', err);
@@ -159,21 +163,25 @@ export const HeroSection: React.FC = () => {
               </Link>
             )}
 
-            <Link
-              to="/ask"
-              className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-9 py-4.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-2xl shadow-xl hover:shadow-orange-burnt/25 hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 border border-white/5 cursor-pointer"
-            >
-              <span>Ask a Question</span>
-              <HelpCircle className="w-5 h-5 group-hover:scale-110 transition-transform text-white/90" />
-            </Link>
+            {heroAskButtonEnabled && (
+              <Link
+                to="/ask"
+                className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-9 py-4.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-2xl shadow-xl hover:shadow-orange-burnt/25 hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 border border-white/5 cursor-pointer"
+              >
+                <span>Ask a Question</span>
+                <HelpCircle className="w-5 h-5 group-hover:scale-110 transition-transform text-white/90" />
+              </Link>
+            )}
 
-            <Link
-              to="/notices"
-              className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-9 py-4.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-2xl shadow-lg backdrop-blur-md hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 cursor-pointer"
-            >
-              <span>Notice Board</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform text-orange-burnt" />
-            </Link>
+            {heroNoticeButtonEnabled && (
+              <Link
+                to="/notices"
+                className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-9 py-4.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-2xl shadow-lg backdrop-blur-md hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 cursor-pointer"
+              >
+                <span>Notice Board</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform text-orange-burnt" />
+              </Link>
+            )}
           </motion.div>
         </div>
 

@@ -35,6 +35,8 @@ export const AdminSettings: React.FC = () => {
   const [heroButtonText, setHeroButtonText] = useState('');
   const [heroButtonLink, setHeroButtonLink] = useState('');
   const [heroButtonEnabled, setHeroButtonEnabled] = useState(true);
+  const [heroAskButtonEnabled, setHeroAskButtonEnabled] = useState(true);
+  const [heroNoticeButtonEnabled, setHeroNoticeButtonEnabled] = useState(true);
 
   const [originalHeroBadgeText, setOriginalHeroBadgeText] = useState('');
   const [originalHeroTitleText1, setOriginalHeroTitleText1] = useState('');
@@ -43,6 +45,8 @@ export const AdminSettings: React.FC = () => {
   const [originalHeroButtonText, setOriginalHeroButtonText] = useState('');
   const [originalHeroButtonLink, setOriginalHeroButtonLink] = useState('');
   const [originalHeroButtonEnabled, setOriginalHeroButtonEnabled] = useState(true);
+  const [originalHeroAskButtonEnabled, setOriginalHeroAskButtonEnabled] = useState(true);
+  const [originalHeroNoticeButtonEnabled, setOriginalHeroNoticeButtonEnabled] = useState(true);
   // --------------------------
 
   const [originalLogo, setOriginalLogo] = useState('');
@@ -162,6 +166,8 @@ export const AdminSettings: React.FC = () => {
       setHeroButtonText(map['hero_button_text'] ?? '');
       setHeroButtonLink(map['hero_button_link'] ?? '');
       setHeroButtonEnabled(map['hero_button_enabled'] !== 'false');
+      setHeroAskButtonEnabled(map['hero_ask_button_enabled'] !== 'false');
+      setHeroNoticeButtonEnabled(map['hero_notice_button_enabled'] !== 'false');
 
       setOriginalLogo(map['logo_url'] || '');
       setOriginalBanner(map['banner_url'] || '');
@@ -176,6 +182,8 @@ export const AdminSettings: React.FC = () => {
       setOriginalHeroButtonText(map['hero_button_text'] ?? '');
       setOriginalHeroButtonLink(map['hero_button_link'] ?? '');
       setOriginalHeroButtonEnabled(map['hero_button_enabled'] !== 'false');
+      setOriginalHeroAskButtonEnabled(map['hero_ask_button_enabled'] !== 'false');
+      setOriginalHeroNoticeButtonEnabled(map['hero_notice_button_enabled'] !== 'false');
 
       // Fetch personal profile details defensively
       const { data: profData } = await supabase
@@ -299,7 +307,9 @@ export const AdminSettings: React.FC = () => {
         { key: 'hero_subtitle_text', value: heroSubtitleText, updated_at: new Date().toISOString() },
         { key: 'hero_button_text', value: heroButtonText, updated_at: new Date().toISOString() },
         { key: 'hero_button_link', value: heroButtonLink, updated_at: new Date().toISOString() },
-        { key: 'hero_button_enabled', value: heroButtonEnabled ? 'true' : 'false', updated_at: new Date().toISOString() }
+        { key: 'hero_button_enabled', value: heroButtonEnabled ? 'true' : 'false', updated_at: new Date().toISOString() },
+        { key: 'hero_ask_button_enabled', value: heroAskButtonEnabled ? 'true' : 'false', updated_at: new Date().toISOString() },
+        { key: 'hero_notice_button_enabled', value: heroNoticeButtonEnabled ? 'true' : 'false', updated_at: new Date().toISOString() }
       ];
 
       const { error } = await supabase.from('settings').upsert(updates);
@@ -314,6 +324,8 @@ export const AdminSettings: React.FC = () => {
       setOriginalHeroButtonText(heroButtonText);
       setOriginalHeroButtonLink(heroButtonLink);
       setOriginalHeroButtonEnabled(heroButtonEnabled);
+      setOriginalHeroAskButtonEnabled(heroAskButtonEnabled);
+      setOriginalHeroNoticeButtonEnabled(heroNoticeButtonEnabled);
 
       toast.success('✅ Hero text settings updated successfully!');
     } catch (err: any) {
@@ -881,12 +893,41 @@ export const AdminSettings: React.FC = () => {
               <option value="/pay" className="bg-[#0D1B3E] text-white">Pay</option>
             </select>
           </div>
+
+          <div className="space-y-1.5 sm:col-span-2 pt-2 border-t border-white/5">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-white/40 mb-3">Default Buttons</label>
+            <div className="flex flex-col sm:flex-row gap-6">
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setHeroAskButtonEnabled(!heroAskButtonEnabled)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${heroAskButtonEnabled ? 'bg-orange-burnt' : 'bg-white/20'}`}
+                  role="switch"
+                  aria-checked={heroAskButtonEnabled}
+                >
+                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${heroAskButtonEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+                <span className="text-sm font-sans text-white/80">Show "Ask a Question" Button</span>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setHeroNoticeButtonEnabled(!heroNoticeButtonEnabled)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${heroNoticeButtonEnabled ? 'bg-orange-burnt' : 'bg-white/20'}`}
+                  role="switch"
+                  aria-checked={heroNoticeButtonEnabled}
+                >
+                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${heroNoticeButtonEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+                <span className="text-sm font-sans text-white/80">Show "Notice Board" Button</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center space-x-3 pt-2">
           <button
             onClick={saveHeroText}
-            disabled={isSaving === 'hero_text' || (heroBadgeText === originalHeroBadgeText && heroTitleText1 === originalHeroTitleText1 && heroTitleText2 === originalHeroTitleText2 && heroSubtitleText === originalHeroSubtitleText && heroButtonText === originalHeroButtonText && heroButtonLink === originalHeroButtonLink && heroButtonEnabled === originalHeroButtonEnabled)}
+            disabled={isSaving === 'hero_text' || (heroBadgeText === originalHeroBadgeText && heroTitleText1 === originalHeroTitleText1 && heroTitleText2 === originalHeroTitleText2 && heroSubtitleText === originalHeroSubtitleText && heroButtonText === originalHeroButtonText && heroButtonLink === originalHeroButtonLink && heroButtonEnabled === originalHeroButtonEnabled && heroAskButtonEnabled === originalHeroAskButtonEnabled && heroNoticeButtonEnabled === originalHeroNoticeButtonEnabled)}
             className="flex items-center space-x-1.5 px-5 py-2.5 bg-orange-burnt hover:bg-orange-burnt/90 text-white rounded-lg font-display text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-orange-burnt/15"
           >
             {isSaving === 'hero_text' ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /><span>Saving...</span></> : <><Check className="w-3.5 h-3.5" /><span>Save Hero Texts</span></>}
@@ -900,8 +941,10 @@ export const AdminSettings: React.FC = () => {
               setHeroButtonText(originalHeroButtonText);
               setHeroButtonLink(originalHeroButtonLink);
               setHeroButtonEnabled(originalHeroButtonEnabled);
+              setHeroAskButtonEnabled(originalHeroAskButtonEnabled);
+              setHeroNoticeButtonEnabled(originalHeroNoticeButtonEnabled);
             }}
-            disabled={heroBadgeText === originalHeroBadgeText && heroTitleText1 === originalHeroTitleText1 && heroTitleText2 === originalHeroTitleText2 && heroSubtitleText === originalHeroSubtitleText && heroButtonText === originalHeroButtonText && heroButtonLink === originalHeroButtonLink && heroButtonEnabled === originalHeroButtonEnabled}
+            disabled={heroBadgeText === originalHeroBadgeText && heroTitleText1 === originalHeroTitleText1 && heroTitleText2 === originalHeroTitleText2 && heroSubtitleText === originalHeroSubtitleText && heroButtonText === originalHeroButtonText && heroButtonLink === originalHeroButtonLink && heroButtonEnabled === originalHeroButtonEnabled && heroAskButtonEnabled === originalHeroAskButtonEnabled && heroNoticeButtonEnabled === originalHeroNoticeButtonEnabled}
             className="flex items-center space-x-1.5 px-4 py-2.5 border border-white/10 rounded-lg text-white/60 font-display text-xs font-bold hover:bg-white/5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <RotateCcw className="w-3.5 h-3.5" />
