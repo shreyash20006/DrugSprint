@@ -1,196 +1,278 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  ArrowRight, 
-  HelpCircle
-} from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowUpRight, HelpCircle, Sparkles, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const isVideoUrl = (url: string | null): boolean => {
   if (!url) return false;
-  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.m4v'];
-  const lowerUrl = url.toLowerCase();
+  const lower = url.toLowerCase();
   return (
-    videoExtensions.some(ext => lowerUrl.endsWith(ext)) ||
-    lowerUrl.includes('/video/upload/') ||
-    (lowerUrl.includes('res.cloudinary.com/') && lowerUrl.includes('/video/'))
+    ['.mp4', '.webm', '.ogg', '.mov', '.m4v'].some((e) => lower.endsWith(e)) ||
+    lower.includes('/video/upload/') ||
+    (lower.includes('res.cloudinary.com/') && lower.includes('/video/'))
+  );
+};
+
+// Letter-by-letter reveal for hero title
+const SplitText: React.FC<{ text: string; className?: string; delayStart?: number }> = ({
+  text,
+  className = '',
+  delayStart = 0,
+}) => {
+  const words = text.split(' ');
+  return (
+    <span className={className} aria-label={text}>
+      {words.map((word, wi) => (
+        <span key={wi} className="inline-block overflow-hidden align-bottom" style={{ paddingBottom: '0.05em' }}>
+          {Array.from(word).map((ch, ci) => {
+            const globalIndex = wi * 100 + ci;
+            return (
+              <span
+                key={ci}
+                className="letter-reveal"
+                style={{ animationDelay: `${delayStart + globalIndex * 0.035}s` }}
+              >
+                {ch}
+              </span>
+            );
+          })}
+          {wi < words.length - 1 && <span className="inline-block" style={{ width: '0.32em' }} />}
+        </span>
+      ))}
+    </span>
   );
 };
 
 export const HeroSection: React.FC = () => {
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
-  const [heroBadgeText, setHeroBadgeText] = useState<string | null>('Tulsiramji Gaikwad Patil College of Pharmacy');
-  const [heroTitleText1, setHeroTitleText1] = useState<string | null>('TGPCOP');
-  const [heroTitleText2, setHeroTitleText2] = useState<string | null>('STUDENT COUNCIL');
-  const [heroSubtitleText, setHeroSubtitleText] = useState<string | null>('Your Voice. Our Future. | Together Towards Excellence');
-  const [heroButtonText, setHeroButtonText] = useState<string | null>('');
-  const [heroButtonLink, setHeroButtonLink] = useState<string | null>('');
-  const [heroButtonEnabled, setHeroButtonEnabled] = useState<boolean>(true);
+  const [heroBadgeText, setHeroBadgeText] = useState<string>('Tulsiramji Gaikwad Patil College of Pharmacy');
+  const [heroTitleText1, setHeroTitleText1] = useState<string>('TGPCOP');
+  const [heroTitleText2, setHeroTitleText2] = useState<string>('STUDENT COUNCIL');
+  const [heroSubtitleText, setHeroSubtitleText] = useState<string>(
+    'Your Voice. Our Future. | Together Towards Excellence'
+  );
 
-  // Fetch dynamic banner settings
+  // Scroll-linked parallax
+  const { scrollY } = useScroll();
+  const bgY = useTransform(scrollY, [0, 600], [0, 140]);
+  const contentY = useTransform(scrollY, [0, 600], [0, -60]);
+  const contentOpacity = useTransform(scrollY, [0, 400], [1, 0.2]);
+
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const { data } = await supabase
-          .from('settings')
-          .select('key, value');
-        
+        const { data } = await supabase.from('settings').select('key, value');
         if (data) {
           const map: Record<string, string> = {};
-          data.forEach(row => { map[row.key] = row.value; });
-          
-          setBannerUrl(map['banner_url'] || 'https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2086&auto=format&fit=crop');
-          setHeroBadgeText(map['hero_badge_text'] ?? 'Tulsiramji Gaikwad Patil College of Pharmacy');
-          setHeroTitleText1(map['hero_title_text_1'] ?? 'TGPCOP');
-          setHeroTitleText2(map['hero_title_text_2'] ?? 'STUDENT COUNCIL');
-          setHeroSubtitleText(map['hero_subtitle_text'] ?? 'Your Voice. Our Future. | Together Towards Excellence');
-          setHeroButtonText(map['hero_button_text'] ?? '');
-          setHeroButtonLink(map['hero_button_link'] ?? '');
-          setHeroButtonEnabled(map['hero_button_enabled'] !== 'false');
+          data.forEach((row: any) => {
+            map[row.key] = row.value;
+          });
+          setBannerUrl(
+            map['banner_url'] ||
+              'https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2086&auto=format&fit=crop'
+          );
+          if (map['hero_badge_text']) setHeroBadgeText(map['hero_badge_text']);
+          if (map['hero_title_text_1']) setHeroTitleText1(map['hero_title_text_1']);
+          if (map['hero_title_text_2']) setHeroTitleText2(map['hero_title_text_2']);
+          if (map['hero_subtitle_text']) setHeroSubtitleText(map['hero_subtitle_text']);
         }
-      } catch (err) {
-        console.error('Error fetching dynamic hero setting:', err);
+      } catch {
         setBannerUrl('https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2086&auto=format&fit=crop');
       }
     };
     fetchSettings();
   }, []);
 
+  const subtitleParts = heroSubtitleText.includes('|') ? heroSubtitleText.split('|') : [heroSubtitleText];
+
   return (
-    <div className="relative w-full bg-[#050B1F] text-white overflow-hidden pb-12">
-      
-      {/* 1. Hero Viewport Section (Full Screen h-screen) */}
-      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
-        
-        {/* Dynamic Background (Image or Video) */}
+    <section
+      className="relative w-full min-h-[100svh] overflow-hidden bg-[#050B1F] text-white flex items-end"
+      data-testid="hero-section"
+    >
+      {/* Parallax background */}
+      <motion.div className="absolute inset-0 z-0" style={{ y: bgY }}>
         {bannerUrl && isVideoUrl(bannerUrl) ? (
           <video
             autoPlay
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none select-none"
+            className="absolute inset-0 w-full h-[120%] object-cover select-none pointer-events-none scale-110"
             src={bannerUrl}
           />
         ) : (
           bannerUrl && (
-            <div 
-              className="absolute inset-0 bg-cover bg-center select-none z-0"
-              style={{ backgroundImage: `url(${bannerUrl})` }}
+            <div
+              className="absolute inset-0 bg-cover bg-center select-none scale-110"
+              style={{ backgroundImage: `url(${bannerUrl})`, height: '120%' }}
             />
           )
         )}
+      </motion.div>
 
-        {/* Tint Overlay for Premium Contrast & Readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050B1F]/75 via-[#050B1F]/50 to-[#050B1F] z-10 pointer-events-none" />
-        
-        {/* Sleek startup grid overlay */}
-        <div className="absolute inset-0 z-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:40px_40px] opacity-30 pointer-events-none" />
+      {/* Layered overlays */}
+      <div className="absolute inset-0 z-10 bg-gradient-to-b from-[#050B1F]/40 via-[#050B1F]/65 to-[#050B1F]" />
+      <div className="absolute inset-0 z-10 hero-spotlight pointer-events-none" />
+      <div className="absolute inset-0 z-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:48px_48px] opacity-50 pointer-events-none" />
+      <div className="noise-overlay z-10 noise-soft" />
 
-        {/* Centered Content Wrapper */}
-        <div className="relative z-20 text-center px-4 max-w-5xl mx-auto flex flex-col items-center justify-center h-full space-y-8 select-none">
-          
-          {/* Badge */}
-          {heroBadgeText && (
+      {/* Asymmetric content */}
+      <motion.div
+        className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 sm:pt-40 sm:pb-32"
+        style={{ y: contentY, opacity: contentOpacity }}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-end">
+          {/* LEFT — primary content */}
+          <div className="lg:col-span-8 space-y-7">
+            {/* Eyebrow / live badge */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="flex items-center space-x-2 bg-orange-burnt/10 border border-orange-burnt/30 px-5 py-2 rounded-full backdrop-blur-md shadow-md"
+              className="inline-flex items-center space-x-2.5 px-4 py-1.5 rounded-full backdrop-blur-md bg-white/[0.04] border border-white/10"
             >
-              <span className="w-2.5 h-2.5 rounded-full bg-orange-burnt animate-pulse" />
-              <span className="text-orange-burnt text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase font-display">
+              <span className="relative flex items-center justify-center w-2 h-2">
+                <span className="absolute inline-flex w-full h-full rounded-full bg-orange-burnt opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full w-2 h-2 bg-orange-burnt" />
+              </span>
+              <span className="text-white/85 text-[10px] sm:text-[11px] font-bold tracking-[0.22em] uppercase font-display">
                 {heroBadgeText}
               </span>
             </motion.div>
-          )}
 
-          {/* Main Title Heading */}
-          {(heroTitleText1 || heroTitleText2) && (
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-5xl sm:text-7xl md:text-8xl font-black font-display tracking-tight text-white leading-none uppercase drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]"
+            {/* Headline with split-text reveal */}
+            <h1
+              className="font-display font-black tracking-tight leading-[0.95] text-white"
+              style={{ fontSize: 'clamp(2.75rem, 8vw, 6.5rem)' }}
             >
-              {heroTitleText1} <br className="sm:hidden" />
-              {heroTitleText2 && (
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-burnt via-gold-accent to-orange-burnt bg-[size:200%_auto]">
-                  {heroTitleText2}
-                </span>
-              )}
-            </motion.h1>
-          )}
+              <SplitText text={heroTitleText1} className="block" delayStart={0.15} />
+              <span className="block mt-1 text-transparent bg-clip-text bg-gradient-to-r from-orange-burnt via-gold-accent to-orange-burnt bg-[length:200%_auto]">
+                <SplitText text={heroTitleText2} delayStart={0.45} />
+              </span>
+            </h1>
 
-          {/* Subtitle */}
-          {heroSubtitleText && (
+            {/* Subtitle */}
             <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-white/95 text-base sm:text-xl md:text-2xl max-w-3xl mx-auto tracking-wide font-sans leading-relaxed drop-shadow-md font-medium"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 1.0 }}
+              className="text-white/75 text-base sm:text-xl max-w-2xl font-sans leading-relaxed"
             >
-              {heroSubtitleText.includes('|') ? (
+              {subtitleParts[0]}
+              {subtitleParts[1] && (
                 <>
-                  {heroSubtitleText.split('|')[0]} <span className="hidden sm:inline text-white/45 mx-1"> | </span>{" "}
-                  <span className="text-gold-accent font-semibold">{heroSubtitleText.split('|').slice(1).join('|')}</span>
+                  <span className="text-white/30 mx-2">/</span>
+                  <span className="text-gold-accent font-semibold">{subtitleParts.slice(1).join('|')}</span>
                 </>
-              ) : (
-                heroSubtitleText
               )}
             </motion.p>
-          )}
 
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4 w-full sm:w-auto"
-          >
-            {heroButtonEnabled && heroButtonText && heroButtonLink && (
+            {/* CTAs — 1 primary + 1 ghost */}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.2 }}
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4"
+            >
               <Link
-                to={heroButtonLink}
-                className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-9 py-4.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-2xl shadow-xl hover:shadow-emerald-500/25 hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 border border-white/5 cursor-pointer"
+                to="/ask"
+                data-testid="hero-primary-cta"
+                className="group inline-flex items-center justify-center gap-3 px-7 py-4 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-sm font-bold uppercase tracking-[0.18em] rounded-full shadow-xl shadow-orange-burnt/25 hover:shadow-orange-burnt/40 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 border border-white/10"
               >
-                <span>{heroButtonText}</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform text-white/90" />
+                <HelpCircle className="w-4 h-4" strokeWidth={2.4} />
+                <span>Ask the Council</span>
+                <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
-            )}
 
-            <Link
-              to="/ask"
-              className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-9 py-4.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-2xl shadow-xl hover:shadow-orange-burnt/25 hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 border border-white/5 cursor-pointer"
-            >
-              <span>Ask a Question</span>
-              <HelpCircle className="w-5 h-5 group-hover:scale-110 transition-transform text-white/90" />
-            </Link>
+              <Link
+                to="/notices"
+                data-testid="hero-secondary-cta"
+                className="group inline-flex items-center justify-center gap-2.5 px-7 py-4 text-white/85 hover:text-white font-display text-sm font-bold uppercase tracking-[0.18em] rounded-full border border-white/15 hover:border-white/35 hover:bg-white/[0.04] backdrop-blur-md transition-all duration-300"
+              >
+                <FileText className="w-4 h-4 text-orange-burnt" strokeWidth={2.2} />
+                <span>Notice Board</span>
+              </Link>
+            </motion.div>
+          </div>
 
-            <Link
-              to="/notices"
-              className="group flex items-center justify-center space-x-2 w-full sm:w-auto px-9 py-4.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-display text-xs sm:text-sm font-bold uppercase tracking-widest rounded-2xl shadow-lg backdrop-blur-md hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 cursor-pointer"
-            >
-              <span>Notice Board</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform text-orange-burnt" />
-            </Link>
-          </motion.div>
-        </div>
-
-        {/* Floating Mouse Scroll Indicator (Bottom Center) */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 hidden sm:block">
+          {/* RIGHT — vertical meta panel */}
           <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-            className="w-6.5 h-10 border-2 border-white/25 rounded-full flex justify-center p-1.5 backdrop-blur-sm shadow-inner"
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 1.0 }}
+            className="lg:col-span-4 hidden lg:block"
           >
-            <div className="w-1.5 h-2 bg-orange-burnt rounded-full animate-bounce" />
+            <div className="relative rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md overflow-hidden">
+              <div className="noise-overlay noise-soft" />
+
+              <div className="relative p-6 space-y-5">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-gold-accent" strokeWidth={2.4} />
+                  <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/55 font-display">
+                    The Council Pulse
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-white/45 text-[10px] font-sans uppercase tracking-[0.2em]">Established</p>
+                  <p className="font-display font-extrabold text-3xl text-white tracking-tight">2003</p>
+                </div>
+
+                <div className="h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+                <div className="space-y-1">
+                  <p className="text-white/45 text-[10px] font-sans uppercase tracking-[0.2em]">Active Programs</p>
+                  <p className="font-display font-extrabold text-3xl text-white tracking-tight">
+                    B.Pharm <span className="text-white/35 text-2xl">·</span> D.Pharm
+                  </p>
+                </div>
+
+                <div className="h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+                <div className="space-y-1">
+                  <p className="text-white/45 text-[10px] font-sans uppercase tracking-[0.2em]">Campus</p>
+                  <p className="font-display font-bold text-base text-white leading-snug">
+                    Nagpur, Maharashtra
+                    <span className="block text-orange-burnt text-xs mt-0.5 font-extrabold tracking-wider">
+                      INDIA
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Decorative corner */}
+              <div className="absolute -top-px -right-px w-16 h-16 border-t border-r border-orange-burnt/50 rounded-tr-2xl pointer-events-none" />
+              <div className="absolute -bottom-px -left-px w-16 h-16 border-b border-l border-gold-accent/40 rounded-bl-2xl pointer-events-none" />
+            </div>
           </motion.div>
         </div>
 
-      </section>
-
-    </div>
+        {/* Bottom marker bar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 1.4 }}
+          className="mt-16 sm:mt-20 flex items-end justify-between gap-6 border-t border-white/10 pt-5"
+        >
+          <div className="flex items-center gap-2.5 text-white/45 text-[10px] font-sans uppercase tracking-[0.25em]">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-burnt blink-dot" />
+            <span>Live · Academic Year 2026—27</span>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-white/35 text-[10px] font-sans uppercase tracking-[0.25em]">
+            <span>Scroll to explore</span>
+            <motion.span
+              animate={{ y: [0, 4, 0] }}
+              transition={{ repeat: Infinity, duration: 1.6, ease: 'easeInOut' }}
+              className="inline-block"
+            >
+              ↓
+            </motion.span>
+          </div>
+        </motion.div>
+      </motion.div>
+    </section>
   );
 };
 
