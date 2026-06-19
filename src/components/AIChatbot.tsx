@@ -133,6 +133,8 @@ interface ChatMessage {
     url?: string;
   };
   timestamp?: number;
+  type?: 'text' | 'image' | 'image-loading';
+  url?: string;
 }
 
 // Returns time-based greeting
@@ -194,6 +196,8 @@ export const AIChatbot: React.FC = () => {
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -282,6 +286,71 @@ export const AIChatbot: React.FC = () => {
     
     // Clear the attachment from input area
     setAttachedFile(null);
+    
+    // ── Intercept Image Generation Trigger ──
+    const triggerPhrases = ["generate image of", "create image of", "make image of", "draw image of"];
+    let detectedPrompt: string | null = null;
+    const lowerMsg = userMessage.toLowerCase();
+    for (const phrase of triggerPhrases) {
+      const index = lowerMsg.indexOf(phrase);
+      if (index !== -1) {
+        detectedPrompt = userMessage.substring(index + phrase.length).trim();
+        break;
+      }
+    }
+
+    if (detectedPrompt !== null) {
+      const loadingMessageId = Date.now();
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: userMessage,
+        type: 'image-loading',
+        timestamp: loadingMessageId
+      }]);
+
+      setIsTyping(true);
+
+      try {
+        const fullPrompt = `${detectedPrompt || 'pharmacy'}, pharmacy, medical, professional, high quality`;
+        const encodedPrompt = encodeURIComponent(fullPrompt);
+        const seed = (Math.random() * 1000) | 0;
+        const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=768&height=512&nologo=true&seed=${seed}`;
+
+        const res = await fetch(pollinationsUrl);
+        if (!res.ok) {
+          throw new Error("Could not generate image.");
+        }
+
+        // Replace loading message with image message
+        setMessages(prev =>
+          prev.map(m =>
+            m.type === 'image-loading' && m.timestamp === loadingMessageId
+              ? {
+                  role: 'assistant',
+                  content: detectedPrompt || 'pharmacy',
+                  type: 'image',
+                  url: pollinationsUrl
+                }
+              : m
+          )
+        );
+      } catch (err) {
+        setMessages(prev =>
+          prev.map(m =>
+            m.type === 'image-loading' && m.timestamp === loadingMessageId
+              ? {
+                  role: 'assistant',
+                  content: "❌ Could not generate image. Try a different prompt.",
+                  type: 'text'
+                }
+              : m
+          )
+        );
+      } finally {
+        setIsTyping(false);
+      }
+      return;
+    }
     
     let searchResults = "";
     if (shouldSearch) {
@@ -718,106 +787,182 @@ When providing links, use markdown format like this: [Click here for Notices](/n
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
-              {messages.map((msg, idx) => (
-                <div 
-                  key={idx} 
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div 
-                    className={`max-w-[85%] p-3 rounded-2xl text-sm font-sans leading-relaxed ${
-                      msg.role === 'user' 
-                        ? 'bg-orange-burnt text-white rounded-tr-sm shadow-md shadow-orange-burnt/10' 
-                        : 'bg-white text-navy-dark border border-navy-dark/10 rounded-tl-sm shadow-sm prose prose-sm prose-orange max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0'
-                    }`}
-                  >
-                    {msg.attachment && (
-                      <div className="mb-2 max-w-full overflow-hidden rounded-lg border border-white/20 bg-black/10 p-1">
-                        {msg.attachment.type === 'image' && msg.attachment.url && (
-                          <img 
-                            src={msg.attachment.url} 
-                            alt="Attached file preview" 
-                            className="max-h-32 w-full rounded object-cover" 
-                          />
-                        )}
-                        {msg.attachment.type === 'pdf' && (
-                          <div className="flex items-center space-x-2 p-1.5 text-xs text-white">
-                            <FileText className="w-4 h-4 shrink-0 text-orange-200" />
-                            <span className="truncate font-sans font-medium">{msg.attachment.name}</span>
+              {messages.map((msg, idx) => {
+                if (msg.role === 'assistant' && msg.type === 'image-loading') {
+                  return (
+                    <div key={idx} className="flex justify-start">
+                      <div className="bg-white text-navy-dark border border-navy-dark/10 rounded-2xl rounded-tl-sm p-3 shadow-sm w-full max-w-sm space-y-2">
+                        <div className="aspect-[3/2] w-full bg-gray-200/80 animate-pulse rounded-xl border border-navy-dark/5 flex flex-col items-center justify-center text-navy-dark/40 space-y-2">
+                          <Loader2 className="w-5 h-5 animate-spin text-[#C84B0E]" />
+                          <span className="text-xs font-semibold">🎨 Generating pharmacy image...</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (msg.role === 'assistant' && msg.type === 'image') {
+                  const isFailed = failedImages[msg.url || ''];
+                  return (
+                    <div key={idx} className="flex justify-start">
+                      <div className="bg-white text-navy-dark border border-navy-dark/10 rounded-2xl rounded-tl-sm p-3 shadow-sm w-full max-w-sm space-y-2">
+                        {isFailed ? (
+                          <div className="text-sm text-red-600 font-sans p-2">
+                            ❌ Could not generate image. Try a different prompt.
+                          </div>
+                        ) : (
+                          <div className="relative group rounded-xl overflow-hidden w-full max-w-sm">
+                            {/* The Image itself */}
+                            <div className="relative aspect-[3/2] w-full bg-gray-100 rounded-xl overflow-hidden border border-white/10">
+                              {!loadedImages[msg.url || ''] && (
+                                <div className="absolute inset-0 bg-gray-200/80 animate-pulse flex flex-col items-center justify-center text-navy-dark/40 space-y-2">
+                                  <Loader2 className="w-5 h-5 animate-spin text-[#C84B0E]" />
+                                  <span className="text-xs font-semibold">Loading image...</span>
+                                </div>
+                              )}
+                              <img
+                                src={msg.url}
+                                alt={msg.content}
+                                className={`w-full h-full object-cover rounded-xl transition-opacity duration-300 ${
+                                  loadedImages[msg.url || ''] ? 'opacity-100' : 'opacity-0'
+                                }`}
+                                onLoad={() => {
+                                  if (msg.url) {
+                                    setLoadedImages(prev => ({ ...prev, [msg.url!]: true }));
+                                  }
+                                }}
+                                onError={() => {
+                                  if (msg.url) {
+                                    setFailedImages(prev => ({ ...prev, [msg.url!]: true }));
+                                  }
+                                }}
+                              />
+                            </div>
+                            
+                            {/* Caption and Download Button */}
+                            <div className="mt-2 flex items-center justify-between">
+                              <span className="text-xs text-gray-500 italic truncate pr-4 max-w-[80%]" title={msg.content}>
+                                "{msg.content}"
+                              </span>
+                              <a
+                                href={msg.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download
+                                className="w-8 h-8 rounded-lg bg-gray-50 hover:bg-gray-100 active:scale-95 border border-navy-dark/10 flex items-center justify-center text-sm shadow-sm transition-all"
+                                title="Download Image"
+                              >
+                                ⬇️
+                              </a>
+                            </div>
                           </div>
                         )}
                       </div>
-                    )}
-                    {msg.role === 'assistant' ? (
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          a: ({ node, ...props }) => {
-                            if (props.href?.startsWith('/')) {
-                              return <Link to={props.href} className="text-[#E06D2B] font-bold hover:underline" onClick={() => setIsOpen(false)}>{props.children}</Link>;
-                            }
-                            return <a {...props} className="text-[#E06D2B] font-bold hover:underline" target="_blank" rel="noopener noreferrer">{props.children}</a>;
-                          },
-                          code: ({ node, className, children, ...props }) => {
-                            const match = /language-(\w+)/.exec(className || '');
-                            const isInline = !className;
-                            const codeString = String(children).replace(/\n$/, '');
-                            if (!isInline) {
-                              return <CodeBlock language={match ? match[1] : 'text'} value={codeString} />;
-                            }
-                            return (
-                              <code className="bg-[#374151] text-[#93c5fd] px-1.5 py-0.5 rounded font-mono text-xs font-semibold" {...props}>
-                                {children}
-                              </code>
-                            );
-                          },
-                          table: ({ node, ...props }) => (
-                            <div className="overflow-x-auto my-3 rounded-xl border border-navy-dark/10 shadow-sm max-w-full">
-                              <table className="min-w-full divide-y divide-navy-dark/10 text-left text-xs" {...props} />
+                    </div>
+                  );
+                }
+
+                return (
+                  <div 
+                    key={idx} 
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div 
+                      className={`max-w-[85%] p-3 rounded-2xl text-sm font-sans leading-relaxed ${
+                        msg.role === 'user' 
+                          ? 'bg-orange-burnt text-white rounded-tr-sm shadow-md shadow-orange-burnt/10' 
+                          : 'bg-white text-navy-dark border border-navy-dark/10 rounded-tl-sm shadow-sm prose prose-sm prose-orange max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0'
+                      }`}
+                    >
+                      {msg.attachment && (
+                        <div className="mb-2 max-w-full overflow-hidden rounded-lg border border-white/20 bg-black/10 p-1">
+                          {msg.attachment.type === 'image' && msg.attachment.url && (
+                            <img 
+                              src={msg.attachment.url} 
+                              alt="Attached file preview" 
+                              className="max-h-32 w-full rounded object-cover" 
+                            />
+                          )}
+                          {msg.attachment.type === 'pdf' && (
+                            <div className="flex items-center space-x-2 p-1.5 text-xs text-white">
+                              <FileText className="w-4 h-4 shrink-0 text-orange-200" />
+                              <span className="truncate font-sans font-medium">{msg.attachment.name}</span>
                             </div>
-                          ),
-                          thead: ({ node, ...props }) => (
-                            <thead className="bg-gray-50 font-bold text-navy-dark uppercase tracking-wider" {...props} />
-                          ),
-                          th: ({ node, ...props }) => (
-                            <th className="px-4 py-2.5 font-bold border-b border-navy-dark/10" {...props} />
-                          ),
-                          td: ({ node, ...props }) => (
-                            <td className="px-4 py-2 border-b border-navy-dark/5 text-navy-dark/80" {...props} />
-                          ),
-                          blockquote: ({ node, ...props }) => (
-                            <blockquote className="border-l-4 border-teal-600 pl-4 italic text-navy-dark/70 my-3 bg-teal-50/20 py-2 pr-3 rounded-r-lg" {...props} />
-                          ),
-                          ul: ({ node, ...props }) => (
-                            <ul className="list-disc pl-5 my-2 space-y-1 text-navy-dark/95" {...props} />
-                          ),
-                          ol: ({ node, ...props }) => (
-                            <ol className="list-decimal pl-5 my-2 space-y-1 text-navy-dark/95" {...props} />
-                          ),
-                          li: ({ node, ...props }) => (
-                            <li className="pl-1" {...props} />
-                          ),
-                          h1: ({ node, ...props }) => (
-                            <h1 className="text-lg font-bold text-navy-dark mt-4 mb-2 first:mt-0" {...props} />
-                          ),
-                          h2: ({ node, ...props }) => (
-                            <h2 className="text-base font-bold text-navy-dark mt-3 mb-1.5 first:mt-0" {...props} />
-                          ),
-                          h3: ({ node, ...props }) => (
-                            <h3 className="text-sm font-bold text-navy-dark mt-2 mb-1 first:mt-0" {...props} />
-                          ),
-                          p: ({ node, ...props }) => (
-                            <p className="my-1.5 leading-relaxed text-navy-dark/90" {...props} />
-                          )
-                        }}
-                      >
-                        {msg.content}
-                      </ReactMarkdown>
-                    ) : (
-                      msg.content
-                    )}
+                          )}
+                        </div>
+                      )}
+                      {msg.role === 'assistant' ? (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            a: ({ node, ...props }) => {
+                              if (props.href?.startsWith('/')) {
+                                return <Link to={props.href} className="text-[#E06D2B] font-bold hover:underline" onClick={() => setIsOpen(false)}>{props.children}</Link>;
+                              }
+                              return <a {...props} className="text-[#E06D2B] font-bold hover:underline" target="_blank" rel="noopener noreferrer">{props.children}</a>;
+                            },
+                            code: ({ node, className, children, ...props }) => {
+                              const match = /language-(\w+)/.exec(className || '');
+                              const isInline = !className;
+                              const codeString = String(children).replace(/\n$/, '');
+                              if (!isInline) {
+                                return <CodeBlock language={match ? match[1] : 'text'} value={codeString} />;
+                              }
+                              return (
+                                <code className="bg-[#374151] text-[#93c5fd] px-1.5 py-0.5 rounded font-mono text-xs font-semibold" {...props}>
+                                  {children}
+                                </code>
+                              );
+                            },
+                            table: ({ node, ...props }) => (
+                              <div className="overflow-x-auto my-3 rounded-xl border border-navy-dark/10 shadow-sm max-w-full">
+                                <table className="min-w-full divide-y divide-navy-dark/10 text-left text-xs" {...props} />
+                              </div>
+                            ),
+                            thead: ({ node, ...props }) => (
+                              <thead className="bg-gray-50 font-bold text-navy-dark uppercase tracking-wider" {...props} />
+                            ),
+                            th: ({ node, ...props }) => (
+                              <th className="px-4 py-2.5 font-bold border-b border-navy-dark/10" {...props} />
+                            ),
+                            td: ({ node, ...props }) => (
+                              <td className="px-4 py-2 border-b border-navy-dark/5 text-navy-dark/80" {...props} />
+                            ),
+                            blockquote: ({ node, ...props }) => (
+                              <blockquote className="border-l-4 border-teal-600 pl-4 italic text-navy-dark/70 my-3 bg-teal-50/20 py-2 pr-3 rounded-r-lg" {...props} />
+                            ),
+                            ul: ({ node, ...props }) => (
+                              <ul className="list-disc pl-5 my-2 space-y-1 text-navy-dark/95" {...props} />
+                            ),
+                            ol: ({ node, ...props }) => (
+                              <ol className="list-decimal pl-5 my-2 space-y-1 text-navy-dark/95" {...props} />
+                            ),
+                            li: ({ node, ...props }) => (
+                              <li className="pl-1" {...props} />
+                            ),
+                            h1: ({ node, ...props }) => (
+                              <h1 className="text-lg font-bold text-navy-dark mt-4 mb-2 first:mt-0" {...props} />
+                            ),
+                            h2: ({ node, ...props }) => (
+                              <h2 className="text-base font-bold text-navy-dark mt-3 mb-1.5 first:mt-0" {...props} />
+                            ),
+                            h3: ({ node, ...props }) => (
+                              <h3 className="text-sm font-bold text-navy-dark mt-2 mb-1 first:mt-0" {...props} />
+                            ),
+                            p: ({ node, ...props }) => (
+                              <p className="my-1.5 leading-relaxed text-navy-dark/90" {...props} />
+                            )
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+                      ) : (
+                        msg.content
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               
               {isSearching && (
                 <div className="flex justify-start">
