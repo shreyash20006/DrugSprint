@@ -6,7 +6,8 @@ import { sendPaymentReceiptEmail, sendAdminPaymentNotification } from '../lib/br
 import { generateUploadAndDownloadReceipt } from '../lib/receiptPdf';
 import { DNALoader } from './DNALoader';
 import { useToast } from './admin/Toast';
-import { Lock, CreditCard, ChevronDown, UserCheck } from 'lucide-react';
+import { Lock, CreditCard, ChevronDown, User, Mail, Phone } from 'lucide-react';
+import { InputField } from './ui/InputField';
 
 const FALLBACK_PURPOSES = [
   { name: 'NSS Fee', defaultAmount: 20 },
@@ -29,7 +30,21 @@ const YEARS = [
   'D.Pharm II Year',
 ];
 
-export const PaymentForm: React.FC = () => {
+export interface PaymentFormSummary {
+  studentName: string;
+  studentEmail: string;
+  studentYear: string;
+  purpose: string;
+  amount: number;
+  isSubmitting: boolean;
+}
+
+interface PaymentFormProps {
+  /** Called whenever form state changes — used by SummaryCard etc. */
+  onStateChange?: (state: PaymentFormSummary) => void;
+}
+
+export const PaymentForm: React.FC<PaymentFormProps> = ({ onStateChange }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const toast = useToast();
@@ -46,6 +61,12 @@ export const PaymentForm: React.FC = () => {
 
   const [isLocked, setIsLocked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Notify parent of current state (for SummaryCard live updates)
+  useEffect(() => {
+    onStateChange?.({ studentName, studentEmail, studentYear, purpose, amount, isSubmitting });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studentName, studentEmail, studentYear, purpose, amount, isSubmitting]);
 
   // Auto-fill from Supabase Auth user
   useEffect(() => {
@@ -316,159 +337,143 @@ export const PaymentForm: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#0D1B3E]/85 border border-white/10 backdrop-blur-[16px] rounded-2xl shadow-2xl p-6 sm:p-8 select-none text-white">
-      <div className="flex items-center space-x-3 mb-6 border-b border-white/10 pb-4">
-        <CreditCard className="w-6 h-6 text-orange-burnt animate-pulse" />
-        <h2 className="font-display font-extrabold text-lg sm:text-xl uppercase tracking-wide">
-          💳 Payment Details
-        </h2>
+    <div className="relative rounded-3xl bg-[#0D1B3E]/55 border border-white/[0.08] backdrop-blur-xl p-6 sm:p-8 text-white shadow-2xl">
+      {/* Decorative corner accents */}
+      <div className="absolute -top-px -left-px w-12 h-12 border-t-2 border-l-2 border-[#C84B0E]/45 rounded-tl-3xl pointer-events-none" />
+      <div className="absolute -bottom-px -right-px w-12 h-12 border-b-2 border-r-2 border-[#FFB338]/35 rounded-br-3xl pointer-events-none" />
+      <div className="noise-overlay noise-soft" />
+
+      <div className="relative flex items-center space-x-3 mb-6 border-b border-white/[0.06] pb-4">
+        <div className="w-10 h-10 rounded-xl bg-[#C84B0E]/12 border border-[#C84B0E]/25 flex items-center justify-center shrink-0">
+          <CreditCard className="w-5 h-5 text-[#C84B0E]" />
+        </div>
+        <div>
+          <h2 className="font-display font-extrabold text-lg sm:text-xl text-white tracking-tight leading-none">
+            Payment Details
+          </h2>
+          <p className="text-[10px] text-[#C84B0E] font-bold tracking-[0.2em] uppercase mt-1.5 leading-none">
+            SECURE CHECKOUT GATEWAY
+          </p>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="relative space-y-5" data-testid="payment-form-actual">
         {/* Purpose Dropdown selector */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-display font-bold uppercase tracking-wider text-orange-burnt">
+          <label className="block text-[11px] font-display font-bold uppercase tracking-[0.18em] text-white/55">
             Payment Purpose*
           </label>
-          <div className="relative">
+          <div className="relative group rounded-xl border border-white/[0.08] bg-[#050B18]/55 hover:border-white/15 backdrop-blur-md focus-within:border-[#C84B0E]/80 focus-within:bg-[#050B18]/85 focus-within:ring-2 focus-within:ring-[#C84B0E]/40 transition-all duration-300">
             <select
               value={purpose}
               disabled={isLocked || isSubmitting}
               onChange={(e) => handlePurposeChange(e.target.value)}
-              className="w-full bg-[#070F25]/90 border border-white/15 rounded-xl px-4 py-3 text-sm font-sans focus:outline-none focus:border-orange-burnt appearance-none cursor-pointer disabled:opacity-65"
+              className="w-full bg-transparent text-white font-sans placeholder:text-white/25 focus:outline-none py-3 px-4 pr-10 text-sm appearance-none cursor-pointer disabled:opacity-65"
             >
               {purposesList.map((p) => (
-                <option key={p.name} value={p.name} className="bg-[#070F25]">
+                <option key={p.name} value={p.name} className="bg-[#080F25] text-white">
                   {p.name} {p.name !== 'Custom (Other Payments)' ? `— ₹${p.defaultAmount}` : ''}
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
+            <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 pointer-events-none group-focus-within:text-[#C84B0E] transition-colors" />
           </div>
         </div>
 
         {/* Amount Input */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-display font-bold uppercase tracking-wider text-orange-burnt">
-            Amount (INR)*
-          </label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-sans font-extrabold text-white/70">
-              ₹
-            </span>
-            <input
-              type="number"
-              value={amount}
-              disabled={isLocked || purpose !== 'Custom (Other Payments)' || isSubmitting}
-              onChange={(e) => setAmount(Math.max(0, parseInt(e.target.value, 10) || 0))}
-              placeholder="Enter custom amount"
-              className="w-full bg-[#070F25]/90 border border-white/15 rounded-xl pl-8 pr-4 py-3 text-sm font-sans focus:outline-none focus:border-orange-burnt disabled:opacity-65"
-              required
-              min="0"
-            />
-          </div>
-          {isLocked && (
-            <p className="text-[10px] text-white/40 font-semibold italic flex items-center space-x-1">
-              <span>🔒 Amount and Purpose are pre-filled and secured.</span>
-            </p>
-          )}
-        </div>
+        <InputField
+          label="Amount (INR)"
+          icon={CreditCard}
+          type="number"
+          value={amount}
+          disabled={isLocked || purpose !== 'Custom (Other Payments)' || isSubmitting}
+          locked={isLocked || purpose !== 'Custom (Other Payments)'}
+          onChange={(e) => setAmount(Math.max(0, parseInt(e.target.value, 10) || 0))}
+          placeholder="Enter custom amount"
+          required
+          min="0"
+          hint={isLocked ? "🔒 Pre-filled and locked for this transaction reference." : undefined}
+        />
 
-        <hr className="border-white/10 my-4" />
+        <hr className="border-white/[0.06] my-4" />
 
         {/* Full Name */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-display font-bold uppercase tracking-wider text-orange-burnt">
-            Your Full Name*
-          </label>
-          <input
-            type="text"
-            value={studentName}
-            disabled={isSubmitting}
-            onChange={(e) => setStudentName(e.target.value)}
-            placeholder="Rahul Singh"
-            className="w-full bg-[#070F25]/90 border border-white/15 rounded-xl px-4 py-3 text-sm font-sans focus:outline-none focus:border-orange-burnt"
-            required
-          />
-        </div>
+        <InputField
+          label="Your Full Name"
+          icon={User}
+          type="text"
+          value={studentName}
+          disabled={isSubmitting}
+          onChange={(e) => setStudentName(e.target.value)}
+          placeholder="Rahul Singh"
+          required
+        />
 
-        {/* Email — readonly if logged in */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-display font-bold uppercase tracking-wider text-orange-burnt flex items-center space-x-1.5">
-            <span>Your Email*</span>
-            {isEmailFromAuth && (
-              <span className="flex items-center space-x-1 text-emerald-400 text-[9px] font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full normal-case tracking-normal">
-                <UserCheck className="w-3 h-3" />
-                <span>Auto-filled from your account</span>
-              </span>
-            )}
-          </label>
-          <input
-            type="email"
-            value={studentEmail}
-            disabled={isSubmitting}
-            readOnly={isEmailFromAuth}
-            onChange={(e) => !isEmailFromAuth && setStudentEmail(e.target.value)}
-            placeholder="rahul.singh@gmail.com"
-            className={`w-full bg-[#070F25]/90 border border-white/15 rounded-xl px-4 py-3 text-sm font-sans focus:outline-none focus:border-orange-burnt ${
-              isEmailFromAuth ? 'opacity-70 cursor-not-allowed select-none' : ''
-            }`}
-            required
-          />
-        </div>
+        {/* Email */}
+        <InputField
+          label="Your Email"
+          icon={Mail}
+          type="email"
+          value={studentEmail}
+          disabled={isSubmitting}
+          locked={isEmailFromAuth}
+          onChange={(e) => !isEmailFromAuth && setStudentEmail(e.target.value)}
+          placeholder="rahul.singh@gmail.com"
+          required
+          hint={isEmailFromAuth ? "Auto-filled from your logged-in account." : undefined}
+        />
 
         {/* Phone Number */}
-        <div className="space-y-1.5">
-          <label className="block text-xs font-display font-bold uppercase tracking-wider text-orange-burnt">
-            WhatsApp Number*
-          </label>
-          <input
-            type="tel"
-            value={studentPhone}
-            disabled={isSubmitting}
-            onChange={(e) => setStudentPhone(e.target.value)}
-            placeholder="9876543210"
-            className="w-full bg-[#070F25]/90 border border-white/15 rounded-xl px-4 py-3 text-sm font-sans focus:outline-none focus:border-orange-burnt"
-            required
-          />
-        </div>
+        <InputField
+          label="WhatsApp Number"
+          icon={Phone}
+          type="tel"
+          value={studentPhone}
+          disabled={isSubmitting}
+          onChange={(e) => setStudentPhone(e.target.value)}
+          placeholder="9876543210"
+          required
+        />
 
         {/* Year Dropdown */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-display font-bold uppercase tracking-wider text-orange-burnt">
+          <label className="block text-[11px] font-display font-bold uppercase tracking-[0.18em] text-white/55">
             Your Year*
           </label>
-          <div className="relative">
+          <div className="relative group rounded-xl border border-white/[0.08] bg-[#050B18]/55 hover:border-white/15 backdrop-blur-md focus-within:border-[#C84B0E]/80 focus-within:bg-[#050B18]/85 focus-within:ring-2 focus-within:ring-[#C84B0E]/40 transition-all duration-300">
             <select
               value={studentYear}
               disabled={isSubmitting}
               onChange={(e) => setStudentYear(e.target.value)}
-              className="w-full bg-[#070F25]/90 border border-white/15 rounded-xl px-4 py-3 text-sm font-sans focus:outline-none focus:border-orange-burnt appearance-none cursor-pointer"
+              className="w-full bg-transparent text-white font-sans placeholder:text-white/25 focus:outline-none py-3 px-4 pr-10 text-sm appearance-none cursor-pointer disabled:opacity-65"
             >
               {YEARS.map((yr) => (
-                <option key={yr} value={yr} className="bg-[#070F25]">
+                <option key={yr} value={yr} className="bg-[#080F25] text-white">
                   {yr}
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
+            <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35 pointer-events-none group-focus-within:text-[#C84B0E] transition-colors" />
           </div>
         </div>
 
-        <hr className="border-white/10 my-4" />
+        <hr className="border-white/[0.06] my-4" />
 
         {/* Total Summary Row */}
-        <div className="flex items-center justify-between py-1 font-display">
-          <span className="text-sm font-bold uppercase tracking-wider text-white/70">Total Amount:</span>
-          <span className="text-2xl font-extrabold text-orange-burnt">₹{amount}</span>
+        <div className="flex items-center justify-between py-2 border-t border-dashed border-white/[0.08] font-display">
+          <span className="text-sm font-bold uppercase tracking-wider text-white/55">Total Amount:</span>
+          <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#C84B0E] to-[#FFB338]">
+            ₹{amount.toLocaleString('en-IN')}
+          </span>
         </div>
 
         {/* Submit Action Button */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full relative py-3.5 rounded-xl bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-xs font-display font-extrabold uppercase tracking-widest text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shrink-0 shadow-lg shadow-orange-burnt/15 border border-white/10 hover:shadow-orange-burnt/25 flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
+          className="w-full relative group py-4 rounded-xl bg-gradient-to-r from-[#C84B0E] to-[#E06D2B] text-xs font-display font-extrabold uppercase tracking-widest text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shrink-0 shadow-lg shadow-[#C84B0E]/15 border border-white/10 hover:shadow-[#C84B0E]/25 flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
         >
+          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
           {isSubmitting ? (
             <div className="h-5 flex items-center justify-center scale-50">
               <DNALoader />
@@ -476,12 +481,12 @@ export const PaymentForm: React.FC = () => {
           ) : (
             <>
               <Lock className="w-3.5 h-3.5" />
-              <span>{amount === 0 ? '🔒 Register For Free →' : `🔒 Pay Securely ₹${amount} →`}</span>
+              <span>{amount === 0 ? 'Register For Free →' : `Pay Securely ₹${amount.toLocaleString('en-IN')} →`}</span>
             </>
           )}
         </button>
 
-        <p className="text-[10px] text-white/40 text-center font-semibold">
+        <p className="text-[10px] text-white/40 text-center font-medium">
           Powered by Cashfree • Secure 256-bit SSL Encrypted Connection
         </p>
       </form>

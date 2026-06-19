@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, GraduationCap, ChevronDown, Lock, Sun, Moon, Search } from 'lucide-react';
+import { Menu, X, GraduationCap, ChevronDown, Sun, Moon, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useThemeContext } from '../lib/ThemeProvider';
 import { useStudentAuth } from '../lib/StudentAuthProvider';
 import { CommandPalette } from './CommandPalette';
 import { NotificationBell } from './NotificationBell';
 import { DNALoader } from './DNALoader';
+import { ProfileMenu } from './ProfileMenu';
 
 const getPortalPath = (role?: string | null): string => {
   if (!role) return '/admin';
@@ -151,8 +152,23 @@ export const Navbar: React.FC = () => {
         )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo & College Name */}
-          <Link to="/" className="flex items-center space-x-3 group relative z-50">
-            <div className="relative overflow-hidden w-10 h-10 rounded-xl bg-white/10 hover:bg-white/15 flex items-center justify-center shrink-0 border border-white/10 shadow-lg transition-colors">
+          <Link to="/" className="flex items-center space-x-3 group relative z-50" data-testid="navbar-logo-link">
+            <motion.div
+              className="relative w-10 h-10 rounded-xl shrink-0 overflow-hidden border border-white/10 shadow-lg group-hover:border-orange-burnt/50 transition-colors"
+              whileHover={{ scale: 1.08, rotate: 5 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 14 }}
+            >
+              {/* Animated gradient ring on hover */}
+              <motion.div
+                className="absolute inset-0 rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background:
+                    'conic-gradient(from 0deg, #D65A1E, #FFB338, #D65A1E, #142B5C, #D65A1E)',
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 6, ease: 'linear', repeat: Infinity }}
+              />
+              <div className="absolute inset-[2px] rounded-[10px] bg-[#050B18] group-hover:bg-[#0A1428] transition-colors" />
               <img
                 src="https://res.cloudinary.com/dsqxboxoc/image/upload/v1779522116/WhatsApp_Image_2026-05-23_at_1.10.29_PM_susb5a.jpg"
                 alt="TGPCOP Logo"
@@ -161,8 +177,8 @@ export const Navbar: React.FC = () => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <GraduationCap className="w-5 h-5 text-orange-burnt absolute" />
-            </div>
+              <GraduationCap className="w-5 h-5 text-orange-burnt absolute inset-0 m-auto" />
+            </motion.div>
             <div>
               <span
                 className="font-display font-extrabold text-lg sm:text-xl tracking-tight block leading-none group-hover:text-orange-burnt transition-colors"
@@ -306,50 +322,25 @@ export const Navbar: React.FC = () => {
               </motion.div>
             </button>
 
-            {/* Student Login / Profile Avatar */}
+            {/* Student Login / Profile Menu (role-aware portals) */}
             {studentProfile ? (
-              <Link
-                to="/profile"
-                className="flex items-center space-x-2 p-1 pl-2 pr-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-white shrink-0 ml-2"
-              >
-                {studentProfile.avatar_url ? (
-                  <img
-                    src={studentProfile.avatar_url}
-                    alt={studentProfile.full_name || 'Student'}
-                    className="w-6 h-6 rounded-full object-cover border border-orange-burnt"
-                  />
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-orange-burnt flex items-center justify-center text-[10px] font-bold">
-                    {(studentProfile.full_name || 'Student').charAt(0)}
-                  </div>
-                )}
-                <span className="text-[10px] font-display font-bold uppercase tracking-wider truncate max-w-[80px]">
-                  {(studentProfile.full_name || 'Student').split(' ')[0]}
-                </span>
-              </Link>
+              <ProfileMenu profile={studentProfile} />
             ) : (
-              <button
-                onClick={handleLogin}
-                className="ml-2 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-burnt/30 text-[10px] font-display font-bold uppercase tracking-widest text-white transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-2 shrink-0 cursor-pointer shadow-lg shadow-black/10"
+              /* UNIFIED LOGIN — single entry, role-aware redirect on the login page itself */
+              <Link
+                to="/login"
+                data-testid="navbar-signin-link"
+                className="ml-2 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-[10px] font-display font-bold uppercase tracking-widest text-white transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-2 shrink-0 shadow-lg shadow-orange-burnt/15 border border-white/10 hover:shadow-orange-burnt/25 cursor-pointer"
               >
                 <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 3.01-.97 4.14v3.45h1.59c3.27-3 5.43-7.42 5.43-12.44z"/>
-                  <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.84-2.98c-1.07.72-2.44 1.15-4.12 1.15-3.17 0-5.85-2.14-6.81-5.02H1.23v3.1A11.996 11.996 0 0012 24z"/>
-                  <path fill="#FBBC05" d="M5.19 14.24A7.2 7.2 0 014.8 12c0-.79.13-1.57.39-2.31V6.59H1.23A11.96 11.96 0 000 12c0 2.23.6 4.32 1.66 6.13l3.53-2.89z"/>
-                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.22 0 12 0 7.34 0 3.37 2.67 1.23 6.59l3.96 3.1c.96-2.88 3.64-5.02 6.81-5.02z"/>
+                  <path fill="#fff" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 3.01-.97 4.14v3.45h1.59c3.27-3 5.43-7.42 5.43-12.44z" opacity="0.85"/>
+                  <path fill="#fff" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.84-2.98c-1.07.72-2.44 1.15-4.12 1.15-3.17 0-5.85-2.14-6.81-5.02H1.23v3.1A11.996 11.996 0 0012 24z" opacity="0.85"/>
+                  <path fill="#fff" d="M5.19 14.24A7.2 7.2 0 014.8 12c0-.79.13-1.57.39-2.31V6.59H1.23A11.96 11.96 0 000 12c0 2.23.6 4.32 1.66 6.13l3.53-2.89z" opacity="0.85"/>
+                  <path fill="#fff" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.22 0 12 0 7.34 0 3.37 2.67 1.23 6.59l3.96 3.1c.96-2.88 3.64-5.02 6.81-5.02z" opacity="0.85"/>
                 </svg>
-                <span>Google Sign In</span>
-              </button>
+                <span>Sign In</span>
+              </Link>
             )}
-
-            {/* Portal Action button upgraded with gold active ring */}
-            <Link
-              to={getPortalPath(studentProfile?.role)}
-              className="ml-2 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-[10px] font-display font-bold uppercase tracking-widest text-white transition-all duration-300 hover:scale-105 active:scale-95 flex items-center space-x-1.5 shrink-0 shadow-lg shadow-orange-burnt/15 border border-white/10 hover:shadow-orange-burnt/25"
-            >
-              <Lock className="w-3 h-3 text-white" />
-              <span>Portal</span>
-            </Link>
           </nav>
 
           {/* Mobile Right Icons & Hamburger */}

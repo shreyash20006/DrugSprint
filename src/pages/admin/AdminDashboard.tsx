@@ -1,19 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { StatsCard } from '../../components/admin/StatsCard';
-import { 
-  Calendar, 
-  HelpCircle, 
-  AlertCircle, 
-  Loader2, 
-  Clock, 
-  ArrowRight,
-  Plus,
-  BadgeCheck,
-  Sparkles
+import {
+  Calendar, HelpCircle, AlertCircle, Loader2, Clock, ArrowUpRight,
+  BadgeCheck, Sparkles, Image as ImageIcon, Megaphone, FileText, TrendingUp,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+
+type RecentQuestion = {
+  status?: string;
+  created_at?: string;
+  student_name?: string;
+  student_year?: string;
+  directed_to?: string;
+  question_text?: string;
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.08 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 280, damping: 24 } },
+};
+
+const quickActions = [
+  { path: '/admin/notices', label: 'Add Announcement', icon: Megaphone, color: 'orange' as const },
+  { path: '/admin/events', label: 'Create New Event', icon: Calendar, color: 'gold' as const },
+  { path: '/admin/gallery', label: 'Upload Gallery Image', icon: ImageIcon, color: 'orange' as const },
+  { path: '/admin/stories', label: 'Post a Story', icon: Sparkles, color: 'gold' as const },
+];
 
 export const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState({
@@ -22,60 +41,50 @@ export const AdminDashboard: React.FC = () => {
     noticesCount: 0,
     activeEventsCount: 0,
     verifiedPercentage: 0,
+    verifiedCount: 0,
+    totalVerifications: 0,
   });
-  const [recentQuestions, setRecentQuestions] = useState<any[]>([]);
+  const [recentQuestions, setRecentQuestions] = useState<RecentQuestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchStatsAndRecent = async () => {
     setIsLoading(true);
     try {
-      // 1. Fetch total questions & pending questions count
-      const { data: questions, error: qErr } = await supabase
-        .from('questions')
-        .select('status, created_at, student_name, directed_to, question_text');
-      if (qErr) throw qErr;
+      const [qRes, nRes, eRes, vRes] = await Promise.all([
+        supabase.from('questions').select('status, created_at, student_name, student_year, directed_to, question_text'),
+        supabase.from('notices').select('*', { count: 'exact', head: true }),
+        supabase.from('events').select('*', { count: 'exact', head: true }).eq('is_active', true),
+        supabase.from('student_verifications').select('verification_status'),
+      ]);
 
-      const totalQ = questions?.length || 0;
-      const pendingQ = questions?.filter((q) => q.status === 'pending').length || 0;
+      const questions = qRes.data || [];
+      const totalQ = questions.length;
+      const pendingQ = questions.filter((q: any) => q.status === 'pending').length;
 
-      // 2. Fetch notices count
-      const { count: noticesCount, error: nErr } = await supabase
-        .from('notices')
-        .select('*', { count: 'exact', head: true });
-      if (nErr) throw nErr;
-
-      // 3. Fetch active events count
-      const { count: activeEventsCount, error: eErr } = await supabase
-        .from('events')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_active', true);
-      if (eErr) throw eErr;
-
-      // 4. Fetch verification stats
-      const { data: verifications, error: vErr } = await supabase
-        .from('student_verifications')
-        .select('verification_status');
-      if (vErr) throw vErr;
-      
       let verifiedPercentage = 0;
-      if (verifications && verifications.length > 0) {
-        const verifiedCount = verifications.filter(v => v.verification_status === 'verified').length;
-        verifiedPercentage = Math.round((verifiedCount / verifications.length) * 100);
+      const verifications = vRes.data || [];
+      const verifiedCount = verifications.filter((v: any) => v.verification_status === 'verified').length;
+      const totalVerifications = verifications.length;
+      if (totalVerifications > 0) {
+        verifiedPercentage = Math.round((verifiedCount / totalVerifications) * 100);
       }
 
       setStats({
         totalQuestions: totalQ,
         pendingQuestions: pendingQ,
-        noticesCount: noticesCount || 0,
-        activeEventsCount: activeEventsCount || 0,
+        noticesCount: nRes.count || 0,
+        activeEventsCount: eRes.count || 0,
         verifiedPercentage,
+        verifiedCount,
+        totalVerifications,
       });
 
-      // Sort and retrieve last 5 recent questions
-      const sortedQ = questions?.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at)) || [];
-      setRecentQuestions(sortedQ.slice(0, 5));
+      const sortedQ = questions.sort(
+        (a: any, b: any) => +new Date(b.created_at) - +new Date(a.created_at)
+      );
+      setRecentQuestions(sortedQ.slice(0, 6));
     } catch (err: any) {
-      console.error('Error fetching dashboard stats:', err.message);
+      console.error('Error fetching dashboard stats:', err?.message || err);
     } finally {
       setIsLoading(false);
     }
@@ -85,239 +94,304 @@ export const AdminDashboard: React.FC = () => {
     fetchStatsAndRecent();
   }, []);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } }
-  };
+  if (isLoading) {
+    return (
+      <div className="h-96 flex flex-col items-center justify-center text-white/55">
+        <Loader2 className="w-9 h-9 text-orange-burnt animate-spin mb-4" strokeWidth={2.2} />
+        <p className="font-display text-xs tracking-[0.22em] uppercase font-bold">Fetching console metrics…</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8 relative z-10">
-      
-      {isLoading ? (
-        <div className="h-96 flex flex-col items-center justify-center text-white/50">
-          <Loader2 className="w-10 h-10 text-orange-burnt animate-spin mb-4" />
-          <p className="font-display text-sm tracking-wider uppercase">Fetching console metrics...</p>
+    <div className="space-y-8 relative z-10" data-testid="admin-dashboard">
+      {/* Greeting + summary chip */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col md:flex-row md:items-end md:justify-between gap-4"
+      >
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-orange-burnt text-[10px] font-extrabold tracking-[0.22em] uppercase font-display">
+            <span className="w-5 h-[1.5px] bg-orange-burnt" />
+            <span>Live Overview</span>
+          </div>
+          <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-white tracking-tight leading-tight">
+            Welcome back to your <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-burnt to-gold-accent">command center</span>.
+          </h1>
+          <p className="text-white/60 text-sm font-sans">
+            Quick pulse of the council — manage, monitor and engage students from one place.
+          </p>
         </div>
-      ) : (
-        <>
-          {/* Stats Cards Grid (4 columns) */}
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        {stats.pendingQuestions > 0 && (
+          <Link
+            to="/admin/questions"
+            data-testid="pending-pulse-chip"
+            className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-orange-burnt/12 border border-orange-burnt/30 text-orange-burnt text-xs font-display font-bold uppercase tracking-[0.18em] hover:bg-orange-burnt/20 transition group"
           >
-            <motion.div variants={itemVariants}>
-              <StatsCard
-                label="Total Questions"
-                value={stats.totalQuestions}
-                icon={<HelpCircle className="w-5 h-5" />}
-                trendColor="navy"
-              />
-            </motion.div>
-            
-            <motion.div variants={itemVariants}>
-              <StatsCard
-                label="Pending Reply"
-                value={stats.pendingQuestions}
-                icon={<AlertCircle className="w-5 h-5" />}
-                trendColor={stats.pendingQuestions > 0 ? 'orange' : 'green'}
-              />
-            </motion.div>
+            <AlertCircle className="w-3.5 h-3.5 animate-pulse" strokeWidth={2.4} />
+            {stats.pendingQuestions} pending reply
+            <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" strokeWidth={2.4} />
+          </Link>
+        )}
+      </motion.div>
 
-            <motion.div variants={itemVariants}>
-              <StatsCard
-                label="Verified Students"
-                value={`${stats.verifiedPercentage}%`}
-                icon={<BadgeCheck className="w-5 h-5" />}
-                trendColor="green"
-              />
-            </motion.div>
+      {/* Stats Grid */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+      >
+        <motion.div variants={itemVariants}>
+          <StatsCard
+            label="Total Questions"
+            value={stats.totalQuestions}
+            icon={<HelpCircle className="w-5 h-5" strokeWidth={2.2} />}
+            trendColor="navy"
+            hint="All inquiries received"
+            testId="stat-total-questions"
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <StatsCard
+            label="Pending Reply"
+            value={stats.pendingQuestions}
+            icon={<AlertCircle className="w-5 h-5" strokeWidth={2.2} />}
+            trendColor={stats.pendingQuestions > 0 ? 'orange' : 'green'}
+            hint={stats.pendingQuestions > 0 ? 'Awaiting response' : 'All clear'}
+            testId="stat-pending"
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <StatsCard
+            label="Verified Students"
+            value={`${stats.verifiedPercentage}%`}
+            icon={<BadgeCheck className="w-5 h-5" strokeWidth={2.2} />}
+            trendColor="green"
+            hint={`${stats.verifiedCount} / ${stats.totalVerifications} approved`}
+            testId="stat-verified"
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <StatsCard
+            label="Active Events"
+            value={stats.activeEventsCount}
+            icon={<Calendar className="w-5 h-5" strokeWidth={2.2} />}
+            trendColor="amber"
+            hint="Currently live"
+            testId="stat-events"
+          />
+        </motion.div>
+      </motion.div>
 
-            <motion.div variants={itemVariants}>
-              <StatsCard
-                label="Active Events"
-                value={stats.activeEventsCount}
-                icon={<Calendar className="w-5 h-5" />}
-                trendColor="amber"
-              />
-            </motion.div>
+      {/* Bottom: Recent Questions (8) + Side widgets (4) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Recent Questions Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="lg:col-span-8 rounded-2xl bg-[#0D1B3E]/55 border border-white/[0.06] backdrop-blur-md overflow-hidden"
+        >
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-orange-burnt/12 border border-orange-burnt/25 flex items-center justify-center">
+                <Clock className="w-4 h-4 text-orange-burnt" strokeWidth={2.4} />
+              </div>
+              <div>
+                <h3 className="font-display font-extrabold text-sm text-white tracking-tight">Recent Inquiries</h3>
+                <p className="text-[10px] text-white/40 font-sans">Latest student questions</p>
+              </div>
+            </div>
+            <Link
+              to="/admin/questions"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-display font-bold text-orange-burnt hover:text-gold-accent uppercase tracking-[0.16em] transition-all group"
+            >
+              Manage
+              <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" strokeWidth={2.4} />
+            </Link>
+          </div>
+
+          <div className="divide-y divide-white/[0.05]">
+            {recentQuestions.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mb-4">
+                  <HelpCircle className="w-7 h-7 text-white/25" strokeWidth={1.6} />
+                </div>
+                <p className="text-sm font-display font-bold text-white/70 mb-1">No questions yet</p>
+                <p className="text-xs text-white/40 font-sans">Students haven't submitted any inquiries.</p>
+              </div>
+            ) : (
+              recentQuestions.map((q, idx) => (
+                <Link
+                  key={idx}
+                  to="/admin/questions"
+                  className="block px-6 py-4 hover:bg-white/[0.02] transition-colors group"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                      <div className="w-8 h-8 rounded-full bg-orange-burnt/10 border border-orange-burnt/20 flex items-center justify-center text-orange-burnt font-display font-extrabold text-[10px] shrink-0 mt-0.5">
+                        {(q.student_name || '?').split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span className="font-display font-bold text-sm text-white group-hover:text-orange-burnt transition-colors truncate">
+                            {q.student_name || 'Anonymous'}
+                          </span>
+                          <span className="text-[9px] text-white/35 font-sans font-medium">·</span>
+                          <span className="text-[9px] text-white/45 font-sans font-medium uppercase tracking-wider">
+                            {q.student_year || 'unknown year'}
+                          </span>
+                          {q.directed_to && (
+                            <>
+                              <span className="text-[9px] text-white/35 font-sans">→</span>
+                              <span className="text-[9px] text-orange-burnt font-sans font-bold uppercase tracking-wider truncate">
+                                {q.directed_to}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                        <p className="text-xs text-white/65 font-sans leading-relaxed line-clamp-1">
+                          "{q.question_text}"
+                        </p>
+                      </div>
+                    </div>
+                    <span
+                      className={`inline-block text-[9px] font-extrabold uppercase tracking-[0.16em] px-2 py-1 rounded-md border shrink-0 ${
+                        q.status === 'answered'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
+                          : q.status === 'seen'
+                          ? 'bg-white/[0.04] text-white/60 border-white/12'
+                          : 'bg-gold-accent/10 text-gold-accent border-gold-accent/25'
+                      }`}
+                    >
+                      {q.status || 'new'}
+                    </span>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </motion.div>
+
+        {/* Right widgets */}
+        <div className="lg:col-span-4 space-y-5">
+          {/* Verification widget */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            className="rounded-2xl bg-gradient-to-br from-[#0D1B3E]/75 to-[#0A1428]/85 border border-gold-accent/25 backdrop-blur-md p-6 overflow-hidden relative"
+          >
+            <div className="absolute -top-10 -right-10 w-32 h-32 ambient-orb-gold rounded-full pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <BadgeCheck className="w-4 h-4 text-gold-accent" strokeWidth={2.4} />
+                  <h3 className="font-display font-extrabold text-[11px] text-gold-accent uppercase tracking-[0.2em]">
+                    PRN Verification
+                  </h3>
+                </div>
+                <TrendingUp className="w-3.5 h-3.5 text-gold-accent/55" strokeWidth={2.4} />
+              </div>
+
+              <div className="flex items-baseline justify-between mb-3">
+                <span className="font-display font-extrabold text-4xl text-white tracking-tight leading-none">
+                  {stats.verifiedPercentage}%
+                </span>
+                <span className="text-[10px] text-white/50 font-sans font-bold uppercase tracking-wider">
+                  {stats.verifiedCount} / {stats.totalVerifications}
+                </span>
+              </div>
+
+              <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${stats.verifiedPercentage}%` }}
+                  transition={{ duration: 1.2, ease: 'easeOut', delay: 0.4 }}
+                  className="h-full bg-gradient-to-r from-gold-accent to-orange-burnt rounded-full"
+                />
+              </div>
+              <p className="text-[10px] text-white/45 mt-3 font-sans leading-relaxed">
+                Live database linking active. Auto-verifying student accounts.
+              </p>
+            </div>
           </motion.div>
 
-          {/* Bottom Grid: Recent Questions + Quick Actions Panel */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            {/* Recent Questions Table panel (lg:span-8) */}
-            <div className="lg:col-span-8 bg-[#0A1428]/60 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/10 space-y-5 relative overflow-hidden group">
-              <div className="absolute -top-32 -left-32 w-64 h-64 bg-orange-burnt/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-orange-burnt/20 transition-colors" />
-              
-              <div className="flex items-center justify-between border-b border-white/10 pb-4 relative z-10">
-                <h3 className="font-display font-extrabold text-lg text-white flex items-center space-x-2">
-                  <div className="p-2 bg-orange-burnt/10 rounded-lg border border-orange-burnt/20 shadow-inner">
-                    <Clock className="w-4 h-4 text-orange-burnt" />
-                  </div>
-                  <span>Recent Inquiries</span>
-                </h3>
-                <Link
-                  to="/admin/questions"
-                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-display font-extrabold text-orange-400 hover:text-orange-300 transition-all group/link"
-                >
-                  <span>Manage All</span>
-                  <ArrowRight className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" />
-                </Link>
-              </div>
-
-              <div className="overflow-x-auto relative z-10">
-                <table className="w-full text-left border-collapse min-w-[500px]">
-                  <thead>
-                    <tr className="border-b border-white/10 text-[10px] font-bold uppercase tracking-wider text-white/40 bg-black/20">
-                      <th className="px-5 py-4 pl-6 rounded-tl-xl">Student</th>
-                      <th className="px-5 py-4">To</th>
-                      <th className="px-5 py-4">Question Summary</th>
-                      <th className="px-5 py-4 pr-6 text-right rounded-tr-xl">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {recentQuestions.map((q, idx) => (
-                      <tr key={idx} className="hover:bg-white/[0.03] transition-colors group/row">
-                        <td className="px-5 py-4 pl-6 whitespace-nowrap">
-                          <div className="flex flex-col">
-                            <span className="font-display font-bold text-sm text-white group-hover/row:text-orange-100 transition-colors">{q.student_name}</span>
-                            <span className="text-[10px] text-white/50 font-sans mt-1">{q.student_year || 'Unknown Year'}</span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-4 whitespace-nowrap text-xs font-bold text-orange-burnt">
-                          <span className="bg-orange-burnt/10 border border-orange-burnt/20 px-2.5 py-1 rounded-md">{q.directed_to}</span>
-                        </td>
-                        <td className="px-5 py-4 text-xs text-white/70 max-w-[200px] truncate font-sans">
-                          "{q.question_text}"
-                        </td>
-                        <td className="px-5 py-4 pr-6 whitespace-nowrap text-right">
-                          <span className={`inline-block text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded border shadow-sm ${
-                            q.status === 'answered' 
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-emerald-500/10' 
-                              : q.status === 'seen'
-                              ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-blue-500/10'
-                              : 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-amber-500/10'
-                          }`}>
-                            {q.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-
-                    {recentQuestions.length === 0 && (
-                      <tr>
-                        <td colSpan={4} className="text-center py-16">
-                          <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10 shadow-lg">
-                            <HelpCircle className="w-8 h-8 text-white/20" />
-                          </div>
-                          <p className="text-sm text-white font-display font-bold mb-1">No questions yet</p>
-                          <p className="text-xs text-white/40 font-sans">Students haven't submitted any inquiries.</p>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+          {/* Quick Actions widget */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="rounded-2xl bg-[#0D1B3E]/55 border border-white/[0.06] backdrop-blur-md overflow-hidden"
+          >
+            <div className="px-5 py-4 border-b border-white/[0.06] flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-orange-burnt" strokeWidth={2.4} />
+              <h3 className="font-display font-extrabold text-[11px] text-orange-burnt uppercase tracking-[0.2em]">
+                Quick Actions
+              </h3>
             </div>
-
-            {/* Right Column: Widgets (lg:span-4) */}
-            <div className="lg:col-span-4 space-y-6">
-              
-              {/* Verification Percentage Widget */}
-              <div className="bg-[#0A1428]/60 backdrop-blur-xl rounded-2xl p-6 shadow-2xl relative overflow-hidden border border-amber-500/20 group">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-amber-300" />
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/10 rounded-full blur-[40px] pointer-events-none group-hover:bg-amber-500/20 transition-colors" />
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <BadgeCheck className="w-16 h-16 text-amber-500" />
-                </div>
-                <h3 className="font-display font-extrabold text-base text-amber-500 mb-2 flex items-center relative z-10">
-                  <BadgeCheck className="w-4 h-4 mr-2" /> PRN Verification
-                </h3>
-                <div className="mt-4 relative z-10">
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-3xl font-display font-extrabold text-white">{stats.verifiedPercentage}%</span>
-                    <span className="text-[10px] uppercase font-bold text-amber-500/70 tracking-wider">Verified</span>
-                  </div>
-                  {/* Progress Bar */}
-                  <div className="w-full bg-black/40 h-2.5 rounded-full overflow-hidden shadow-inner">
-                    <div className="bg-gradient-to-r from-amber-600 to-amber-400 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(245,158,11,0.5)]" style={{ width: `${stats.verifiedPercentage}%` }}></div>
-                  </div>
-                  <p className="text-[10px] text-white/40 mt-3 font-sans leading-relaxed">
-                    Live database linking active. Verifying student accounts automatically.
-                  </p>
-                </div>
-              </div>
-
-              {/* Quick Actions Shortcuts panel */}
-              <div className="bg-[#0A1428]/60 backdrop-blur-xl rounded-2xl p-6 shadow-2xl relative overflow-hidden border border-white/10 space-y-5">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-burnt/5 to-transparent pointer-events-none" />
-                
-                <div className="border-b border-white/10 pb-3 z-10 relative">
-                  <h3 className="font-display font-extrabold text-base text-orange-burnt flex items-center">
-                    <Sparkles className="w-4 h-4 mr-2" /> Quick Tasks
-                  </h3>
-                  <p className="text-[10px] text-white/45 font-sans mt-0.5">
-                    Publish updates and portfolio photos live to the college portal.
-                  </p>
-                </div>
-
-                <div className="space-y-3.5 z-10 relative">
+            <div className="p-3 space-y-1">
+              {quickActions.map((action) => {
+                const Icon = action.icon;
+                return (
                   <Link
-                    to="/admin/notices"
-                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-xs font-bold font-display uppercase tracking-wider transition-all duration-300 group shadow-inner border border-white/5 hover:border-transparent hover:shadow-[0_4px_15px_rgba(214,90,30,0.4)] hover:-translate-y-0.5"
+                    key={action.path}
+                    to={action.path}
+                    data-testid={`quick-action-${action.path.split('/').pop()}`}
+                    className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg text-white/65 hover:text-white hover:bg-white/[0.04] transition-all group"
                   >
-                    <div className="flex items-center space-x-2.5">
-                      <div className="p-1.5 bg-white/5 rounded-md group-hover:bg-white/20 transition-colors">
-                        <Plus className="w-3.5 h-3.5 text-orange-burnt group-hover:text-white transition-colors shrink-0" />
-                      </div>
-                      <span className="text-white/80 group-hover:text-white">Add Announcement</span>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                    <span className="flex items-center gap-2.5 min-w-0">
+                      <span
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                          action.color === 'gold'
+                            ? 'bg-gold-accent/12 border border-gold-accent/25 text-gold-accent'
+                            : 'bg-orange-burnt/12 border border-orange-burnt/25 text-orange-burnt'
+                        } group-hover:scale-105 transition-transform`}
+                      >
+                        <Icon className="w-3.5 h-3.5" strokeWidth={2.4} />
+                      </span>
+                      <span className="text-xs font-display font-bold truncate">{action.label}</span>
+                    </span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-white/25 group-hover:text-orange-burnt group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all" strokeWidth={2.4} />
                   </Link>
-
-                  <Link
-                    to="/admin/events"
-                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-xs font-bold font-display uppercase tracking-wider transition-all duration-300 group shadow-inner border border-white/5 hover:border-transparent hover:shadow-[0_4px_15px_rgba(214,90,30,0.4)] hover:-translate-y-0.5"
-                  >
-                    <div className="flex items-center space-x-2.5">
-                      <div className="p-1.5 bg-white/5 rounded-md group-hover:bg-white/20 transition-colors">
-                        <Plus className="w-3.5 h-3.5 text-orange-burnt group-hover:text-white transition-colors shrink-0" />
-                      </div>
-                      <span className="text-white/80 group-hover:text-white">Add Live Event</span>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                  </Link>
-
-                  <Link
-                    to="/admin/gallery"
-                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-xs font-bold font-display uppercase tracking-wider transition-all duration-300 group shadow-inner border border-white/5 hover:border-transparent hover:shadow-[0_4px_15px_rgba(214,90,30,0.4)] hover:-translate-y-0.5"
-                  >
-                    <div className="flex items-center space-x-2.5">
-                      <div className="p-1.5 bg-white/5 rounded-md group-hover:bg-white/20 transition-colors">
-                        <Plus className="w-3.5 h-3.5 text-orange-burnt group-hover:text-white transition-colors shrink-0" />
-                      </div>
-                      <span className="text-white/80 group-hover:text-white">Upload Gallery Image</span>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                  </Link>
-                </div>
-              </div>
+                );
+              })}
             </div>
+          </motion.div>
 
-          </div>
-        </>
-      )}
-
+          {/* Mini content stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.35 }}
+            className="grid grid-cols-2 gap-3"
+          >
+            <Link
+              to="/admin/notices"
+              className="rounded-2xl bg-[#0D1B3E]/55 border border-white/[0.06] backdrop-blur-md p-4 hover:border-orange-burnt/25 transition group"
+            >
+              <FileText className="w-4 h-4 text-orange-burnt mb-2" strokeWidth={2.4} />
+              <p className="font-display font-extrabold text-xl text-white tracking-tight">{stats.noticesCount}</p>
+              <p className="text-[9px] text-white/45 font-bold uppercase tracking-wider mt-1 group-hover:text-orange-burnt transition-colors">
+                Notices
+              </p>
+            </Link>
+            <Link
+              to="/admin/events"
+              className="rounded-2xl bg-[#0D1B3E]/55 border border-white/[0.06] backdrop-blur-md p-4 hover:border-gold-accent/25 transition group"
+            >
+              <Calendar className="w-4 h-4 text-gold-accent mb-2" strokeWidth={2.4} />
+              <p className="font-display font-extrabold text-xl text-white tracking-tight">{stats.activeEventsCount}</p>
+              <p className="text-[9px] text-white/45 font-bold uppercase tracking-wider mt-1 group-hover:text-gold-accent transition-colors">
+                Live Events
+              </p>
+            </Link>
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 };

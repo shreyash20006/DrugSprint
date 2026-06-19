@@ -162,9 +162,9 @@ export const NoticeCard: React.FC<NoticeCardProps> = ({ notice }) => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        whileHover={{ y: -5 }}
-        className="glass-panel glow-card rounded-2xl border border-orange-burnt/25 p-6 relative flex flex-col justify-between bg-[#0D1B3E]/85 backdrop-blur-[16px] shadow-[0_8px_32px_rgba(5,11,24,0.4)]"
+        transition={{ type: 'spring', stiffness: 280, damping: 25 }}
+        whileHover={{ y: -4 }}
+        className="light-card light-card--default rounded-2xl border border-orange-burnt/25 p-6 relative flex flex-col justify-between bg-[#0D1B3E]/85 backdrop-blur-[16px] shadow-[0_8px_32px_rgba(5,11,24,0.4)] card-hover-lift transition-all duration-300"
       >
         <div>
           {/* Header Badge & Pin */}
