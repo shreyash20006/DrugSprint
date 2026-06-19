@@ -109,12 +109,14 @@ export const Navbar: React.FC = () => {
     { name: 'Leaderboard', path: '/leaderboard', icon: '🏆', desc: 'Top achievers', desktopOnly: true },
     { name: 'Message Board', path: '/board', icon: '💬', desc: 'Community board' },
     { name: 'Study Store', path: '/store', icon: '📚', desc: 'Syllabus handbooks & exam keys', desktopOnly: true },
+    { name: 'Study Resources', path: '/resources', icon: '📂', desc: 'Share & download student notes' },
     { name: 'My Calendar', path: '/calendar', icon: '📅', desc: 'Your saved events', desktopOnly: true },
     { name: 'Exam Schedule', path: '/exams', icon: '🗓️', desc: 'B.Pharm semester timetables' },
     { name: 'Mentors', path: '/mentors', icon: '🤝', desc: 'Connect with senior guides' },
     { name: 'Newsletter', path: '/newsletter', icon: '📰', desc: 'Monthly publications' },
     { name: 'Report Issue', path: '/complaint', icon: '🆘', desc: 'File anonymous complaint', highlight: true },
   ];
+
 
   const isMoreActive = moreLinks.some((link) => location.pathname === link.path);
 

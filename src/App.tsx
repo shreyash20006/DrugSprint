@@ -42,6 +42,7 @@ const MyCalendar = lazy(() => import('./pages/MyCalendar'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const MessageBoard = lazy(() => import('./pages/MessageBoard'));
 const Store = lazy(() => import('./pages/Store'));
+const Resources = lazy(() => import('./pages/Resources'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Refunds = lazy(() => import('./pages/Refunds'));
@@ -256,6 +257,7 @@ const AppContent: React.FC = () => {
             <Route path="/leaderboard" element={<DesktopOnlyWrapper><Leaderboard /></DesktopOnlyWrapper>} />
             <Route path="/board" element={<MessageBoard />} />
             <Route path="/store" element={<DesktopOnlyWrapper><Store /></DesktopOnlyWrapper>} />
+            <Route path="/resources" element={<Resources />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/terms-and-conditions" element={<Terms />} />
