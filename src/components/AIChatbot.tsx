@@ -84,7 +84,7 @@ const performWebSearch = async (query: string): Promise<string> => {
     if (ddgRes.ok) {
       const ddgData = await ddgRes.json();
       if (ddgData.AbstractText) {
-        allResults.push(`- **[${ddgData.Heading || query}](${ddgData.AbstractURL || '#'})**: ${ddgData.AbstractText}`);
+        allResults.push(`- **[${ddgData.Heading || query}](<${ddgData.AbstractURL || '#'}>)**: ${ddgData.AbstractText}`);
       }
       if (ddgData.RelatedTopics && ddgData.RelatedTopics.length > 0) {
         ddgData.RelatedTopics.slice(0, 3).forEach((topic: any) => {
@@ -375,9 +375,9 @@ export const AIChatbot: React.FC = () => {
           console.warn("AI keys are missing. Using mock response for local UI testing.");
           
           let mockReply = `### 🩺 Study Assistant (Local Test Mode)
-
+ 
 Here is a mock response demonstrating the new **premium formatted Markdown** rendering:
-
+ 
 #### 1. Labeled Organ Diagram
 \`\`\`text
                  [ KIDNEY ANATOMY ]
@@ -394,20 +394,20 @@ Here is a mock response demonstrating the new **premium formatted Markdown** ren
                       ||                    <- Ureter (To Bladder)
                       v
 \`\`\`
-
+ 
 #### 2. Key Structures & Functions
 - **Renal Cortex**: The outer zone of the kidney containing the nephrons.
 - **Medulla**: Contains renal pyramids regulating water and salt balance.
 - **Renal Pelvis**: Funnel-like dilated proximal part of the ureter.
-
+ 
 #### 3. Functional Matrix
-
+ 
 | Region | Primary Function | Clinical Relevance |
 |:---|:---|:---|
 | **Cortex** | Ultrafiltration | Glomerulonephritis |
 | **Medulla** | Urine concentration | Acute tubular necrosis |
 | **Pelvis** | Urine collection | Kidney stones (Calculi) |
-
+ 
 > 💡 **Tip:** Add \`VITE_MISTRAL_API_KEY\` to your \`.env.local\` to activate the live LLM assistant!`;
 
           if (shouldSearch && searchResults) {
