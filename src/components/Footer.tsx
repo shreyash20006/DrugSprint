@@ -96,7 +96,6 @@ export const Footer: React.FC = () => {
                 { name: '🤝 Mentorship', path: '/mentors' },
                 { name: '📰 Newsletters', path: '/newsletter' },
                 { name: '📚 Study Store', path: '/store' },
-                { name: '💳 Pay Fees', path: '/pay' },
                 { name: '🔔 Enable Web Push', path: '', url: '#' },
                 { name: '🏫 DBATU ERP', path: '', url: 'https://mis.dbatu.ac.in/erp/' }
               ].map((link) => (

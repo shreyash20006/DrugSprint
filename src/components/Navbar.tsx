@@ -113,7 +113,6 @@ export const Navbar: React.FC = () => {
     { name: 'Exam Schedule', path: '/exams', icon: '🗓️', desc: 'B.Pharm semester timetables' },
     { name: 'Mentors', path: '/mentors', icon: '🤝', desc: 'Connect with senior guides' },
     { name: 'Newsletter', path: '/newsletter', icon: '📰', desc: 'Monthly publications' },
-    { name: 'Pay Fees', path: '/pay', icon: '💳', desc: 'Secure online student payment' },
     { name: 'Report Issue', path: '/complaint', icon: '🆘', desc: 'File anonymous complaint', highlight: true },
   ];
 

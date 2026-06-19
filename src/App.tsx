@@ -42,8 +42,6 @@ const MyCalendar = lazy(() => import('./pages/MyCalendar'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const MessageBoard = lazy(() => import('./pages/MessageBoard'));
 const Store = lazy(() => import('./pages/Store'));
-const Pay = lazy(() => import('./pages/Pay'));
-const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Refunds = lazy(() => import('./pages/Refunds'));
@@ -52,8 +50,7 @@ const ExamSchedule = lazy(() => import('./pages/ExamSchedule'));
 
 const MobileEventRegister = lazy(() => import('./mobile/screens/EventRegister'));
 const MobileEventFeedback = lazy(() => import('./mobile/screens/EventFeedback'));
-const MobilePay = lazy(() => import('./mobile/screens/Pay'));
-const MobilePaymentSuccess = lazy(() => import('./mobile/screens/PaymentSuccess'));
+
 
 // Lazy load all admin pages
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
@@ -166,8 +163,6 @@ const AppContent: React.FC = () => {
             {/* Special full screen pages on mobile */}
             <Route path="/register/:eventId" element={<MobileEventRegister />} />
             <Route path="/feedback/:eventId" element={<MobileEventFeedback />} />
-            <Route path="/pay" element={<MobilePay />} />
-            <Route path="/payment-success" element={<MobilePaymentSuccess />} />
 
             {/* Secure Admin Routes */}
             <Route path="/admin" element={<AdminLogin />} />
@@ -261,8 +256,6 @@ const AppContent: React.FC = () => {
             <Route path="/leaderboard" element={<DesktopOnlyWrapper><Leaderboard /></DesktopOnlyWrapper>} />
             <Route path="/board" element={<MessageBoard />} />
             <Route path="/store" element={<DesktopOnlyWrapper><Store /></DesktopOnlyWrapper>} />
-            <Route path="/pay" element={<Pay />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/terms-and-conditions" element={<Terms />} />

@@ -805,10 +805,6 @@ export const StudentProfile: React.FC = () => {
                           >
                             Try refreshing →
                           </button>
-                          <br />
-                          <Link to="/pay" className="mt-2 inline-block text-orange-burnt text-xs font-display font-bold uppercase hover:underline">
-                            Make a payment →
-                          </Link>
                         </div>
 
                       ) : (

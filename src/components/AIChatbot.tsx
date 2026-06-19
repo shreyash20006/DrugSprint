@@ -407,7 +407,6 @@ Keep answers concise, helpful, and polite.`;
 - Contact Us: /contact
 - Report a Bug: /report
 - Voting & Elections: /vote
-- Pay Fees / Payments: /pay
 
 If a student asks about university exams, results, ERP, or the DBATU portal, provide this direct link: [DBATU ERP Portal](https://mis.dbatu.ac.in/erp/).
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Megaphone, HelpCircle, Calendar, MessageSquare, ChevronRight, 
-  Loader2, Send, X, AlertCircle, BookOpen, CreditCard, User, Sparkles
+  Loader2, Send, X, AlertCircle, BookOpen, User, Sparkles
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useStudentAuth } from '../../lib/StudentAuthProvider';
@@ -233,20 +233,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigateTab }) => {
           </div>
         </button>
 
-        {/* Pay Academic Fees (Wide Card) */}
-        <button 
-          onClick={() => navigate('/pay')}
-          className="col-span-2 bg-[#0F1E42]/80 backdrop-blur-xl border border-white/10 p-4.5 rounded-2xl flex items-center gap-4 transition-all active:scale-95 group text-left"
-        >
-          <div className="w-12 h-12 bg-orange-burnt/10 border border-orange-burnt/20 rounded-xl flex items-center justify-center text-orange-burnt shrink-0 shadow-md">
-            <CreditCard className="w-5 h-5" />
-          </div>
-          <div className="flex-grow">
-            <span className="font-display font-bold text-xs text-white block">Pay Academic Fees</span>
-            <p className="text-[10px] text-white/55 font-sans mt-0.5">Secure Cashfree billing gateway desk</p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-white/30 group-hover:translate-x-1 transition-transform" />
-        </button>
+
 
         {/* My Student Profile (Wide Card) */}
         <button 
