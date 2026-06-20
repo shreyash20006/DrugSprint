@@ -305,7 +305,7 @@ export const Resources: React.FC = () => {
       // Initialize the OAuth 2.0 token client
       const tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: googleClientId,
-        scope: 'https://www.googleapis.com/auth/drive.readonly',
+        scope: 'https://www.googleapis.com/auth/drive.file',
         callback: (tokenResponse: any) => {
           if (tokenResponse.error) {
             setIsDrivePicking(false);
