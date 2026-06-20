@@ -14,6 +14,7 @@ const EventsScreen = lazy(() => import('../screens/Events'));
 const ProfileScreen = lazy(() => import('../screens/Profile'));
 
 // Lazy-loaded sub-screens
+const LostAndFoundScreen = lazy(() => import('../screens/LostAndFound'));
 const CouncilScreen = lazy(() => import('../screens/Council'));
 const AskScreen = lazy(() => import('../screens/Ask'));
 const GalleryScreen = lazy(() => import('../screens/Gallery'));
@@ -119,6 +120,7 @@ export const MobileLayout: React.FC = () => {
 
   const getPageTitle = (path: string) => {
     const p = path.toLowerCase();
+    if (p.startsWith('/lost-found')) return 'Lost & Found Board';
     if (p.startsWith('/council')) return 'Council Directory';
     if (p.startsWith('/ask')) return 'Ask Council';
     if (p.startsWith('/gallery') || p.startsWith('/media')) return 'Photo Gallery';
@@ -223,6 +225,7 @@ export const MobileLayout: React.FC = () => {
             <Route path="/profile" element={<ProfileScreen />} />
 
             {/* Sub Routes */}
+            <Route path="/lost-found" element={<LostAndFoundScreen />} />
             <Route path="/council" element={<CouncilScreen />} />
             <Route path="/ask" element={<AskScreen />} />
             <Route path="/gallery" element={<GalleryScreen />} />
