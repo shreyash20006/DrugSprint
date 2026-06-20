@@ -44,6 +44,7 @@ const MessageBoard = lazy(() => import('./pages/MessageBoard'));
 const Store = lazy(() => import('./pages/Store'));
 const Resources = lazy(() => import('./pages/Resources'));
 const LostAndFound = lazy(() => import('./pages/LostAndFound'));
+const GPATPrep = lazy(() => import('./pages/GPATPrep'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Refunds = lazy(() => import('./pages/Refunds'));
@@ -260,6 +261,7 @@ const AppContent: React.FC = () => {
             <Route path="/store" element={<DesktopOnlyWrapper><Store /></DesktopOnlyWrapper>} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/lost-found" element={<LostAndFound />} />
+            <Route path="/gpat-prep" element={<GPATPrep />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/terms-and-conditions" element={<Terms />} />

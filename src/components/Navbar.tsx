@@ -111,6 +111,7 @@ export const Navbar: React.FC = () => {
     { name: 'Study Store', path: '/store', icon: '📚', desc: 'Syllabus handbooks & exam keys', desktopOnly: true },
     { name: 'Study Resources', path: '/resources', icon: '📂', desc: 'Share & download student notes' },
     { name: 'Lost & Found', path: '/lost-found', icon: '🔍', desc: 'Report lost or found belongings' },
+    { name: 'GPAT & NIPER Prep', path: '/gpat-prep', icon: '🎓', desc: 'Daily quizzes & study flashcards' },
     { name: 'My Calendar', path: '/calendar', icon: '📅', desc: 'Your saved events', desktopOnly: true },
     { name: 'Exam Schedule', path: '/exams', icon: '🗓️', desc: 'B.Pharm semester timetables' },
     { name: 'Mentors', path: '/mentors', icon: '🤝', desc: 'Connect with senior guides' },
