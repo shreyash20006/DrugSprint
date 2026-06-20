@@ -956,13 +956,13 @@ export const Resources: React.FC = () => {
                     <span className="text-[9px] text-white/30 mt-1">Maximum size allowed: 50MB</span>
                   </div>
                 ) : (
-                  <div className="space-y-3.5">
+                  <div className="space-y-4">
                     {/* Google Picker Trigger Button */}
                     <button
                       type="button"
                       onClick={handleSelectFromDrive}
                       disabled={isDrivePicking || (isGoogleConfigured && !googleClientLoaded)}
-                      className="w-full py-3 px-4 bg-[#060D1F] hover:bg-[#0c1630] border border-orange-burnt/35 hover:border-orange-burnt/70 rounded-xl text-xs font-display font-bold uppercase tracking-wider text-white transition-all flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50 cursor-pointer shadow-md"
+                      className="w-full py-3.5 px-4 bg-gradient-to-r from-orange-burnt/10 to-[#E06D2B]/5 hover:from-orange-burnt/20 hover:to-[#E06D2B]/10 border border-orange-burnt/25 hover:border-orange-burnt/50 rounded-xl text-xs font-display font-extrabold uppercase tracking-wider text-white transition-all flex items-center justify-center gap-2.5 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-lg shadow-orange-burnt/5"
                     >
                       {isDrivePicking || (isGoogleConfigured && !googleClientLoaded) ? (
                         <Loader2 className="w-4 h-4 animate-spin text-orange-burnt" />
@@ -1012,12 +1012,12 @@ export const Resources: React.FC = () => {
 
                     {/* OR Divider */}
                     <div className="flex items-center">
-                      <div className="flex-grow border-t border-white/5"></div>
-                      <span className="px-3 text-[9px] text-white/20 font-bold tracking-wider uppercase font-display">or paste link manually</span>
-                      <div className="flex-grow border-t border-white/5"></div>
+                      <div className="flex-grow border-t border-white/10"></div>
+                      <span className="px-3.5 text-[9px] text-white/30 font-display font-extrabold tracking-widest uppercase">or paste link manually</span>
+                      <div className="flex-grow border-t border-white/10"></div>
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       <label className="block text-[10px] font-bold uppercase tracking-wider text-white/50">
                         Shareable Google Drive Link *
                       </label>
@@ -1027,12 +1027,17 @@ export const Resources: React.FC = () => {
                         placeholder="e.g. https://drive.google.com/file/d/.../view?usp=sharing"
                         value={driveLink}
                         onChange={(e) => setDriveLink(e.target.value)}
-                        className="w-full bg-[#0F1E42]/80 border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-orange-burnt transition-colors placeholder-white/20"
+                        className="w-full bg-[#0F1E42]/80 border border-white/10 rounded-xl px-4 py-3.5 text-xs text-white outline-none focus:border-orange-burnt focus:ring-2 focus:ring-orange-burnt/15 transition-all placeholder-white/15"
                         disabled={isUploading}
                       />
-                      <span className="text-[9px] text-white/35 mt-1 block leading-normal font-sans">
-                        ⚠️ Note: Make sure the Google Drive link sharing settings are set to <strong>&quot;Anyone with the link&quot;</strong> so your peers can access the file.
-                      </span>
+                      
+                      {/* Warning card */}
+                      <div className="bg-orange-burnt/5 border border-orange-burnt/20 rounded-xl p-3.5 flex items-start gap-2.5 text-[10px] text-white/50 leading-relaxed font-sans mt-2">
+                        <AlertCircle className="w-4 h-4 text-orange-burnt shrink-0 mt-0.5" />
+                        <span>
+                          <strong>Important:</strong> Please ensure the Google Drive file&apos;s sharing settings are set to <strong>&quot;Anyone with the link&quot;</strong>, otherwise other students won&apos;t be able to access your shared notes.
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
