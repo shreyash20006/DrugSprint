@@ -154,10 +154,10 @@ export const Footer: React.FC = () => {
             </p>
             <div className="flex space-x-3.5">
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/tgpcop.council/"
                 target="_blank"
                 rel="noreferrer"
-                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-orange-burnt hover:text-white flex items-center justify-center transition-all duration-300 border border-white/5 hover:scale-110 hover:rotate-6 hover:-translate-y-1 shadow-md shadow-black/20"
+                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-[#E1306C] hover:text-white flex items-center justify-center transition-all duration-300 border border-white/5 hover:scale-110 hover:rotate-6 hover:-translate-y-1 shadow-md shadow-black/20"
                 aria-label="Instagram Profile"
               >
                 <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24" fill="currentColor">
