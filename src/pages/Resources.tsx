@@ -39,6 +39,11 @@ interface StudyBook {
 export const Resources: React.FC = () => {
   const { studentProfile } = useStudentAuth();
 
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+  const googleApiKey = import.meta.env.VITE_GOOGLE_API_KEY || '';
+  const googleAppId = import.meta.env.VITE_GOOGLE_APP_ID || '';
+  const isGoogleConfigured = !!(googleClientId && googleApiKey);
+
   // Tabs: 'shared' | 'premium'
   const [activeTab, setActiveTab] = useState<'shared' | 'premium'>('shared');
 
@@ -63,6 +68,10 @@ export const Resources: React.FC = () => {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+
+  const [googleClientLoaded, setGoogleClientLoaded] = useState(false);
+  const [isDrivePicking, setIsDrivePicking] = useState(false);
+  const [showDriveSetupGuide, setShowDriveSetupGuide] = useState(false);
 
   // Premium Shopify Books List
   const premiumBooks: StudyBook[] = [
@@ -223,6 +232,132 @@ export const Resources: React.FC = () => {
       return matchesSearch && matchesYear;
     });
   }, [premiumBooks, searchQuery, selectedYear]);
+
+  // Load Google Drive Picker SDKs
+  useEffect(() => {
+    if (uploadMethod !== 'drive') return;
+
+    let gapiLoaded = false;
+    let gisLoaded = false;
+
+    const checkAndInit = () => {
+      if (gapiLoaded && gisLoaded) {
+        setGoogleClientLoaded(true);
+      }
+    };
+
+    // Load API client (gapi)
+    if (!(window as any).gapi) {
+      const script = document.createElement('script');
+      script.src = 'https://apis.google.com/js/api.js';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        gapiLoaded = true;
+        checkAndInit();
+      };
+      script.onerror = () => {
+        console.error('Failed to load gapi script');
+      };
+      document.body.appendChild(script);
+    } else {
+      gapiLoaded = true;
+    }
+
+    // Load GIS SDK (google.accounts.oauth2)
+    if (!(window as any).google?.accounts?.oauth2) {
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        gisLoaded = true;
+        checkAndInit();
+      };
+      script.onerror = () => {
+        console.error('Failed to load GIS client script');
+      };
+      document.body.appendChild(script);
+    } else {
+      gisLoaded = true;
+    }
+
+    checkAndInit();
+  }, [uploadMethod]);
+
+  const handleSelectFromDrive = () => {
+    if (!isGoogleConfigured) {
+      setShowDriveSetupGuide(true);
+      return;
+    }
+
+    setIsDrivePicking(true);
+    setUploadError('');
+
+    try {
+      const gapi = (window as any).gapi;
+      const google = (window as any).google;
+
+      if (!gapi || !google?.accounts?.oauth2) {
+        throw new Error('Google SDKs failed to load. Please try again.');
+      }
+
+      // Initialize the OAuth 2.0 token client
+      const tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: googleClientId,
+        scope: 'https://www.googleapis.com/auth/drive.readonly',
+        callback: (tokenResponse: any) => {
+          if (tokenResponse.error) {
+            setIsDrivePicking(false);
+            setUploadError(`Authentication failed: ${tokenResponse.error_description || tokenResponse.error}`);
+            return;
+          }
+
+          const accessToken = tokenResponse.access_token;
+          
+          // Load the Picker API and create the picker
+          gapi.load('picker', () => {
+            try {
+              const view = new google.picker.View(google.picker.ViewId.DOCS);
+              view.setMimeTypes('application/pdf,application/vnd.google-apps.document,application/vnd.google-apps.presentation,application/vnd.google-apps.spreadsheet,image/jpeg,image/png');
+
+              const picker = new google.picker.PickerBuilder()
+                .addView(view)
+                .setOAuthToken(accessToken)
+                .setDeveloperKey(googleApiKey)
+                .setAppId(googleAppId)
+                .setCallback((data: any) => {
+                  if (data.action === google.picker.Action.PICKED) {
+                    const doc = data.docs[0];
+                    const fileId = doc.id;
+                    const driveUrl = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
+                    
+                    setDriveLink(driveUrl);
+                    if (!uploadTitle.trim()) {
+                      setUploadTitle(doc.name);
+                    }
+                  }
+                  if (data.action === google.picker.Action.CANCEL || data.action === google.picker.Action.PICKED) {
+                    setIsDrivePicking(false);
+                  }
+                })
+                .build();
+              
+              picker.setVisible(true);
+            } catch (err: any) {
+              setIsDrivePicking(false);
+              setUploadError(`Failed to load Google Picker: ${err.message}`);
+            }
+          });
+        },
+      });
+
+      tokenClient.requestAccessToken({ prompt: 'consent' });
+    } catch (err: any) {
+      setIsDrivePicking(false);
+      setUploadError(err.message || 'Failed to authenticate with Google.');
+    }
+  };
 
   // Handle PDF file select & validate
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -804,22 +939,84 @@ export const Resources: React.FC = () => {
                     <span className="text-[9px] text-white/30 mt-1">Maximum size allowed: 50MB</span>
                   </div>
                 ) : (
-                  <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/50">
-                      Shareable Google Drive Link *
-                    </label>
-                    <input
-                      type="url"
-                      required
-                      placeholder="e.g. https://drive.google.com/file/d/.../view?usp=sharing"
-                      value={driveLink}
-                      onChange={(e) => setDriveLink(e.target.value)}
-                      className="w-full bg-[#0F1E42]/80 border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-orange-burnt transition-colors placeholder-white/20"
-                      disabled={isUploading}
-                    />
-                    <span className="text-[9px] text-white/35 mt-1 block leading-normal font-sans">
-                      ⚠️ Note: Make sure the Google Drive link sharing settings are set to <strong>&quot;Anyone with the link&quot;</strong> so your peers can access the file.
-                    </span>
+                  <div className="space-y-3.5">
+                    {/* Google Picker Trigger Button */}
+                    <button
+                      type="button"
+                      onClick={handleSelectFromDrive}
+                      disabled={isDrivePicking || (isGoogleConfigured && !googleClientLoaded)}
+                      className="w-full py-3 px-4 bg-[#060D1F] hover:bg-[#0c1630] border border-orange-burnt/35 hover:border-orange-burnt/70 rounded-xl text-xs font-display font-bold uppercase tracking-wider text-white transition-all flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50 cursor-pointer shadow-md"
+                    >
+                      {isDrivePicking || (isGoogleConfigured && !googleClientLoaded) ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-orange-burnt" />
+                      ) : (
+                        <svg className="w-4.5 h-4.5" viewBox="0 0 87.3 78" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M6.6 66.85l12.3-21.3h48.8l-12.3 21.3H6.6z" fill="#1967D2"/>
+                          <path d="M55.4 66.85L30.95 24.5l12.3-21.3L67.7 45.55l-12.3 21.3z" fill="#0F9D58"/>
+                          <path d="M30.95 24.5l12.3-21.3H18.9L6.6 24.5l24.35 0z" fill="#FFC107"/>
+                        </svg>
+                      )}
+                      <span>
+                        {isDrivePicking 
+                          ? 'Opening Google Drive...' 
+                          : (isGoogleConfigured && !googleClientLoaded)
+                            ? 'Loading Drive Client...'
+                            : 'Select File from Google Drive'}
+                      </span>
+                    </button>
+
+                    {/* Developer setup guide if clicked and configuration is missing */}
+                    {showDriveSetupGuide && (
+                      <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 text-xs text-amber-200/90 leading-relaxed relative font-sans">
+                        <button 
+                          type="button" 
+                          onClick={() => setShowDriveSetupGuide(false)}
+                          className="absolute top-2 right-2 text-white/40 hover:text-white"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                        <h4 className="font-bold text-amber-400 uppercase tracking-wide mb-1.5 flex items-center gap-1.5 font-display text-[10px]">
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                          Developer Setup Required
+                        </h4>
+                        <p className="mb-2 text-[10.5px]">
+                          To pick files directly from Google Drive, please add these keys to your <code>.env.local</code> file:
+                        </p>
+                        <pre className="bg-[#060D1F] p-2.5 rounded-lg text-[9px] font-mono text-white/70 select-all overflow-x-auto border border-white/5 whitespace-pre leading-normal">
+                          VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com{"\n"}
+                          VITE_GOOGLE_API_KEY=your-api-key{"\n"}
+                          VITE_GOOGLE_APP_ID=your-project-number
+                        </pre>
+                        <p className="mt-2 text-[9px] text-amber-300/60 leading-normal">
+                          You can still manually paste any shareable Google Drive link below.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* OR Divider */}
+                    <div className="flex items-center">
+                      <div className="flex-grow border-t border-white/5"></div>
+                      <span className="px-3 text-[9px] text-white/20 font-bold tracking-wider uppercase font-display">or paste link manually</span>
+                      <div className="flex-grow border-t border-white/5"></div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-bold uppercase tracking-wider text-white/50">
+                        Shareable Google Drive Link *
+                      </label>
+                      <input
+                        type="url"
+                        required
+                        placeholder="e.g. https://drive.google.com/file/d/.../view?usp=sharing"
+                        value={driveLink}
+                        onChange={(e) => setDriveLink(e.target.value)}
+                        className="w-full bg-[#0F1E42]/80 border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-orange-burnt transition-colors placeholder-white/20"
+                        disabled={isUploading}
+                      />
+                      <span className="text-[9px] text-white/35 mt-1 block leading-normal font-sans">
+                        ⚠️ Note: Make sure the Google Drive link sharing settings are set to <strong>&quot;Anyone with the link&quot;</strong> so your peers can access the file.
+                      </span>
+                    </div>
                   </div>
                 )}
 
