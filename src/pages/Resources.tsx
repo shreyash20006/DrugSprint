@@ -295,6 +295,11 @@ export const Resources: React.FC = () => {
     setUploadError('');
 
     try {
+      console.log('[Google Picker] Starting authentication...');
+      console.log('[Google Picker] Config Client ID:', googleClientId);
+      console.log('[Google Picker] Config App ID:', googleAppId);
+      console.log('[Google Picker] Origin:', window.location.origin);
+
       const gapi = (window as any).gapi;
       const google = (window as any).google;
 
@@ -308,32 +313,39 @@ export const Resources: React.FC = () => {
         scope: 'https://www.googleapis.com/auth/drive.file',
         callback: (tokenResponse: any) => {
           if (tokenResponse.error) {
+            console.error('[Google Picker] OAuth Token failed:', tokenResponse.error);
             setIsDrivePicking(false);
             setUploadError(`Authentication failed: ${tokenResponse.error_description || tokenResponse.error}`);
             return;
           }
 
+          console.log('[Google Picker] OAuth successful, token acquired.');
           const accessToken = tokenResponse.access_token;
           
           // Load the Picker API and create the picker
           gapi.load('picker', () => {
             try {
+              console.log('[Google Picker] Loading DocsView...');
               const view = new google.picker.DocsView(google.picker.ViewId.DOCS);
               view.setMimeTypes('application/pdf,application/vnd.google-apps.document,application/vnd.google-apps.presentation,application/vnd.google-apps.spreadsheet,image/jpeg,image/png');
               view.setIncludeFolders(true);
 
+              console.log('[Google Picker] Building PickerBuilder...');
               const picker = new google.picker.PickerBuilder()
                 .addView(view)
                 .setOAuthToken(accessToken)
                 .setDeveloperKey(googleApiKey)
                 .setAppId(googleAppId)
+                .setOrigin(window.location.origin)
                 .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
                 .setCallback((data: any) => {
+                  console.log('[Google Picker] Callback data action:', data.action, data);
                   if (data.action === google.picker.Action.PICKED) {
                     const doc = data.docs[0];
                     const fileId = doc.id;
                     const driveUrl = `https://drive.google.com/file/d/${fileId}/view?usp=sharing`;
                     
+                    console.log('[Google Picker] Selected File:', doc.name, driveUrl);
                     setDriveLink(driveUrl);
                     if (!uploadTitle.trim()) {
                       setUploadTitle(doc.name);
@@ -345,8 +357,10 @@ export const Resources: React.FC = () => {
                 })
                 .build();
               
+              console.log('[Google Picker] Presenting Picker dialog...');
               picker.setVisible(true);
             } catch (err: any) {
+              console.error('[Google Picker] Builder failed:', err);
               setIsDrivePicking(false);
               setUploadError(`Failed to load Google Picker: ${err.message}`);
             }
@@ -356,6 +370,7 @@ export const Resources: React.FC = () => {
 
       tokenClient.requestAccessToken({ prompt: 'consent' });
     } catch (err: any) {
+      console.error('[Google Picker] Authentication Setup failed:', err);
       setIsDrivePicking(false);
       setUploadError(err.message || 'Failed to authenticate with Google.');
     }
