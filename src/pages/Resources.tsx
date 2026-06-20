@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, Search, Upload, Download, Trash2, Plus, 
-  FileText, Loader2, Lock, X, AlertCircle 
+  FileText, Loader2, Lock, X, AlertCircle, Link2, ExternalLink 
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useStudentAuth } from '../lib/StudentAuthProvider';
@@ -58,6 +58,8 @@ export const Resources: React.FC = () => {
   const [uploadSubject, setUploadSubject] = useState('');
   const [uploadYear, setUploadYear] = useState('First Year');
   const [uploadSemester, setUploadSemester] = useState('Semester 1');
+  const [uploadMethod, setUploadMethod] = useState<'file' | 'drive'>('file');
+  const [driveLink, setDriveLink] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -249,8 +251,19 @@ export const Resources: React.FC = () => {
       setUploadError('You must be logged in to share study resources.');
       return;
     }
-    if (!uploadTitle.trim() || !uploadSubject.trim() || !uploadFile) {
-      setUploadError('Please fill in all fields and select a PDF file.');
+    
+    if (!uploadTitle.trim() || !uploadSubject.trim()) {
+      setUploadError('Please fill in all fields.');
+      return;
+    }
+
+    if (uploadMethod === 'file' && !uploadFile) {
+      setUploadError('Please select a PDF file.');
+      return;
+    }
+
+    if (uploadMethod === 'drive' && !driveLink.trim()) {
+      setUploadError('Please enter a valid Google Drive share link.');
       return;
     }
 
@@ -258,10 +271,19 @@ export const Resources: React.FC = () => {
     setUploadError('');
 
     try {
-      // 1. Upload to Cloudinary
-      const fileUrl = await uploadFileToCloudinary(uploadFile);
+      let fileUrl = '';
+      if (uploadMethod === 'file' && uploadFile) {
+        // Upload to Cloudinary
+        fileUrl = await uploadFileToCloudinary(uploadFile);
+      } else {
+        // Use the Google Drive link directly
+        fileUrl = driveLink.trim();
+        if (!fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
+          throw new Error('Please enter a valid URL starting with http:// or https://');
+        }
+      }
 
-      // 2. Save metadata to Supabase
+      // Save metadata to Supabase
       const { error } = await supabase.from('study_resources').insert([
         {
           title: uploadTitle.trim(),
@@ -281,6 +303,8 @@ export const Resources: React.FC = () => {
       setUploadTitle('');
       setUploadSubject('');
       setUploadFile(null);
+      setDriveLink('');
+      setUploadMethod('file');
       setIsUploadModalOpen(false);
       
       // Refresh Lists
@@ -498,32 +522,46 @@ export const Resources: React.FC = () => {
                     </div>
 
                     {/* Action buttons */}
-                    <div className="flex items-center gap-2 mt-6">
-                      <a
-                        href={res.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-grow py-3 bg-[#060D1F] hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 border border-orange-burnt/35 hover:border-transparent active:scale-95 shadow-md flex items-center justify-center space-x-1.5"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Download PDF</span>
-                      </a>
+                    {(() => {
+                      const isDriveLink = res.file_url.includes('drive.google.com') || res.file_url.includes('docs.google.com') || res.file_url.includes('google.com/drive');
+                      return (
+                        <div className="flex items-center gap-2 mt-6 w-full">
+                          <a
+                            href={res.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-grow py-3 bg-[#060D1F] hover:bg-gradient-to-r hover:from-orange-burnt hover:to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 border border-orange-burnt/35 hover:border-transparent active:scale-95 shadow-md flex items-center justify-center space-x-1.5"
+                          >
+                            {isDriveLink ? (
+                              <>
+                                <ExternalLink className="w-3.5 h-3.5" />
+                                <span>Open Google Drive</span>
+                              </>
+                            ) : (
+                              <>
+                                <Download className="w-3.5 h-3.5" />
+                                <span>Download PDF</span>
+                              </>
+                            )}
+                          </a>
 
-                      {isPrivilegedUser(res.uploader_id) && (
-                        <button
-                          disabled={isDeletingId === res.id}
-                          onClick={() => handleDeleteResource(res.id)}
-                          className="w-12 h-11 bg-red-500/10 hover:bg-red-500 border border-red-500/35 hover:border-transparent rounded-xl flex items-center justify-center text-red-400 hover:text-white transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
-                          title="Delete Notes"
-                        >
-                          {isDeletingId === res.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-4.5 h-4.5" />
+                          {isPrivilegedUser(res.uploader_id) && (
+                            <button
+                              disabled={isDeletingId === res.id}
+                              onClick={() => handleDeleteResource(res.id)}
+                              className="w-12 h-11 bg-red-500/10 hover:bg-red-500 border border-red-500/35 hover:border-transparent rounded-xl flex items-center justify-center text-red-400 hover:text-white transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                              title="Delete Notes"
+                            >
+                              {isDeletingId === res.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-4.5 h-4.5" />
+                              )}
+                            </button>
                           )}
-                        </button>
-                      )}
-                    </div>
+                        </div>
+                      );
+                    })()}
                   </motion.div>
                 ))}
               </div>
@@ -716,21 +754,74 @@ export const Resources: React.FC = () => {
                   </div>
                 </div>
 
-                {/* File Picker */}
-                <div className="border border-dashed border-white/15 hover:border-orange-burnt/50 transition-colors rounded-2xl bg-[#0F1E42]/30 p-6 flex flex-col items-center justify-center cursor-pointer relative group">
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    disabled={isUploading}
-                  />
-                  <FileText className="w-8 h-8 text-white/30 group-hover:text-orange-burnt transition-colors mb-2" />
-                  <span className="text-[11px] text-white/60 font-semibold text-center">
-                    {uploadFile ? uploadFile.name : 'Select or drop your PDF study notes here'}
-                  </span>
-                  <span className="text-[9px] text-white/30 mt-1">Maximum size allowed: 50MB</span>
+                {/* Upload Method Selector */}
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-white/50 mb-1.5">
+                    Select Upload Source *
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 bg-[#060D1F] p-1 rounded-xl border border-white/5">
+                    <button
+                      type="button"
+                      onClick={() => { setUploadMethod('file'); setUploadError(''); }}
+                      className={`py-2 px-3 rounded-lg text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
+                        uploadMethod === 'file'
+                          ? 'bg-orange-burnt text-white shadow-md'
+                          : 'text-white/45 hover:text-white/80'
+                      }`}
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>Local PDF</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setUploadMethod('drive'); setUploadError(''); }}
+                      className={`py-2 px-3 rounded-lg text-xs font-display font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
+                        uploadMethod === 'drive'
+                          ? 'bg-orange-burnt text-white shadow-md'
+                          : 'text-white/45 hover:text-white/80'
+                      }`}
+                    >
+                      <Link2 className="w-3.5 h-3.5" />
+                      <span>Google Drive Link</span>
+                    </button>
+                  </div>
                 </div>
+
+                {/* File Picker or Drive Link Input */}
+                {uploadMethod === 'file' ? (
+                  <div className="border border-dashed border-white/15 hover:border-orange-burnt/50 transition-colors rounded-2xl bg-[#0F1E42]/30 p-6 flex flex-col items-center justify-center cursor-pointer relative group">
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={handleFileChange}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      disabled={isUploading}
+                    />
+                    <FileText className="w-8 h-8 text-white/30 group-hover:text-orange-burnt transition-colors mb-2" />
+                    <span className="text-[11px] text-white/60 font-semibold text-center">
+                      {uploadFile ? uploadFile.name : 'Select or drop your PDF study notes here'}
+                    </span>
+                    <span className="text-[9px] text-white/30 mt-1">Maximum size allowed: 50MB</span>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-white/50">
+                      Shareable Google Drive Link *
+                    </label>
+                    <input
+                      type="url"
+                      required
+                      placeholder="e.g. https://drive.google.com/file/d/.../view?usp=sharing"
+                      value={driveLink}
+                      onChange={(e) => setDriveLink(e.target.value)}
+                      className="w-full bg-[#0F1E42]/80 border border-white/10 rounded-xl px-4 py-3 text-xs text-white outline-none focus:border-orange-burnt transition-colors placeholder-white/20"
+                      disabled={isUploading}
+                    />
+                    <span className="text-[9px] text-white/35 mt-1 block leading-normal font-sans">
+                      ⚠️ Note: Make sure the Google Drive link sharing settings are set to <strong>&quot;Anyone with the link&quot;</strong> so your peers can access the file.
+                    </span>
+                  </div>
+                )}
 
                 {/* Uploader Meta Info */}
                 <div className="bg-[#0D1B3E]/30 rounded-xl p-3 flex items-center space-x-2 text-[10px] text-white/40">
