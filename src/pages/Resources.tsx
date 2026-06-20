@@ -42,7 +42,7 @@ export const Resources: React.FC = () => {
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
   const googleApiKey = import.meta.env.VITE_GOOGLE_API_KEY || '';
   const googleAppId = import.meta.env.VITE_GOOGLE_APP_ID || '';
-  const isGoogleConfigured = !!(googleClientId && googleApiKey);
+  const isGoogleConfigured = !!(googleClientId && googleApiKey && googleAppId);
 
   // Tabs: 'shared' | 'premium'
   const [activeTab, setActiveTab] = useState<'shared' | 'premium'>('shared');
@@ -318,14 +318,16 @@ export const Resources: React.FC = () => {
           // Load the Picker API and create the picker
           gapi.load('picker', () => {
             try {
-              const view = new google.picker.View(google.picker.ViewId.DOCS);
+              const view = new google.picker.DocsView(google.picker.ViewId.DOCS);
               view.setMimeTypes('application/pdf,application/vnd.google-apps.document,application/vnd.google-apps.presentation,application/vnd.google-apps.spreadsheet,image/jpeg,image/png');
+              view.setIncludeFolders(true);
 
               const picker = new google.picker.PickerBuilder()
                 .addView(view)
                 .setOAuthToken(accessToken)
                 .setDeveloperKey(googleApiKey)
                 .setAppId(googleAppId)
+                .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
                 .setCallback((data: any) => {
                   if (data.action === google.picker.Action.PICKED) {
                     const doc = data.docs[0];
