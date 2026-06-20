@@ -13,6 +13,7 @@ interface Question {
   correct_option: number;
   explanation: string;
   subject: string;
+  semester: string;
 }
 
 interface Flashcard {
@@ -55,9 +56,10 @@ export const GPATPrep: React.FC = () => {
   const [isSavingScore, setIsSavingScore] = useState(false);
   const [scoreSaveSuccess, setScoreSaveSuccess] = useState<string | null>(null);
 
-  // AI Question Generator States
+  // Quiz Customization States
   const [quizMode, setQuizMode] = useState<'local' | 'ai'>('local');
-  const [selectedSubject, setSelectedSubject] = useState<string>('Pharmacology');
+  const [selectedSubject, setSelectedSubject] = useState<string>('All');
+  const [selectedSemester, setSelectedSemester] = useState<string>('All');
   const [isAILoading, setIsAILoading] = useState(false);
   const [aiLoadMessage, setAiLoadMessage] = useState('');
   const [aiError, setAiError] = useState('');
@@ -85,8 +87,7 @@ export const GPATPrep: React.FC = () => {
       const { data: lData, error: lErr } = await supabase
         .from('gpat_scores')
         .select('*')
-        .order('score', { ascending: false })
-        .limit(10);
+        .order('score', { ascending: false });
       if (lErr) throw lErr;
       setLeaderboard(lData || []);
     } catch (err: any) {
@@ -105,7 +106,21 @@ export const GPATPrep: React.FC = () => {
     setQuizMode('local');
     setAiError('');
     if (questions.length === 0) return;
-    const shuffled = [...questions].sort(() => 0.5 - Math.random());
+
+    let filtered = [...questions];
+    if (selectedSemester !== 'All') {
+      filtered = filtered.filter(q => q.semester === selectedSemester);
+    }
+    if (selectedSubject !== 'All') {
+      filtered = filtered.filter(q => q.subject === selectedSubject);
+    }
+
+    if (filtered.length === 0) {
+      setAiError(`No questions found in the local bank for ${selectedSemester !== 'All' ? selectedSemester : 'any Semester'} and ${selectedSubject !== 'All' ? selectedSubject : 'any Subject'}. Try generating an AI custom quiz to seed them!`);
+      return;
+    }
+
+    const shuffled = filtered.sort(() => 0.5 - Math.random());
     setQuizQuestions(shuffled.slice(0, 5));
     setCurrentQuestionIndex(0);
     setSelectedOption(null);
@@ -153,14 +168,18 @@ export const GPATPrep: React.FC = () => {
         ? "https://api.mistral.ai/v1/chat/completions" 
         : "https://api.groq.com/openai/v1/chat/completions";
 
-      const prompt = `Generate exactly 5 high-quality GPAT/NIPER competitive exam multiple-choice questions (MCQs) for the pharmacy subject: "${selectedSubject}".
+      const prompt = `Generate exactly 5 high-quality GPAT/NIPER competitive exam multiple-choice questions (MCQs) for B.Pharm students.
+Target Subject: ${selectedSubject === 'All' ? 'Select appropriate subjects from: Pharmacology, Pharmaceutics, Pharmacognosy, Pharmaceutical Chemistry' : selectedSubject}.
+Target Semester: ${selectedSemester === 'All' ? 'Select appropriate semesters from Semester I to VIII' : selectedSemester}.
 For each question, provide:
 1. "question": The question text.
 2. "options": Array of exactly 4 options.
 3. "correct_option": The index of the correct option (0, 1, 2, or 3).
 4. "explanation": A detailed clinical explanation of why that option is correct.
+5. "subject": The pharmacy subject (must be one of: Pharmacology, Pharmaceutics, Pharmacognosy, Pharmaceutical Chemistry).
+6. "semester": The B.Pharm semester (must be one of: Semester I, Semester II, Semester III, Semester IV, Semester V, Semester VI, Semester VII, Semester VIII).
 
-Respond ONLY with a valid JSON array of objects with the keys "question", "options", "correct_option", and "explanation". Do NOT include markdown code blocks, do NOT include any introductory or concluding text. Just the raw JSON array.`;
+Respond ONLY with a valid JSON array of objects with the keys "question", "options", "correct_option", "explanation", "subject", and "semester". Do NOT include markdown code blocks, do NOT include any introductory or concluding text. Just the raw JSON array.`;
 
       const response = await fetch(apiEndpoint, {
         method: 'POST',
@@ -204,7 +223,8 @@ Respond ONLY with a valid JSON array of objects with the keys "question", "optio
         options: Array.isArray(q.options) && q.options.length === 4 ? q.options : ['Option A', 'Option B', 'Option C', 'Option D'],
         correct_option: typeof q.correct_option === 'number' && q.correct_option >= 0 && q.correct_option <= 3 ? q.correct_option : 0,
         explanation: q.explanation || 'Refer to standard pharmacopeia references.',
-        subject: selectedSubject
+        subject: q.subject || (selectedSubject === 'All' ? 'Pharmacology' : selectedSubject),
+        semester: q.semester || (selectedSemester === 'All' ? 'Semester V' : selectedSemester)
       }));
 
       setQuizQuestions(formattedQuestions.slice(0, 5));
@@ -256,7 +276,8 @@ Respond ONLY with a valid JSON array of objects with the keys "question", "optio
               options: q.options,
               correct_option: q.correct_option,
               explanation: q.explanation,
-              subject: q.subject
+              subject: q.subject,
+              semester: q.semester
             }))
           );
           console.log("Successfully synced AI questions to Supabase bank!");
@@ -304,8 +325,7 @@ Respond ONLY with a valid JSON array of objects with the keys "question", "optio
           const { data: refreshedLeaderboard } = await supabase
             .from('gpat_scores')
             .select('*')
-            .order('score', { ascending: false })
-            .limit(10);
+            .order('score', { ascending: false });
           if (refreshedLeaderboard) setLeaderboard(refreshedLeaderboard);
         } catch (err: any) {
           console.error('Mobile score save error:', err.message);
@@ -434,24 +454,48 @@ Respond ONLY with a valid JSON array of objects with the keys "question", "optio
                         </button>
                       </div>
 
-                      {/* AI Options */}
-                      {quizMode === 'ai' && (
-                        <div className="bg-[#0A1128]/40 border border-white/5 p-3 rounded-xl text-left space-y-2">
-                          <label className="block text-[8px] font-extrabold uppercase tracking-widest text-white/45">
-                            Select Subject
-                          </label>
-                          <select
-                            value={selectedSubject}
-                            onChange={(e) => setSelectedSubject(e.target.value)}
-                            className="w-full bg-[#0F1E42] border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white outline-none focus:border-orange-burnt"
-                          >
-                            <option value="Pharmacology">Pharmacology</option>
-                            <option value="Pharmaceutics">Pharmaceutics</option>
-                            <option value="Pharmacognosy">Pharmacognosy</option>
-                            <option value="Pharmaceutical Chemistry">Pharmaceutical Chemistry</option>
-                          </select>
+                      {/* Quiz Customization Options */}
+                      <div className="bg-[#0A1128]/40 border border-white/5 p-3 rounded-xl text-left space-y-3">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-[8px] font-extrabold uppercase tracking-widest text-white/45 mb-1">
+                              Semester
+                            </label>
+                            <select
+                              value={selectedSemester}
+                              onChange={(e) => setSelectedSemester(e.target.value)}
+                              className="w-full bg-[#0F1E42] border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white outline-none focus:border-orange-burnt"
+                            >
+                              <option value="All">All Semesters</option>
+                              <option value="Semester I">Semester I</option>
+                              <option value="Semester II">Semester II</option>
+                              <option value="Semester III">Semester III</option>
+                              <option value="Semester IV">Semester IV</option>
+                              <option value="Semester V">Semester V</option>
+                              <option value="Semester VI">Semester VI</option>
+                              <option value="Semester VII">Semester VII</option>
+                              <option value="Semester VIII">Semester VIII</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-[8px] font-extrabold uppercase tracking-widest text-white/45 mb-1">
+                              Subject
+                            </label>
+                            <select
+                              value={selectedSubject}
+                              onChange={(e) => setSelectedSubject(e.target.value)}
+                              className="w-full bg-[#0F1E42] border border-white/10 rounded-lg px-2 py-1.5 text-xs text-white outline-none focus:border-orange-burnt"
+                            >
+                              <option value="All">All Subjects</option>
+                              <option value="Pharmacology">Pharmacology</option>
+                              <option value="Pharmaceutics">Pharmaceutics</option>
+                              <option value="Pharmacognosy">Pharmacognosy</option>
+                              <option value="Pharmaceutical Chemistry">Pharmaceutical Chemistry</option>
+                            </select>
+                          </div>
                         </div>
-                      )}
+                      </div>
 
                       {aiError && (
                         <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-[10px] text-red-400 text-left flex items-start space-x-1.5">
@@ -710,12 +754,19 @@ Respond ONLY with a valid JSON array of objects with the keys "question", "optio
                 <p className="text-center py-6 text-xs text-white/40">No entries yet.</p>
               ) : (
                 <div className="space-y-1">
-                  {leaderboard.map((record, index) => {
+                  {leaderboard.slice(0, 10).map((record, index) => {
                     const isMe = studentProfile && record.user_id === studentProfile.id;
                     let medal = `${index + 1}`;
                     if (index === 0) medal = '🥇';
                     else if (index === 1) medal = '🥈';
                     else if (index === 2) medal = '🥉';
+
+                    // Calculate percentile based on the complete list of scores
+                    const allScores = leaderboard.map(r => r.score);
+                    const below = allScores.filter(s => s < record.score).length;
+                    const equal = allScores.filter(s => s === record.score).length;
+                    const total = allScores.length;
+                    const percentile = total > 0 ? Math.round((((below + 0.5 * equal) / total) * 100) * 10) / 10 : 0;
 
                     return (
                       <div 
@@ -726,13 +777,16 @@ Respond ONLY with a valid JSON array of objects with the keys "question", "optio
                       >
                         <div className="flex items-center space-x-3">
                           <span className="font-bold text-xs">{medal}</span>
-                          <span className="font-bold truncate max-w-[140px] flex items-center gap-1">
+                          <span className="font-bold truncate max-w-[100px] flex items-center gap-1">
                             {record.student_name}
                             {isMe && <span className="bg-orange-burnt text-[7px] text-white px-1.5 py-0.5 rounded font-black uppercase">Me</span>}
                           </span>
                         </div>
-                        <div className="text-right font-display font-extrabold text-orange-burnt">
-                          {record.score} <span className="text-[8px] text-white/30 font-bold uppercase">pts</span>
+                        <div className="flex items-center space-x-2 text-right">
+                          <span className="text-[10px] text-white/45 font-medium">({percentile}%tile)</span>
+                          <div className="font-display font-extrabold text-orange-burnt">
+                            {record.score}<span className="text-[8px] text-white/30 font-bold uppercase ml-0.5">pts</span>
+                          </div>
                         </div>
                       </div>
                     );

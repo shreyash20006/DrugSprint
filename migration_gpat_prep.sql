@@ -1,4 +1,4 @@
--- Migration: Create gpat_prep schema and tables
+-- Migration: Create gpat_prep schema and tables with Semester support
 
 -- 1. Create GPAT Questions Table
 CREATE TABLE IF NOT EXISTS public.gpat_questions (
@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS public.gpat_questions (
   correct_option INTEGER NOT NULL,
   explanation TEXT,
   subject TEXT NOT NULL,
+  semester TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -73,77 +74,87 @@ CREATE POLICY "Allow students update own score"
   WITH CHECK (auth.uid() = user_id);
 
 
--- 6. Seed GPAT Prep Questions
-INSERT INTO public.gpat_questions (question, options, correct_option, explanation, subject) VALUES
+-- 6. Seed GPAT Prep Questions with Semester Tags
+INSERT INTO public.gpat_questions (question, options, correct_option, explanation, subject, semester) VALUES
 (
   'Which of the following is a loop diuretic?',
   ARRAY['Furosemide', 'Hydrochlorothiazide', 'Spironolactone', 'Acetazolamide'],
   0,
   'Furosemide is a loop diuretic that inhibits the Na+/K+/2Cl- symporter in the thick ascending limb of the loop of Henle.',
-  'Pharmacology'
+  'Pharmacology',
+  'Semester V'
 ),
 (
   'Which equation describes the rate of drug dissolution from a tablet?',
   ARRAY['Noyes-Whitney Equation', 'Henderson-Hasselbalch Equation', 'Arrhenius Equation', 'Michaelis-Menten Equation'],
   0,
   'The Noyes-Whitney equation describes the rate of dissolution: dC/dt = DA/h * (Cs - Cb).',
-  'Pharmaceutics'
+  'Pharmaceutics',
+  'Semester VI'
 ),
 (
   'Which family does the medicinal plant Atropa belladonna belong to?',
   ARRAY['Solanaceae', 'Lamiaceae', 'Fabaceae', 'Asteraceae'],
   0,
   'Atropa belladonna (deadly nightshade) belongs to the Solanaceae family and is a source of tropane alkaloids like atropine.',
-  'Pharmacognosy'
+  'Pharmacognosy',
+  'Semester IV'
 ),
 (
   'Which of the following is an example of an ester-type local anesthetic?',
   ARRAY['Procaine', 'Lidocaine', 'Prilocaine', 'Bupivacaine'],
   0,
   'Procaine is an ester-type local anesthetic. Lidocaine, prilocaine, and bupivacaine are amide-type local anesthetics (which typically have an "i" in the prefix before "caine").',
-  'Pharmaceutical Chemistry'
+  'Pharmaceutical Chemistry',
+  'Semester IV'
 ),
 (
   'Which receptor sub-type does Propranolol block?',
   ARRAY['Both Beta-1 and Beta-2', 'Only Beta-1', 'Only Beta-2', 'Alpha-1'],
   0,
   'Propranolol is a non-selective beta-blocker that acts on both beta-1 (cardiac) and beta-2 (bronchial/vascular) adrenergic receptors.',
-  'Pharmacology'
+  'Pharmacology',
+  'Semester V'
 ),
 (
   'What is the primary mechanism of action of Aspirin?',
   ARRAY['Irreversible inhibition of COX', 'Reversible inhibition of COX', 'Activation of Lipoxygenase', 'Direct block of thromboxane receptors'],
   0,
   'Aspirin irreversibly acetylates serine residues of Cyclooxygenase (COX-1 and COX-2) enzymes, preventing prostaglandin synthesis.',
-  'Pharmacology'
+  'Pharmacology',
+  'Semester V'
 ),
 (
   'What does HLB stand for in surfactant chemistry?',
   ARRAY['Hydrophilic-Lipophilic Balance', 'Hydrophobic-Lipophilic Bond', 'Hydro-Lipid Buffer', 'High Lipophilic Balance'],
   0,
   'HLB stands for Hydrophilic-Lipophilic Balance. It is an empirical measure of the relationship of the hydrophilic and lipophilic groups of a surfactant.',
-  'Pharmaceutics'
+  'Pharmaceutics',
+  'Semester IV'
 ),
 (
   'Which alkaloid is derived from Cinchona bark?',
   ARRAY['Quinine', 'Reserpine', 'Morphine', 'Atropine'],
   0,
   'Quinine is a quinoline alkaloid obtained from Cinchona bark (Cinchona officinalis), used historically as an antimalarial drug.',
-  'Pharmacognosy'
+  'Pharmacognosy',
+  'Semester V'
 ),
 (
   'What is the chemical class of Ibuprofen?',
   ARRAY['Propionic acid derivative', 'Salicylic acid derivative', 'Indole derivative', 'Pyrazolone derivative'],
   0,
   'Ibuprofen is a propionic acid derivative (2-(4-isobutylphenyl)propanoic acid), belonging to the class of non-steroidal anti-inflammatory drugs (NSAIDs).',
-  'Pharmaceutical Chemistry'
+  'Pharmaceutical Chemistry',
+  'Semester IV'
 ),
 (
   'Which of the following is the antidote for Paracetamol (Acetaminophen) poisoning?',
   ARRAY['N-acetylcysteine', 'Naloxone', 'Flumazenil', 'Atropine'],
   0,
   'N-acetylcysteine (NAC) acts as an antidote for Paracetamol overdose by restoring glutathione levels in the liver, helping to detoxify the toxic metabolite NAPQI.',
-  'Pharmacology'
+  'Pharmacology',
+  'Semester V'
 )
 ON CONFLICT DO NOTHING;
 
