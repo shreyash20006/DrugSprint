@@ -145,8 +145,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otpInput.trim() || otpInput.trim().length < 6) {
-      return toast.error('Please enter the 6-digit verification code');
+    if (!otpInput.trim() || otpInput.trim().length !== 8) {
+      return toast.error('Please enter the 8-digit verification code');
     }
     setIsVerifyingOtp(true);
     try {
@@ -406,8 +406,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
                     <input
                       type="text"
                       required
-                      maxLength={6}
-                      placeholder="Enter 6-digit OTP"
+                      maxLength={8}
+                      placeholder="Enter 8-digit OTP"
                       value={otpInput}
                       onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
                       disabled={isVerifyingOtp}
@@ -425,7 +425,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
                     </button>
                     <button
                       type="submit"
-                      disabled={isVerifyingOtp || otpInput.trim().length < 6}
+                      disabled={isVerifyingOtp || otpInput.trim().length !== 8}
                       className="flex-1 py-3 bg-orange-burnt hover:bg-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                     >
                       {isVerifyingOtp ? (

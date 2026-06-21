@@ -164,8 +164,8 @@ export const AdminLogin: React.FC = () => {
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otpInput.trim() || otpInput.trim().length < 6) {
-      return toast.error('Please enter the 6-digit verification code');
+    if (!otpInput.trim() || otpInput.trim().length !== 8) {
+      return toast.error('Please enter the 8-digit verification code');
     }
     setIsVerifyingOtp(true);
     setErrorMessage('');
@@ -454,12 +454,12 @@ export const AdminLogin: React.FC = () => {
                       <input
                         type="text"
                         required
-                        maxLength={6}
-                        placeholder="Enter 6-digit OTP"
+                        maxLength={8}
+                        placeholder="Enter 8-digit OTP"
                         value={otpInput}
                         onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
                         disabled={isVerifyingOtp}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#0F1E42]/85 outline-none text-xs text-white tracking-[0.25em] text-center placeholder-white/20 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/20 transition-all font-mono font-bold"
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#0F1E42]/85 outline-none text-xs text-white tracking-[0.2em] text-center placeholder-white/20 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/20 transition-all font-mono font-bold"
                       />
                     </div>
 
@@ -473,7 +473,7 @@ export const AdminLogin: React.FC = () => {
                       </button>
                       <button
                         type="submit"
-                        disabled={isVerifyingOtp || otpInput.trim().length < 6}
+                        disabled={isVerifyingOtp || otpInput.trim().length !== 8}
                         className="flex-1 py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
                       >
                         {isVerifyingOtp ? (
