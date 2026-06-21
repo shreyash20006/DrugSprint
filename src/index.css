@@ -333,8 +333,17 @@ html.light .bg-gray-light {
 }
 
 /* Cards that use bg-white/5 (barely visible in dark) → solid white in light */
-html.light [class*="bg-white/"] {
+html.light [class^="bg-white/"],
+html.light [class*=" bg-white/"] {
   background-color: var(--bg-card) !important;
+}
+
+/* Hover/active states in light mode */
+html.light [class*="hover:bg-white/"]:hover {
+  background-color: rgba(15, 30, 66, 0.06) !important;
+}
+html.light .group:hover [class*="group-hover:bg-white/"] {
+  background-color: rgba(15, 30, 66, 0.06) !important;
 }
 
 /* Dark gradient backgrounds → gentle light gradients */
@@ -349,33 +358,53 @@ html.light [class*="via-[#1"] {
 }
 
 /* ---- TEXT COLORS ---- */
-/* The #1 cause of invisible text: white text on white backgrounds */
-html.light [class*="text-white"] {
+/* Base text-white override (non-prefixed) */
+html.light [class^="text-white"],
+html.light [class*=" text-white"] {
   color: var(--text-primary) !important;
 }
-html.light [class*="text-white/95"] { color: color-mix(in srgb, var(--text-primary) 95%, transparent) !important; }
-html.light [class*="text-white/90"] { color: color-mix(in srgb, var(--text-primary) 90%, transparent) !important; }
-html.light [class*="text-white/85"] { color: color-mix(in srgb, var(--text-primary) 85%, transparent) !important; }
-html.light [class*="text-white/80"] { color: color-mix(in srgb, var(--text-primary) 80%, transparent) !important; }
-html.light [class*="text-white/75"] { color: color-mix(in srgb, var(--text-primary) 75%, transparent) !important; }
-html.light [class*="text-white/70"] { color: color-mix(in srgb, var(--text-primary) 70%, transparent) !important; }
-html.light [class*="text-white/65"] { color: color-mix(in srgb, var(--text-primary) 65%, transparent) !important; }
-html.light [class*="text-white/60"] { color: color-mix(in srgb, var(--text-primary) 60%, transparent) !important; }
-html.light [class*="text-white/55"] { color: color-mix(in srgb, var(--text-primary) 55%, transparent) !important; }
-html.light [class*="text-white/50"] { color: color-mix(in srgb, var(--text-primary) 50%, transparent) !important; }
-html.light [class*="text-white/45"] { color: color-mix(in srgb, var(--text-primary) 45%, transparent) !important; }
-html.light [class*="text-white/40"] { color: color-mix(in srgb, var(--text-primary) 40%, transparent) !important; }
-html.light [class*="text-white/35"] { color: color-mix(in srgb, var(--text-primary) 35%, transparent) !important; }
-html.light [class*="text-white/30"] { color: color-mix(in srgb, var(--text-primary) 30%, transparent) !important; }
-html.light [class*="text-white/25"] { color: color-mix(in srgb, var(--text-primary) 25%, transparent) !important; }
-html.light [class*="text-white/20"] { color: color-mix(in srgb, var(--text-primary) 20%, transparent) !important; }
-html.light [class*="text-white/15"] { color: color-mix(in srgb, var(--text-primary) 15%, transparent) !important; }
-html.light [class*="text-white/10"] { color: color-mix(in srgb, var(--text-primary) 10%, transparent) !important; }
-html.light [class*="text-white/5"]  { color: color-mix(in srgb, var(--text-primary) 5%, transparent) !important; }
 
-/* text-gray-* shades that are too dark for light mode */
-html.light [class*="text-slate-"],
-html.light [class*="text-gray-"] {
+/* Specific text-white opacities mapped to high-contrast theme variables */
+html.light [class^="text-white/9"],
+html.light [class*=" text-white/9"],
+html.light [class^="text-white/8"],
+html.light [class*=" text-white/8"] {
+  color: var(--text-primary) !important;
+}
+
+html.light [class^="text-white/7"],
+html.light [class*=" text-white/7"],
+html.light [class^="text-white/6"],
+html.light [class*=" text-white/6"],
+html.light [class^="text-white/5"],
+html.light [class*=" text-white/5"] {
+  color: var(--text-secondary) !important;
+}
+
+html.light [class^="text-white/4"],
+html.light [class*=" text-white/4"],
+html.light [class^="text-white/3"],
+html.light [class*=" text-white/3"],
+html.light [class^="text-white/2"],
+html.light [class*=" text-white/2"],
+html.light [class^="text-white/1"],
+html.light [class*=" text-white/1"] {
+  color: var(--text-muted) !important;
+}
+
+/* Hover/active text colors in light mode */
+html.light [class*="hover:text-white"]:hover {
+  color: var(--text-primary) !important;
+}
+html.light .group:hover [class*="group-hover:text-white"] {
+  color: var(--text-primary) !important;
+}
+
+/* text-gray-* / text-slate-* shades that are too dark for light mode */
+html.light [class^="text-slate-"],
+html.light [class*=" text-slate-"],
+html.light [class^="text-gray-"],
+html.light [class*=" text-gray-"] {
   color: var(--text-secondary) !important;
 }
 
@@ -388,8 +417,15 @@ html.light h4[class*="text-white"] {
 }
 
 /* ---- BORDERS ---- */
-html.light [class*="border-white"] {
+html.light [class^="border-white"],
+html.light [class*=" border-white"] {
   border-color: var(--border-mid) !important;
+}
+html.light [class*="hover:border-white"]:hover {
+  border-color: var(--color-orange-burnt) !important;
+}
+html.light [class*="focus:border-white"]:focus {
+  border-color: var(--color-orange-burnt) !important;
 }
 
 /* ---- NAVBAR ---- */
