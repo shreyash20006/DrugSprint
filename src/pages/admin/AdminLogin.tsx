@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ShieldCheck, ArrowLeft, Lock, Zap, FileCheck, ArrowUpRight, Mail, Loader2
+  ShieldCheck, Lock, Mail, Loader2, ArrowRight, User
 } from 'lucide-react';
 import { useToast } from '../../components/admin/Toast';
 import { logAction } from '../../lib/logger';
@@ -24,12 +24,6 @@ const ROLE_REDIRECT: Record<string, string> = {
   student:           '/dashboard',
 };
 
-const securityHighlights = [
-  { icon: ShieldCheck, label: 'Encrypted sign-in with Google or Email OTP' },
-  { icon: FileCheck, label: 'Verified TGPCOP accounts auto-recognised' },
-  { icon: Zap, label: 'One click → your personal dashboard' },
-];
-
 export const AdminLogin: React.FC = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -47,9 +41,29 @@ export const AdminLogin: React.FC = () => {
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
-  const { scrollYProgress } = useScroll({ container: containerRef });
-  const orbY = useTransform(scrollYProgress, [0, 1], [0, -80]);
-  const cardY = useTransform(scrollYProgress, [0, 1], [0, -30]);
+  const [parallax, setParallax] = useState({ x: 0, y: 0 });
+
+  // Add custom Google Fonts for the new AI UI design
+  useEffect(() => {
+    const fontLink = document.createElement('link');
+    fontLink.rel = 'stylesheet';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Hanken+Grotesk:wght@400;500;600&family=Geist:wght@700&display=swap';
+    document.head.appendChild(fontLink);
+    return () => {
+      document.head.removeChild(fontLink);
+    };
+  }, []);
+
+  // Parallax background effect
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth) - 0.5;
+      const y = (e.clientY / window.innerHeight) - 0.5;
+      setParallax({ x, y });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   // Handle resend OTP cooldown
   useEffect(() => {
@@ -212,174 +226,53 @@ export const AdminLogin: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen w-full bg-[#050B18] text-white overflow-auto"
+      className="relative min-h-screen w-full bg-[#080a0f] text-[#e1e2eb] overflow-auto flex flex-col justify-between selection:bg-[#ff7a21]/30 selection:text-white"
       data-testid="admin-login-page"
     >
-      {/* Ambient background */}
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <motion.div
-          style={{ y: orbY }}
-          animate={{
-            x: [0, 20, -15, 0],
-            y: [0, -30, 20, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute -top-32 -left-32 w-[520px] h-[520px] rounded-full"
-        >
-          <div className="w-full h-full ambient-orb-orange rounded-full" />
-        </motion.div>
-        <motion.div
-          style={{ y: orbY }}
-          animate={{
-            x: [0, -25, 20, 0],
-            y: [0, 20, -30, 0],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute -bottom-32 -right-32 w-[560px] h-[560px] rounded-full"
-        >
-          <div className="w-full h-full ambient-orb-gold rounded-full" />
-        </motion.div>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:56px_56px] opacity-50" />
-        <div className="noise-overlay noise-soft" />
-      </div>
-
-      {/* Top bar */}
-      <header className="relative z-20 max-w-7xl mx-auto px-6 lg:px-8 py-6 flex items-center justify-between">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-white/50 hover:text-white text-xs font-sans font-bold uppercase tracking-[0.2em] group transition-colors"
-          data-testid="back-to-site-link"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" strokeWidth={2.4} />
-          Back to Site
-        </Link>
-        <div className="flex items-center gap-2.5">
-          <span className="relative flex items-center justify-center w-2 h-2">
-            <span className="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-            <span className="relative inline-flex rounded-full w-2 h-2 bg-emerald-400" />
-          </span>
-          <span className="text-[10px] font-bold tracking-[0.22em] uppercase text-white/55 font-display">
-            Secure Channel
-          </span>
+      <main className="relative min-h-screen flex items-center justify-center pt-24 pb-20 px-4 overflow-hidden">
+        {/* Ambient Background Layer */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full transition-transform duration-150 ease-out"
+            style={{
+              background: 'radial-gradient(circle at center, rgba(255, 122, 33, 0.08) 0%, transparent 70%)',
+              transform: `translate3d(${-parallax.x * 50}px, ${-parallax.y * 50}px, 0)`,
+            }}
+          />
+          <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#0272b0]/5 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#ff7a21]/5 rounded-full blur-[120px]" />
         </div>
-      </header>
 
-      {/* Main */}
-      <motion.main
-        style={{ y: cardY }}
-        className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-8 lg:py-16"
-      >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center min-h-[calc(100vh-200px)]">
-          {/* LEFT — narrative */}
-          <div className="lg:col-span-7 space-y-8 order-2 lg:order-1">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-orange-burnt/25 backdrop-blur-md"
-            >
-              <Lock className="w-3 h-3 text-orange-burnt" strokeWidth={2.4} />
-              <span className="text-orange-burnt text-[10px] font-bold tracking-[0.22em] uppercase font-display">
-                TGPCOP · Unified Portal
+        <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center">
+          {/* Header Text */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff7a21] animate-pulse"></span>
+              <span className="text-[11px] uppercase tracking-[0.2em] text-[#e0c0b1]/80 font-bold" style={{ fontFamily: 'Geist, sans-serif' }}>
+                Security Portal Online
               </span>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1 }}
-              className="font-display font-extrabold text-white leading-[1.02] tracking-tight"
-              style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)' }}
-            >
-              Welcome to the
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-burnt via-gold-accent to-orange-burnt bg-[length:200%_auto]">
-                Council Portal.
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.25 }}
-              className="text-white/65 text-base lg:text-lg leading-relaxed font-sans max-w-xl"
-            >
-              One login for everyone — students access dashboards, executives manage operations. Your role determines what you see next.
-            </motion.p>
-
-            <motion.ul
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
-              className="space-y-3 pt-2"
-            >
-              {securityHighlights.map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <motion.li
-                    key={idx}
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 + idx * 0.08 }}
-                    className="flex items-center gap-3 text-white/72"
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-orange-burnt/10 border border-orange-burnt/25 flex items-center justify-center shrink-0">
-                      <Icon className="w-3.5 h-3.5 text-orange-burnt" strokeWidth={2.4} />
-                    </div>
-                    <span className="text-sm font-sans font-medium">{item.label}</span>
-                  </motion.li>
-                );
-              })}
-            </motion.ul>
+            </div>
+            <h1 className="text-4xl md:text-[64px] font-extrabold text-[#e1e2eb] leading-none mb-4" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              The <span className="text-[#ff7a21] italic" style={{ textShadow: '0 0 30px rgba(255, 122, 33, 0.4)' }}>Council</span> Portal
+            </h1>
+            <p className="text-lg text-[#e0c0b1]/70 max-w-md mx-auto" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+              Unified access for the TGPCOP ecosystem. Sign in to your authorized workspace.
+            </p>
           </div>
 
-          {/* RIGHT — login card */}
-          <div className="lg:col-span-5 order-1 lg:order-2">
-            <motion.div
-              initial={{ opacity: 0, y: 28, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="relative"
-            >
-              {/* Corner accents */}
-              <div className="absolute -top-px -left-px w-12 h-12 border-t-2 border-l-2 border-orange-burnt/50 rounded-tl-3xl pointer-events-none" />
-              <div className="absolute -bottom-px -right-px w-12 h-12 border-b-2 border-r-2 border-gold-accent/40 rounded-br-3xl pointer-events-none" />
-
-              <div className="relative bg-gradient-to-br from-[#0D1B3E]/95 to-[#0A1428]/95 border border-orange-burnt/25 backdrop-blur-2xl rounded-3xl p-7 sm:p-9 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden">
-                <div className="noise-overlay noise-soft" />
-
-                {/* Header */}
-                <div className="flex items-center gap-3 mb-6 relative z-10">
-                  <motion.div
-                    animate={{
-                      boxShadow: [
-                        '0 0 0px rgba(214,90,30,0)',
-                        '0 0 30px rgba(214,90,30,0.45)',
-                        '0 0 0px rgba(214,90,30,0)',
-                      ],
-                    }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                    className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-burnt to-[#E06D2B] flex items-center justify-center"
-                  >
-                    <Lock className="w-5 h-5 text-white" strokeWidth={2.4} />
-                  </motion.div>
-                  <div>
-                    <h2 className="font-display font-extrabold text-base text-white tracking-tight">
-                      Sign in to continue
-                    </h2>
-                    <p className="text-[10px] text-white/45 font-sans font-medium tracking-[0.18em] uppercase mt-0.5">
-                      Students · Council · Admins
-                    </p>
-                  </div>
-                </div>
+          {/* Main Card */}
+          <motion.div
+            className="w-full bg-[#10131a]/60 backdrop-blur-[40px] border border-white/[0.08] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] rounded-2xl p-8 md:p-12 relative transition-transform duration-100 ease-out"
+            style={{
+              transform: `translate3d(${parallax.x * 15}px, ${parallax.y * 15}px, 0)`,
+            }}
+          >
+            <div className="flex flex-col gap-10">
+              {/* Login Section */}
+              <div>
+                <h2 className="text-3xl font-extrabold text-[#e1e2eb] mb-8 text-center md:text-left tracking-tight" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                  Sign in
+                </h2>
 
                 {/* Error */}
                 <AnimatePresence>
@@ -389,7 +282,7 @@ export const AdminLogin: React.FC = () => {
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                       data-testid="login-error-message"
-                      className="bg-red-500/10 border border-red-500/25 text-red-300 text-xs px-3.5 py-2.5 rounded-xl mb-4 leading-relaxed font-sans relative z-10"
+                      className="bg-red-500/10 border border-red-500/25 text-red-300 text-xs px-4 py-3 rounded-xl mb-6 leading-relaxed font-sans"
                     >
                       {errorMessage}
                     </motion.div>
@@ -405,69 +298,51 @@ export const AdminLogin: React.FC = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: 16 }}
                       transition={{ duration: 0.22, ease: 'easeInOut' }}
-                      className="space-y-3 relative z-10"
+                      className="space-y-4"
                     >
-                      {/* Google Button */}
+                      {/* Google */}
                       <motion.button
                         onClick={handleGoogleLogin}
                         disabled={isLoggingIn}
-                        whileHover={{ scale: isLoggingIn ? 1 : 1.015 }}
-                        whileTap={{ scale: isLoggingIn ? 1 : 0.98 }}
-                        data-testid="google-signin-btn"
-                        className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl bg-white text-gray-900 font-display font-bold text-sm tracking-tight shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full h-14 bg-white/[0.03] border border-white/[0.08] backdrop-blur-[10px] transition-all duration-300 hover:bg-white/[0.08] hover:border-[#ff7a21]/40 rounded-xl flex items-center justify-between px-6 group cursor-pointer disabled:opacity-50"
                       >
-                        {isLoggingIn ? (
-                          <>
-                            <motion.div
-                              className="w-4 h-4 rounded-full border-2 border-orange-burnt border-t-transparent"
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                            />
-                            <span className="text-orange-burnt">Authenticating...</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 3.01-.97 4.14v3.45h1.59c3.27-3 5.43-7.42 5.43-12.44z" />
-                              <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.84-2.98c-1.07.72-2.44 1.15-4.12 1.15-3.17 0-5.85-2.14-6.81-5.02H1.23v3.1A11.996 11.996 0 0012 24z" />
-                              <path fill="#FBBC05" d="M5.19 14.24A7.2 7.2 0 014.8 12c0-.79.13-1.57.39-2.31V6.59H1.23A11.96 11.96 0 000 12c0 2.23.6 4.32 1.66 6.13l3.53-2.89z" />
-                              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.22 0 12 0 7.34 0 3.37 2.67 1.23 6.59l3.96 3.1c.96-2.88 3.64-5.02 6.81-5.02z" />
-                            </svg>
-                            <span>Continue with Google</span>
-                            <ArrowUpRight className="w-3.5 h-3.5 ml-1" strokeWidth={2.6} />
-                          </>
-                        )}
+                        <div className="flex items-center gap-4">
+                          <img
+                            alt="Google"
+                            className="w-5 h-5"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXh4TleaUAzQKdI5D9R2JzIJDveDksTrWYA8hEE1cBXzS_F0qhiH5iyLit9igKlhMjLHuBATb98f9x6r6RgxNFxVhBwMwpYvQdevDmjYdeX33RGDaETkDEG6hxgMmzUmY0ZvBFiutBvSpkLXo3icu5ErjoPhRlmjt-6vIiw8cFB0XsST8y7b2HiLlsm28pS-IplTgd4_KrGslEoTjg0LFR2NG3TRBhLrec5zByObkp36kgNNyeCqf-xy1m9IrJ9kQVAWRU_YxSNPk"
+                          />
+                          <span className="text-[#e1e2eb]/90 font-semibold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                            {isLoggingIn ? 'Authenticating...' : 'Continue with Google'}
+                          </span>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-[#e1e2eb]/30 group-hover:text-[#ff7a21] transition-colors" />
                       </motion.button>
 
-                      {/* LinkedIn Button */}
+                      {/* LinkedIn */}
                       <motion.button
                         onClick={handleLinkedInLogin}
                         disabled={isLoggingIn}
-                        whileHover={{ scale: isLoggingIn ? 1 : 1.015 }}
-                        whileTap={{ scale: isLoggingIn ? 1 : 0.98 }}
-                        className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl bg-[#0077B5] text-white font-display font-bold text-sm tracking-tight shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full h-14 bg-white/[0.03] border border-white/[0.08] backdrop-blur-[10px] transition-all duration-300 hover:bg-white/[0.08] hover:border-[#ff7a21]/40 rounded-xl flex items-center justify-between px-6 group cursor-pointer disabled:opacity-50"
                       >
-                        {isLoggingIn ? (
-                          <>
-                            <motion.div
-                              className="w-4 h-4 rounded-full border-2 border-white border-t-transparent"
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                            />
-                            <span>Authenticating...</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-4 h-4 shrink-0 fill-white" viewBox="0 0 24 24">
-                              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                            </svg>
-                            <span>Continue with LinkedIn</span>
-                            <ArrowUpRight className="w-3.5 h-3.5 ml-1 text-white/70" strokeWidth={2.6} />
-                          </>
-                        )}
+                        <div className="flex items-center gap-4">
+                          <img
+                            alt="LinkedIn"
+                            className="w-5 h-5"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA4K6a3rot-Pa2AA-aTA2WkJlwlqv8m7Hpqnzp6y8Y4x4bbH1OdodpTeE1wcqTw8TIiqwWdRj8aWznuq9eHBK9sHwVwl4UnNPt7LGbFXK25WwvIfl7DISC7vrlpOZsXe_UfqB9T5RFrOJUot3auIYzPtlPhcsEukB4bnkK6HZK-XJvM6IrBxkdktvjWKYGLocNL5i5T6B-kWWgdLUxQ0TpmriCaYiBhZGBfx-BWKKu8P4IBJXf8zIvD8FRo7GOiyclKqFvICc3JWw"
+                          />
+                          <span className="text-[#e1e2eb]/90 font-semibold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                            Continue with LinkedIn
+                          </span>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-[#e1e2eb]/30 group-hover:text-[#ff7a21] transition-colors" />
                       </motion.button>
 
-                      {/* Email OTP Button */}
+                      {/* Email */}
                       <motion.button
                         onClick={() => {
                           setLoginMethod('otp');
@@ -475,13 +350,17 @@ export const AdminLogin: React.FC = () => {
                           setErrorMessage('');
                         }}
                         disabled={isLoggingIn}
-                        whileHover={{ scale: isLoggingIn ? 1 : 1.015 }}
-                        whileTap={{ scale: isLoggingIn ? 1 : 0.98 }}
-                        className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl border border-orange-burnt/35 hover:border-orange-burnt bg-white/[0.03] hover:bg-orange-burnt/5 text-white font-display font-bold text-sm tracking-tight transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full h-14 bg-white/[0.03] border border-white/[0.08] backdrop-blur-[10px] transition-all duration-300 hover:bg-white/[0.08] hover:border-[#ff7a21]/40 rounded-xl flex items-center justify-between px-6 group cursor-pointer disabled:opacity-50"
                       >
-                        <Mail className="w-4 h-4 text-orange-burnt shrink-0" strokeWidth={2.4} />
-                        <span>Continue with Email OTP</span>
-                        <ArrowUpRight className="w-3.5 h-3.5 ml-1" strokeWidth={2.6} />
+                        <div className="flex items-center gap-4">
+                          <Mail className="w-5 h-5 text-[#ff7a21]" />
+                          <span className="text-[#e1e2eb]/90 font-semibold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                            Email OTP
+                          </span>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-[#e1e2eb]/30 group-hover:text-[#ff7a21] transition-colors" />
                       </motion.button>
                     </motion.div>
                   ) : otpStep === 'email' ? (
@@ -492,10 +371,10 @@ export const AdminLogin: React.FC = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -16 }}
                       transition={{ duration: 0.22, ease: 'easeInOut' }}
-                      className="space-y-4 relative z-10"
+                      className="space-y-6"
                     >
                       <div className="relative">
-                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
                         <input
                           type="email"
                           required
@@ -503,25 +382,27 @@ export const AdminLogin: React.FC = () => {
                           value={emailInput}
                           onChange={(e) => setEmailInput(e.target.value)}
                           disabled={isSendingOtp}
-                          className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#0F1E42]/85 outline-none text-xs text-white placeholder-white/20 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/20 transition-all font-sans"
+                          className="w-full h-14 pl-12 pr-6 bg-white/[0.02] border border-white/10 rounded-xl outline-none text-sm text-white placeholder-white/20 focus:border-[#ff7a21]/50 focus:ring-1 focus:ring-[#ff7a21]/20 transition-all font-sans"
                         />
                       </div>
 
-                      <div className="flex gap-2.5">
+                      <div className="flex gap-3">
                         <button
                           type="button"
                           onClick={() => setLoginMethod('options')}
-                          className="flex-1 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
+                          className="flex-1 h-12 flex items-center justify-center bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+                          style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                         >
                           Back
                         </button>
                         <button
                           type="submit"
                           disabled={isSendingOtp || !emailInput.trim()}
-                          className="flex-1 py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
+                          className="flex-1 h-12 flex items-center justify-center bg-[#ff7a21] hover:bg-[#ff7a21]/90 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                          style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                         >
                           {isSendingOtp ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-white" />
+                            <Loader2 className="w-5 h-5 animate-spin text-white" />
                           ) : (
                             <span>Send Code</span>
                           )}
@@ -536,15 +417,17 @@ export const AdminLogin: React.FC = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -16 }}
                       transition={{ duration: 0.22, ease: 'easeInOut' }}
-                      className="space-y-4 relative z-10"
+                      className="space-y-6"
                     >
-                      <div className="text-left bg-white/[0.02] border border-white/[0.04] p-3.5 rounded-xl">
-                        <p className="text-[10px] text-white/45 uppercase tracking-wider">Sending OTP to</p>
-                        <p className="text-xs text-white font-bold font-sans truncate">{emailInput}</p>
+                      <div className="text-left bg-white/[0.02] border border-white/[0.04] p-4 rounded-xl">
+                        <p className="text-[10px] text-[#e0c0b1] uppercase tracking-wider font-semibold" style={{ fontFamily: 'Geist, sans-serif', letterSpacing: '0.15em' }}>
+                          Sending OTP to
+                        </p>
+                        <p className="text-sm text-white font-bold truncate mt-1">{emailInput}</p>
                       </div>
 
                       <div className="relative">
-                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
                         <input
                           type="text"
                           required
@@ -553,37 +436,40 @@ export const AdminLogin: React.FC = () => {
                           value={otpInput}
                           onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
                           disabled={isVerifyingOtp}
-                          className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#0F1E42]/85 outline-none text-xs text-white tracking-[0.2em] text-center placeholder-white/20 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/20 transition-all font-mono font-bold"
+                          className="w-full h-14 pl-12 pr-6 bg-white/[0.02] border border-white/10 rounded-xl outline-none text-sm text-white tracking-[0.2em] text-center placeholder-white/20 focus:border-[#ff7a21]/50 focus:ring-1 focus:ring-[#ff7a21]/20 transition-all font-mono font-bold"
                         />
                       </div>
 
-                      <div className="flex gap-2.5">
+                      <div className="flex gap-3">
                         <button
                           type="button"
                           onClick={() => setOtpStep('email')}
-                          className="flex-1 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
+                          className="flex-1 h-12 flex items-center justify-center bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+                          style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                         >
                           Back
                         </button>
                         <button
                           type="submit"
                           disabled={isVerifyingOtp || otpInput.trim().length !== 8}
-                          className="flex-1 py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
+                          className="flex-1 h-12 flex items-center justify-center bg-[#ff7a21] hover:bg-[#ff7a21]/90 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                          style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                         >
                           {isVerifyingOtp ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-white" />
+                            <Loader2 className="w-5 h-5 animate-spin text-white" />
                           ) : (
                             <span>Verify OTP</span>
                           )}
                         </button>
                       </div>
 
-                      <div className="text-center pt-1.5">
+                      <div className="text-center pt-2">
                         <button
                           type="button"
                           disabled={cooldown > 0 || isSendingOtp}
                           onClick={() => handleSendOtp()}
-                          className="text-[10px] font-display font-bold uppercase tracking-wider text-orange-burnt hover:text-[#E06D2B] disabled:text-white/30 transition-colors"
+                          className="text-xs font-semibold uppercase tracking-wider text-[#ff7a21] hover:text-[#ff7a21]/80 disabled:text-white/30 transition-colors cursor-pointer"
+                          style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                         >
                           {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend Code'}
                         </button>
@@ -592,34 +478,61 @@ export const AdminLogin: React.FC = () => {
                   )}
                 </AnimatePresence>
 
-                {/* Helper text */}
-                <p className="relative z-10 text-white/35 text-[10px] text-center mt-4 leading-relaxed font-sans">
-                  Use your <span className="text-orange-burnt font-bold">@tgpcopcouncil.online</span> or pre-approved account
+                <p className="mt-8 text-center text-xs text-[#e0c0b1]/40 font-medium" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                  Authorized <span className="text-[#e0c0b1]/80 font-medium">@tgpcouncil.online</span> accounts only.
                 </p>
+              </div>
 
-                {/* Divider */}
-                <div className="relative z-10 my-5 flex items-center gap-3">
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
-                  <span className="text-[9px] font-bold uppercase tracking-[0.25em] text-white/30">Smart Routing</span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
+              {/* Divider */}
+              <div className="flex items-center gap-4">
+                <div className="h-px flex-1 bg-white/5"></div>
+                <span className="text-[10px] text-[#e0c0b1]/40 tracking-[0.4em] uppercase font-bold" style={{ fontFamily: 'Geist, sans-serif' }}>
+                  Smart Routing
+                </span>
+                <div className="h-px flex-1 bg-white/5"></div>
+              </div>
+
+              {/* Routing Paths */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/[0.02] border border-white/[0.05] p-5 rounded-2xl cursor-default transition-all duration-300 hover:bg-white/[0.05] hover:border-[#ff7a21]/20 hover:shadow-[0_0_15px_rgba(255,122,33,0.1)] group">
+                  <div className="w-8 h-8 rounded-lg bg-[#0272b0]/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <User className="w-5 h-5 text-[#94ccff]" />
+                  </div>
+                  <span className="text-[11px] text-[#94ccff]/60 tracking-wider block mb-1 font-bold" style={{ fontFamily: 'Geist, sans-serif' }}>
+                    STUDENT
+                  </span>
+                  <p className="text-xs text-[#e1e2eb]/80 font-medium" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                    Personal Dashboard
+                  </p>
                 </div>
 
-                {/* Role explanation */}
-                <div className="relative z-10 grid grid-cols-2 gap-2 text-center">
-                  <div className="px-2 py-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-400">Student</p>
-                    <p className="text-[9px] text-white/50 mt-0.5">→ Dashboard</p>
+                <div className="bg-white/[0.02] border border-white/[0.05] p-5 rounded-2xl cursor-default transition-all duration-300 hover:bg-white/[0.05] hover:border-[#ff7a21]/20 hover:shadow-[0_0_15px_rgba(255,122,33,0.1)] group">
+                  <div className="w-8 h-8 rounded-lg bg-[#ff7a21]/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <ShieldCheck className="w-5 h-5 text-[#ff7a21]" />
                   </div>
-                  <div className="px-2 py-2 rounded-lg bg-white/[0.03] border border-orange-burnt/20">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-orange-burnt">Executive</p>
-                    <p className="text-[9px] text-white/50 mt-0.5">→ Admin Panel</p>
-                  </div>
+                  <span className="text-[11px] text-[#ff7a21]/60 tracking-wider block mb-1 font-bold" style={{ fontFamily: 'Geist, sans-serif' }}>
+                    EXECUTIVE
+                  </span>
+                  <p className="text-xs text-[#e1e2eb]/80 font-medium" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                    Admin Command Center
+                  </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </main>
+
+      <footer className="fixed bottom-0 left-0 w-full z-40">
+        <div className="flex flex-col md:flex-row justify-between items-center w-full px-6 md:px-20 py-6 max-w-7xl mx-auto text-[11px] text-[#e0c0b1]/30 tracking-widest font-bold" style={{ fontFamily: 'Geist, sans-serif' }}>
+          <p>© 2024 TGPCOP UNIFIED</p>
+          <div className="flex gap-8 mt-4 md:mt-0">
+            <a className="hover:text-[#ff7a21] transition-colors" href="#">SECURITY</a>
+            <a className="hover:text-[#ff7a21] transition-colors" href="#">STATUS</a>
+            <a className="hover:text-[#ff7a21] transition-colors" href="#">PRIVACY</a>
           </div>
         </div>
-      </motion.main>
+      </footer>
     </div>
   );
 };
