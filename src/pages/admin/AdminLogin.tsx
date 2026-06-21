@@ -5,7 +5,7 @@ import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import {
-  ShieldCheck, ArrowLeft, Bug, Lock, Sparkles, Zap, FileCheck, ArrowUpRight, Mail, Loader2
+  ShieldCheck, ArrowLeft, Lock, Zap, FileCheck, ArrowUpRight, Mail, Loader2
 } from 'lucide-react';
 import { useToast } from '../../components/admin/Toast';
 import { logAction } from '../../lib/logger';
@@ -33,7 +33,6 @@ const securityHighlights = [
 export const AdminLogin: React.FC = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [showDebug, setShowDebug] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const toast = useToast();
@@ -616,46 +615,6 @@ export const AdminLogin: React.FC = () => {
                     <p className="text-[9px] text-white/50 mt-0.5">→ Admin Panel</p>
                   </div>
                 </div>
-
-                {/* Footer */}
-                <div className="relative z-10 mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between text-[9px] text-white/30 font-sans font-bold uppercase tracking-[0.18em]">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Sparkles className="w-2.5 h-2.5 text-gold-accent" strokeWidth={2.6} />
-                    Monitored
-                  </span>
-                  <button
-                    onClick={() => setShowDebug((v) => !v)}
-                    className="inline-flex items-center gap-1 hover:text-white/55 transition-colors"
-                  >
-                    <Bug className="w-2.5 h-2.5" strokeWidth={2.6} />
-                    {showDebug ? 'Hide' : 'Debug'}
-                  </button>
-                </div>
-
-                <AnimatePresence>
-                  {showDebug && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="relative z-10 mt-3 bg-black/40 border border-white/[0.06] rounded-xl p-3 font-mono text-[10px] space-y-1 overflow-hidden"
-                    >
-                      <p className="text-white/30 uppercase tracking-wider font-bold mb-2">Session State</p>
-                      {[
-                        ['Loading', String(isLoading), isLoading ? 'text-gold-accent' : 'text-emerald-400'],
-                        ['Email', email || '—', 'text-white/65'],
-                        ['User ID', userId ? `${userId.slice(0, 16)}…` : '—', 'text-white/55'],
-                        ['Provider', provider || '—', 'text-white/65'],
-                        ['Role', role || 'null', role ? 'text-orange-burnt font-bold' : 'text-red-400'],
-                      ].map(([k, v, cls]) => (
-                        <div key={k} className="flex justify-between">
-                          <span className="text-white/30">{k}:</span>
-                          <span className={cls as string}>{v}</span>
-                        </div>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
             </motion.div>
           </div>
