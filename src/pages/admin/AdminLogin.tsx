@@ -359,24 +359,6 @@ export const AdminLogin: React.FC = () => {
       data-testid="admin-login-page"
     >
       <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-6px);
-          }
-        }
-        @keyframes dot-pulse {
-          0%, 100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(0.7);
-            opacity: 0.4;
-          }
-        }
         @keyframes pulse-btn {
           0% {
             box-shadow: 0 0 0 0 rgba(200, 75, 14, 0.4);
@@ -387,17 +369,6 @@ export const AdminLogin: React.FC = () => {
           100% {
             box-shadow: 0 0 0 0 rgba(200, 75, 14, 0);
           }
-        }
-        .float-tag-1 {
-          animation: float 3s ease-in-out infinite;
-        }
-        .float-tag-2 {
-          animation: float 3s ease-in-out infinite;
-          animation-delay: 1s;
-        }
-        .float-tag-3 {
-          animation: float 3s ease-in-out infinite;
-          animation-delay: 2s;
         }
         .pulse-btn {
           animation: pulse-btn 2.5s infinite;
@@ -472,13 +443,7 @@ export const AdminLogin: React.FC = () => {
           
           {/* Left Column (Hero Content) */}
           <div className="flex flex-col text-left">
-            {/* Pulsing dot badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-md mb-6 w-fit">
-              <span className="w-2 h-2 rounded-full bg-red-600 shadow-[0_0_8px_#dc2626]" style={{ animation: 'dot-pulse 1.5s infinite' }} />
-              <span className="text-[10px] uppercase font-bold tracking-[0.15em] text-white/80" style={{ fontFamily: 'Geist, sans-serif' }}>
-                TGPCOP · UNIFIED PORTAL
-              </span>
-            </div>
+
             
             {/* Display Heading */}
             <h1 className="text-4xl md:text-5xl lg:text-[56px] font-extrabold text-white leading-tight font-sans tracking-tight" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
@@ -522,22 +487,7 @@ export const AdminLogin: React.FC = () => {
 
           {/* Right Column (Login Card Container) */}
           <div className="relative flex items-center justify-center z-10 w-full max-w-md mx-auto lg:mx-0">
-            {/* Floating Tags */}
-            <div className="absolute top-[-25px] left-[-35px] float-tag-1 z-25 hidden md:block">
-              <div className="px-3.5 py-1.5 rounded-full bg-[rgba(13,27,62,0.9)] border border-[#C84B0E]/20 text-white/90 text-xs font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md">
-                🔐 RBAC Enabled
-              </div>
-            </div>
-            <div className="absolute top-[35%] right-[-45px] float-tag-2 z-25 hidden md:block">
-              <div className="px-3.5 py-1.5 rounded-full bg-[rgba(13,27,62,0.9)] border border-[#C84B0E]/20 text-white/90 text-xs font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md">
-                ✦ Verified Accounts
-              </div>
-            </div>
-            <div className="absolute bottom-[-15px] left-[25%] float-tag-3 z-25 hidden md:block">
-              <div className="px-3.5 py-1.5 rounded-full bg-[rgba(13,27,62,0.9)] border border-[#C84B0E]/20 text-white/90 text-xs font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md">
-                ⚡ React + Supabase
-              </div>
-            </div>
+
 
             {/* 3D Glassmorphic Card */}
             <div
@@ -777,25 +727,7 @@ export const AdminLogin: React.FC = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="relative z-30 w-full bg-[#050d1a]/80 border-t border-white/[0.03]">
-        <div className="flex flex-col md:flex-row justify-between items-center w-full px-6 md:px-12 py-6 max-w-7xl mx-auto text-[11px] text-white/30 tracking-widest font-bold font-sans">
-          <p>© 2024 TGPCOP UNIFIED</p>
-          <div className="flex gap-8 mt-4 md:mt-0">
-            <a
-              className="hover:text-[#C84B0E] transition-colors"
-              href="https://www.linkedin.com/company/tgpcop-council"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              LINKEDIN
-            </a>
-            <a className="hover:text-[#C84B0E] transition-colors" href="#">SECURITY</a>
-            <a className="hover:text-[#C84B0E] transition-colors" href="#">STATUS</a>
-            <a className="hover:text-[#C84B0E] transition-colors" href="#">PRIVACY</a>
-          </div>
-        </div>
-      </footer>
+
     </div>
   );
 };
