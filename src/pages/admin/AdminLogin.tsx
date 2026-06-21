@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ShieldCheck, Lock, Mail, Loader2, ArrowRight, User
+  ShieldCheck, Lock, Mail, Loader2, Zap, FileCheck, ArrowLeft
 } from 'lucide-react';
 import { useToast } from '../../components/admin/Toast';
 import { logAction } from '../../lib/logger';
@@ -41,9 +41,10 @@ export const AdminLogin: React.FC = () => {
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [cooldown, setCooldown] = useState(0);
 
-  const [parallax, setParallax] = useState({ x: 0, y: 0 });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  // Add custom Google Fonts for the new AI UI design
+  // Add custom Google Fonts for the new design system
   useEffect(() => {
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
@@ -54,15 +55,143 @@ export const AdminLogin: React.FC = () => {
     };
   }, []);
 
-  // Parallax background effect
+  // HTML5 Particle Network Background Logic (55 particles, mix of C84B0E and 3d5a9e, orange connecting lines < 90px)
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth) - 0.5;
-      const y = (e.clientY / window.innerHeight) - 0.5;
-      setParallax({ x, y });
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationId: number;
+    let W = (canvas.width = window.innerWidth);
+    let H = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      W = (canvas.width = window.innerWidth);
+      H = (canvas.height = window.innerHeight);
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('resize', handleResize);
+
+    const particles = Array.from({ length: 55 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.5 + 0.3,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      alpha: Math.random() * 0.5 + 0.1,
+      color: Math.random() > 0.7 ? '#C84B0E' : '#3d5a9e',
+    }));
+
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+
+      // Move and draw dots
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Wrap edges
+        if (p.x < 0) p.x = W;
+        if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        if (p.y > H) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+      });
+
+      // Draw connecting lines < 90px distance at low opacity orange
+      ctx.strokeStyle = '#C84B0E';
+      ctx.lineWidth = 0.5;
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const p1 = particles[i];
+          const p2 = particles[j];
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 90) {
+            // Lower opacity for longer lines
+            const lineAlpha = (1 - dist / 90) * 0.12;
+            ctx.globalAlpha = lineAlpha;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      animationId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+
+  // 3D Card Tilt Logic (Max Y ±12deg, Max X ±8deg, Lerp factor 0.1)
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    let targetRX = 0;
+    let targetRY = 0;
+    let currentRX = 0;
+    let currentRY = 0;
+    let animationId: number;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = card.getBoundingClientRect();
+      const cardWidth = rect.width;
+      const cardHeight = rect.height;
+      const cardCenterX = rect.left + cardWidth / 2;
+      const cardCenterY = rect.top + cardHeight / 2;
+
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+
+      // Normalised coordinates (-0.5 to 0.5) from card center
+      const dx = (mouseX - cardCenterX) / cardWidth;
+      const dy = (mouseY - cardCenterY) / cardHeight;
+
+      targetRY = dx * 12;
+      targetRX = -dy * 8;
+    };
+
+    const handleMouseLeave = () => {
+      targetRX = 0;
+      targetRY = 0;
+    };
+
+    const updateTilt = () => {
+      currentRX += (targetRX - currentRX) * 0.1;
+      currentRY += (targetRY - currentRY) * 0.1;
+
+      card.style.transform = `perspective(900px) rotateX(${currentRX}deg) rotateY(${currentRY}deg)`;
+
+      animationId = requestAnimationFrame(updateTilt);
+    };
+
+    card.addEventListener('mousemove', handleMouseMove);
+    card.addEventListener('mouseleave', handleMouseLeave);
+
+    updateTilt();
+
+    return () => {
+      card.removeEventListener('mousemove', handleMouseMove);
+      card.removeEventListener('mouseleave', handleMouseLeave);
+      cancelAnimationFrame(animationId);
+    };
   }, []);
 
   // Handle resend OTP cooldown
@@ -226,62 +355,220 @@ export const AdminLogin: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen w-full bg-[#080a0f] text-[#e1e2eb] overflow-auto flex flex-col justify-between selection:bg-[#ff7a21]/30 selection:text-white"
+      className="relative min-h-screen w-full bg-[#050d1a] text-white overflow-x-hidden flex flex-col justify-between selection:bg-[#C84B0E]/30 selection:text-white"
       data-testid="admin-login-page"
     >
-      <main className="relative min-h-screen flex items-center justify-center pt-24 pb-20 px-4 overflow-hidden">
-        {/* Ambient Background Layer */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full transition-transform duration-150 ease-out"
-            style={{
-              background: 'radial-gradient(circle at center, rgba(255, 122, 33, 0.08) 0%, transparent 70%)',
-              transform: `translate3d(${-parallax.x * 50}px, ${-parallax.y * 50}px, 0)`,
-            }}
-          />
-          <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#0272b0]/5 rounded-full blur-[120px]" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#ff7a21]/5 rounded-full blur-[120px]" />
-        </div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-6px);
+          }
+        }
+        @keyframes dot-pulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(0.7);
+            opacity: 0.4;
+          }
+        }
+        @keyframes pulse-btn {
+          0% {
+            box-shadow: 0 0 0 0 rgba(200, 75, 14, 0.4);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(200, 75, 14, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(200, 75, 14, 0);
+          }
+        }
+        .float-tag-1 {
+          animation: float 3s ease-in-out infinite;
+        }
+        .float-tag-2 {
+          animation: float 3s ease-in-out infinite;
+          animation-delay: 1s;
+        }
+        .float-tag-3 {
+          animation: float 3s ease-in-out infinite;
+          animation-delay: 2s;
+        }
+        .pulse-btn {
+          animation: pulse-btn 2.5s infinite;
+        }
+        .card-glow-border::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, #C84B0E, transparent);
+          z-index: 10;
+        }
+      ` }} />
 
-        <div className="relative z-10 w-full max-w-[560px] flex flex-col items-center">
-          {/* Header Text */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ff7a21] animate-pulse"></span>
-              <span className="text-[11px] uppercase tracking-[0.2em] text-[#e0c0b1]/80 font-bold" style={{ fontFamily: 'Geist, sans-serif' }}>
-                Security Portal Online
+      {/* HTML5 Particle Network Background */}
+      <canvas
+        ref={canvasRef}
+        id="bg"
+        className="absolute inset-0 w-full h-full z-0 pointer-events-none"
+      />
+
+      {/* Grid Overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[1]"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(200, 75, 14, 0.04) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(200, 75, 14, 0.04) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px',
+        }}
+      />
+
+      {/* Glow Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#C84B0E]/10 rounded-full blur-[100px] pointer-events-none z-[2]" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-[#1a2f66]/30 rounded-full blur-[120px] pointer-events-none z-[2]" />
+      <div className="absolute bottom-[-20%] left-[30%] w-[400px] h-[400px] bg-[#C84B0E]/5 rounded-full blur-[80px] pointer-events-none z-[2]" />
+
+      {/* Header navigation */}
+      <nav className="relative z-30 flex justify-between items-center w-full px-6 md:px-12 py-6 max-w-7xl mx-auto">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-[#C84B0E] flex items-center justify-center shadow-[0_0_15px_rgba(200,75,14,0.4)]">
+            <ShieldCheck className="w-5 h-5 text-white" />
+          </div>
+          <span className="text-white font-bold text-lg tracking-wider font-sans group-hover:text-white/90 transition-colors">
+            TGPCOP
+          </span>
+        </Link>
+        <div className="flex items-center gap-6">
+          <a
+            href="https://www.linkedin.com/company/tgpcop-council"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-bold uppercase tracking-wider text-white/60 hover:text-white transition-colors"
+          >
+            LINKEDIN
+          </a>
+          <a
+            href="mailto:support@tgpcopcouncil.online"
+            className="text-xs font-bold uppercase tracking-wider text-white/60 hover:text-white transition-colors"
+          >
+            SUPPORT
+          </a>
+        </div>
+      </nav>
+
+      {/* Main Section */}
+      <main className="relative z-20 flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-center lg:py-0 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 w-full items-center">
+          
+          {/* Left Column (Hero Content) */}
+          <div className="flex flex-col text-left">
+            {/* Pulsing dot badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-md mb-6 w-fit">
+              <span className="w-2 h-2 rounded-full bg-red-600 shadow-[0_0_8px_#dc2626]" style={{ animation: 'dot-pulse 1.5s infinite' }} />
+              <span className="text-[10px] uppercase font-bold tracking-[0.15em] text-white/80" style={{ fontFamily: 'Geist, sans-serif' }}>
+                TGPCOP · UNIFIED PORTAL
               </span>
             </div>
-            <h1 className="text-4xl md:text-[64px] font-extrabold text-[#e1e2eb] leading-none mb-4" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-              The <span className="text-[#ff7a21] italic" style={{ textShadow: '0 0 30px rgba(255, 122, 33, 0.4)' }}>Council</span> Portal
+            
+            {/* Display Heading */}
+            <h1 className="text-4xl md:text-5xl lg:text-[56px] font-extrabold text-white leading-tight font-sans tracking-tight" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+              Welcome to the <br />
+              <span className="text-[#C84B0E]" style={{ textShadow: '0 0 40px rgba(200, 75, 14, 0.25)' }}>Council Portal.</span>
             </h1>
-            <p className="text-lg text-[#e0c0b1]/70 max-w-md mx-auto" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
-              Unified access for the TGPCOP ecosystem. Sign in to your authorized workspace.
+            
+            {/* Subtitle */}
+            <p className="mt-6 text-base md:text-lg text-white/60 leading-relaxed font-sans max-w-lg" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+              One login for everyone — students access dashboards, executives manage operations. Your role determines what you see next.
             </p>
+
+            {/* Feature bullets */}
+            <div className="mt-10 space-y-5">
+              <div className="flex items-center gap-4 group">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#C84B0E]/10 border border-[#C84B0E]/20 flex items-center justify-center transition-all group-hover:scale-105 group-hover:border-[#C84B0E]/40">
+                  <Lock className="w-5 h-5 text-[#C84B0E]" />
+                </div>
+                <p className="text-sm md:text-base text-white/80 font-medium font-sans">
+                  Encrypted sign-in with Google or Email OTP
+                </p>
+              </div>
+              <div className="flex items-center gap-4 group">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#C84B0E]/10 border border-[#C84B0E]/20 flex items-center justify-center transition-all group-hover:scale-105 group-hover:border-[#C84B0E]/40">
+                  <FileCheck className="w-5 h-5 text-[#C84B0E]" />
+                </div>
+                <p className="text-sm md:text-base text-white/80 font-medium font-sans">
+                  Verified TGPCOP accounts auto-recognised
+                </p>
+              </div>
+              <div className="flex items-center gap-4 group">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-[#C84B0E]/10 border border-[#C84B0E]/20 flex items-center justify-center transition-all group-hover:scale-105 group-hover:border-[#C84B0E]/40">
+                  <Zap className="w-5 h-5 text-[#C84B0E]" />
+                </div>
+                <p className="text-sm md:text-base text-white/80 font-medium font-sans">
+                  One click → your personal dashboard
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Main Card */}
-          <motion.div
-            className="w-full bg-[#10131a]/60 backdrop-blur-[40px] border border-white/[0.08] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] rounded-2xl p-8 md:p-12 relative transition-transform duration-100 ease-out"
-            style={{
-              transform: `translate3d(${parallax.x * 15}px, ${parallax.y * 15}px, 0)`,
-            }}
-          >
-            <div className="flex flex-col gap-10">
-              {/* Login Section */}
-              <div>
-                <h2 className="text-3xl font-extrabold text-[#e1e2eb] mb-8 text-center md:text-left tracking-tight" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                  Sign in
-                </h2>
+          {/* Right Column (Login Card Container) */}
+          <div className="relative flex items-center justify-center z-10 w-full max-w-md mx-auto lg:mx-0">
+            {/* Floating Tags */}
+            <div className="absolute top-[-25px] left-[-35px] float-tag-1 z-25 hidden md:block">
+              <div className="px-3.5 py-1.5 rounded-full bg-[rgba(13,27,62,0.9)] border border-[#C84B0E]/20 text-white/90 text-xs font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md">
+                🔐 RBAC Enabled
+              </div>
+            </div>
+            <div className="absolute top-[35%] right-[-45px] float-tag-2 z-25 hidden md:block">
+              <div className="px-3.5 py-1.5 rounded-full bg-[rgba(13,27,62,0.9)] border border-[#C84B0E]/20 text-white/90 text-xs font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md">
+                ✦ Verified Accounts
+              </div>
+            </div>
+            <div className="absolute bottom-[-15px] left-[25%] float-tag-3 z-25 hidden md:block">
+              <div className="px-3.5 py-1.5 rounded-full bg-[rgba(13,27,62,0.9)] border border-[#C84B0E]/20 text-white/90 text-xs font-semibold shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md">
+                ⚡ React + Supabase
+              </div>
+            </div>
 
-                {/* Error */}
+            {/* 3D Glassmorphic Card */}
+            <div
+              ref={cardRef}
+              className="w-full bg-[rgba(13,27,62,0.85)] border border-[rgba(200,75,14,0.25)] card-glow-border rounded-2xl p-8 md:p-10 relative overflow-hidden backdrop-blur-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col transition-transform duration-100 ease-out"
+            >
+              {/* Radial glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 bg-[#C84B0E]/15 blur-[40px] rounded-full pointer-events-none" />
+
+              {/* Header */}
+              <div className="flex flex-col items-center text-center mb-8 relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-[#C84B0E]/10 border border-[#C84B0E]/20 flex items-center justify-center mb-4">
+                  <Lock className="w-6 h-6 text-[#C84B0E]" />
+                </div>
+                <h2 className="text-2xl font-bold text-white tracking-tight" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                  Sign in to continue
+                </h2>
+                <p className="text-[10px] tracking-[0.2em] font-bold text-white/40 mt-2 uppercase" style={{ fontFamily: 'Geist, sans-serif' }}>
+                  STUDENTS · COUNCIL · ADMINS
+                </p>
+              </div>
+
+              {/* Content Forms with AnimatePresence */}
+              <div className="relative z-10 flex-grow">
+                {/* Error Message */}
                 <AnimatePresence>
                   {errorMessage && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      data-testid="login-error-message"
                       className="bg-red-500/10 border border-red-500/25 text-red-300 text-xs px-4 py-3 rounded-xl mb-6 leading-relaxed font-sans"
                     >
                       {errorMessage}
@@ -289,60 +576,38 @@ export const AdminLogin: React.FC = () => {
                   )}
                 </AnimatePresence>
 
-                {/* Auth Forms */}
                 <AnimatePresence mode="wait">
                   {loginMethod === 'options' ? (
                     <motion.div
                       key="options"
-                      initial={{ opacity: 0, x: -16 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 16 }}
-                      transition={{ duration: 0.22, ease: 'easeInOut' }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
                       className="space-y-4"
                     >
-                      {/* Google */}
+                      {/* Google Button */}
                       <motion.button
                         onClick={handleGoogleLogin}
                         disabled={isLoggingIn}
                         whileHover={{ y: -2 }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full h-14 bg-white/[0.03] border border-white/[0.08] backdrop-blur-[10px] transition-all duration-300 hover:bg-white/[0.08] hover:border-[#ff7a21]/40 rounded-xl flex items-center justify-between px-6 group cursor-pointer disabled:opacity-50"
+                        className="w-full h-12 bg-white hover:bg-white/95 text-gray-900 transition-all font-semibold rounded-xl flex items-center justify-between px-6 group cursor-pointer disabled:opacity-50"
                       >
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
                           <img
                             alt="Google"
                             className="w-5 h-5"
                             src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXh4TleaUAzQKdI5D9R2JzIJDveDksTrWYA8hEE1cBXzS_F0qhiH5iyLit9igKlhMjLHuBATb98f9x6r6RgxNFxVhBwMwpYvQdevDmjYdeX33RGDaETkDEG6hxgMmzUmY0ZvBFiutBvSpkLXo3icu5ErjoPhRlmjt-6vIiw8cFB0XsST8y7b2HiLlsm28pS-IplTgd4_KrGslEoTjg0LFR2NG3TRBhLrec5zByObkp36kgNNyeCqf-xy1m9IrJ9kQVAWRU_YxSNPk"
                           />
-                          <span className="text-[#e1e2eb]/90 font-semibold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                          <span className="text-sm font-bold text-gray-900" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
                             {isLoggingIn ? 'Authenticating...' : 'Continue with Google'}
                           </span>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-[#e1e2eb]/30 group-hover:text-[#ff7a21] transition-colors" />
+                        <span className="font-bold text-base text-gray-900 transition-transform group-hover:translate-x-1">↗</span>
                       </motion.button>
 
-                      {/* LinkedIn */}
-                      <motion.button
-                        onClick={handleLinkedInLogin}
-                        disabled={isLoggingIn}
-                        whileHover={{ y: -2 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full h-14 bg-white/[0.03] border border-white/[0.08] backdrop-blur-[10px] transition-all duration-300 hover:bg-white/[0.08] hover:border-[#ff7a21]/40 rounded-xl flex items-center justify-between px-6 group cursor-pointer disabled:opacity-50"
-                      >
-                        <div className="flex items-center gap-4">
-                          <img
-                            alt="LinkedIn"
-                            className="w-5 h-5"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA4K6a3rot-Pa2AA-aTA2WkJlwlqv8m7Hpqnzp6y8Y4x4bbH1OdodpTeE1wcqTw8TIiqwWdRj8aWznuq9eHBK9sHwVwl4UnNPt7LGbFXK25WwvIfl7DISC7vrlpOZsXe_UfqB9T5RFrOJUot3auIYzPtlPhcsEukB4bnkK6HZK-XJvM6IrBxkdktvjWKYGLocNL5i5T6B-kWWgdLUxQ0TpmriCaYiBhZGBfx-BWKKu8P4IBJXf8zIvD8FRo7GOiyclKqFvICc3JWw"
-                          />
-                          <span className="text-[#e1e2eb]/90 font-semibold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                            Continue with LinkedIn
-                          </span>
-                        </div>
-                        <ArrowRight className="w-5 h-5 text-[#e1e2eb]/30 group-hover:text-[#ff7a21] transition-colors" />
-                      </motion.button>
-
-                      {/* Email */}
+                      {/* Email OTP Button */}
                       <motion.button
                         onClick={() => {
                           setLoginMethod('otp');
@@ -352,25 +617,46 @@ export const AdminLogin: React.FC = () => {
                         disabled={isLoggingIn}
                         whileHover={{ y: -2 }}
                         whileTap={{ scale: 0.98 }}
-                        className="w-full h-14 bg-white/[0.03] border border-white/[0.08] backdrop-blur-[10px] transition-all duration-300 hover:bg-white/[0.08] hover:border-[#ff7a21]/40 rounded-xl flex items-center justify-between px-6 group cursor-pointer disabled:opacity-50"
+                        className="w-full h-12 bg-gradient-to-r from-[#C84B0E] to-[#E8671A] text-white transition-all font-semibold rounded-xl flex items-center justify-between px-6 group cursor-pointer disabled:opacity-50 pulse-btn"
                       >
-                        <div className="flex items-center gap-4">
-                          <Mail className="w-5 h-5 text-[#ff7a21]" />
-                          <span className="text-[#e1e2eb]/90 font-semibold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                            Email OTP
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-5 h-5 text-white" />
+                          <span className="text-sm font-bold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                            Continue with Email OTP
                           </span>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-[#e1e2eb]/30 group-hover:text-[#ff7a21] transition-colors" />
+                        <span className="font-bold text-base transition-transform group-hover:translate-x-1">↗</span>
+                      </motion.button>
+
+                      {/* LinkedIn Button */}
+                      <motion.button
+                        onClick={handleLinkedInLogin}
+                        disabled={isLoggingIn}
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full h-12 bg-transparent border border-white/20 hover:border-white/40 text-white transition-all font-semibold rounded-xl flex items-center justify-between px-6 group cursor-pointer disabled:opacity-50"
+                      >
+                        <div className="flex items-center gap-3">
+                          <img
+                            alt="LinkedIn"
+                            className="w-5 h-5"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDA4K6a3rot-Pa2AA-aTA2WkJlwlqv8m7Hpqnzp6y8Y4x4bbH1OdodpTeE1wcqTw8TIiqwWdRj8aWznuq9eHBK9sHwVwl4UnNPt7LGbFXK25WwvIfl7DISC7vrlpOZsXe_UfqB9T5RFrOJUot3auIYzPtlPhcsEukB4bnkK6HZK-XJvM6IrBxkdktvjWKYGLocNL5i5T6B-kWWgdLUxQ0TpmriCaYiBhZGBfx-BWKKu8P4IBJXf8zIvD8FRo7GOiyclKqFvICc3JWw"
+                          />
+                          <span className="text-sm font-bold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                            Continue with LinkedIn
+                          </span>
+                        </div>
+                        <span className="font-bold text-base transition-transform group-hover:translate-x-1">↗</span>
                       </motion.button>
                     </motion.div>
                   ) : otpStep === 'email' ? (
                     <motion.form
                       key="email-input"
                       onSubmit={handleSendOtp}
-                      initial={{ opacity: 0, x: 16 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -16 }}
-                      transition={{ duration: 0.22, ease: 'easeInOut' }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
                       className="space-y-6"
                     >
                       <div className="relative">
@@ -382,7 +668,7 @@ export const AdminLogin: React.FC = () => {
                           value={emailInput}
                           onChange={(e) => setEmailInput(e.target.value)}
                           disabled={isSendingOtp}
-                          className="w-full h-14 pl-12 pr-6 bg-white/[0.02] border border-white/10 rounded-xl outline-none text-sm text-white placeholder-white/20 focus:border-[#ff7a21]/50 focus:ring-1 focus:ring-[#ff7a21]/20 transition-all font-sans"
+                          className="w-full h-12 pl-12 pr-6 bg-white/[0.02] border border-white/10 rounded-xl outline-none text-sm text-white placeholder-white/20 focus:border-[#C84B0E]/50 focus:ring-1 focus:ring-[#C84B0E]/20 transition-all font-sans"
                         />
                       </div>
 
@@ -390,15 +676,16 @@ export const AdminLogin: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setLoginMethod('options')}
-                          className="flex-1 h-12 flex items-center justify-center bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+                          className="flex-1 h-11 flex items-center justify-center bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer"
                           style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                         >
+                          <ArrowLeft className="w-4 h-4 mr-2" />
                           Back
                         </button>
                         <button
                           type="submit"
                           disabled={isSendingOtp || !emailInput.trim()}
-                          className="flex-1 h-12 flex items-center justify-center bg-[#ff7a21] hover:bg-[#ff7a21]/90 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                          className="flex-1 h-11 flex items-center justify-center bg-[#C84B0E] hover:bg-[#C84B0E]/90 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
                           style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                         >
                           {isSendingOtp ? (
@@ -413,14 +700,14 @@ export const AdminLogin: React.FC = () => {
                     <motion.form
                       key="verify-input"
                       onSubmit={handleVerifyOtp}
-                      initial={{ opacity: 0, x: 16 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -16 }}
-                      transition={{ duration: 0.22, ease: 'easeInOut' }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
                       className="space-y-6"
                     >
                       <div className="text-left bg-white/[0.02] border border-white/[0.04] p-4 rounded-xl">
-                        <p className="text-[10px] text-[#e0c0b1] uppercase tracking-wider font-semibold" style={{ fontFamily: 'Geist, sans-serif', letterSpacing: '0.15em' }}>
+                        <p className="text-[10px] text-white/40 uppercase tracking-wider font-semibold" style={{ fontFamily: 'Geist, sans-serif', letterSpacing: '0.15em' }}>
                           Sending OTP to
                         </p>
                         <p className="text-sm text-white font-bold truncate mt-1">{emailInput}</p>
@@ -436,7 +723,7 @@ export const AdminLogin: React.FC = () => {
                           value={otpInput}
                           onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
                           disabled={isVerifyingOtp}
-                          className="w-full h-14 pl-12 pr-6 bg-white/[0.02] border border-white/10 rounded-xl outline-none text-sm text-white tracking-[0.2em] text-center placeholder-white/20 focus:border-[#ff7a21]/50 focus:ring-1 focus:ring-[#ff7a21]/20 transition-all font-mono font-bold"
+                          className="w-full h-12 pl-12 pr-6 bg-white/[0.02] border border-white/10 rounded-xl outline-none text-sm text-white tracking-[0.2em] text-center placeholder-white/20 focus:border-[#C84B0E]/50 focus:ring-1 focus:ring-[#C84B0E]/20 transition-all font-mono font-bold"
                         />
                       </div>
 
@@ -444,15 +731,16 @@ export const AdminLogin: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setOtpStep('email')}
-                          className="flex-1 h-12 flex items-center justify-center bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+                          className="flex-1 h-11 flex items-center justify-center bg-white/[0.03] border border-white/10 hover:bg-white/10 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer"
                           style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                         >
+                          <ArrowLeft className="w-4 h-4 mr-2" />
                           Back
                         </button>
                         <button
                           type="submit"
                           disabled={isVerifyingOtp || otpInput.trim().length !== 8}
-                          className="flex-1 h-12 flex items-center justify-center bg-[#ff7a21] hover:bg-[#ff7a21]/90 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                          className="flex-1 h-11 flex items-center justify-center bg-[#C84B0E] hover:bg-[#C84B0E]/90 text-white font-semibold text-sm rounded-xl transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50 font-bold"
                           style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                         >
                           {isVerifyingOtp ? (
@@ -468,7 +756,7 @@ export const AdminLogin: React.FC = () => {
                           type="button"
                           disabled={cooldown > 0 || isSendingOtp}
                           onClick={() => handleSendOtp()}
-                          className="text-xs font-semibold uppercase tracking-wider text-[#ff7a21] hover:text-[#ff7a21]/80 disabled:text-white/30 transition-colors cursor-pointer"
+                          className="text-xs font-semibold uppercase tracking-wider text-[#C84B0E] hover:text-[#E8671A] disabled:text-white/30 transition-colors cursor-pointer"
                           style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                         >
                           {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend Code'}
@@ -477,59 +765,34 @@ export const AdminLogin: React.FC = () => {
                     </motion.form>
                   )}
                 </AnimatePresence>
-
-                <p className="mt-8 text-center text-xs text-[#e0c0b1]/40 font-medium" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
-                  Authorized <span className="text-[#e0c0b1]/80 font-medium">@tgpcouncil.online</span> accounts only.
-                </p>
               </div>
 
-              {/* Divider */}
-              <div className="flex items-center gap-4">
-                <div className="h-px flex-1 bg-white/5"></div>
-                <span className="text-[10px] text-[#e0c0b1]/40 tracking-[0.4em] uppercase font-bold" style={{ fontFamily: 'Geist, sans-serif' }}>
-                  Smart Routing
-                </span>
-                <div className="h-px flex-1 bg-white/5"></div>
-              </div>
-
-              {/* Routing Paths */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/[0.02] border border-white/[0.05] p-5 rounded-2xl cursor-default transition-all duration-300 hover:bg-white/[0.05] hover:border-[#ff7a21]/20 hover:shadow-[0_0_15px_rgba(255,122,33,0.1)] group">
-                  <div className="w-8 h-8 rounded-lg bg-[#0272b0]/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <User className="w-5 h-5 text-[#94ccff]" />
-                  </div>
-                  <span className="text-[11px] text-[#94ccff]/60 tracking-wider block mb-1 font-bold" style={{ fontFamily: 'Geist, sans-serif' }}>
-                    STUDENT
-                  </span>
-                  <p className="text-xs text-[#e1e2eb]/80 font-medium" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
-                    Personal Dashboard
-                  </p>
-                </div>
-
-                <div className="bg-white/[0.02] border border-white/[0.05] p-5 rounded-2xl cursor-default transition-all duration-300 hover:bg-white/[0.05] hover:border-[#ff7a21]/20 hover:shadow-[0_0_15px_rgba(255,122,33,0.1)] group">
-                  <div className="w-8 h-8 rounded-lg bg-[#ff7a21]/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <ShieldCheck className="w-5 h-5 text-[#ff7a21]" />
-                  </div>
-                  <span className="text-[11px] text-[#ff7a21]/60 tracking-wider block mb-1 font-bold" style={{ fontFamily: 'Geist, sans-serif' }}>
-                    EXECUTIVE
-                  </span>
-                  <p className="text-xs text-[#e1e2eb]/80 font-medium" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
-                    Admin Command Center
-                  </p>
-                </div>
-              </div>
+              {/* Domain Hint */}
+              <p className="mt-8 text-center text-xs text-white/40 font-medium font-sans relative z-10">
+                Use your <span className="text-[#C84B0E] font-semibold">@tgpcopcouncil.online</span> or pre-approved account
+              </p>
             </div>
-          </motion.div>
+          </div>
+
         </div>
       </main>
 
-      <footer className="fixed bottom-0 left-0 w-full z-40">
-        <div className="flex flex-col md:flex-row justify-between items-center w-full px-6 md:px-20 py-6 max-w-7xl mx-auto text-[11px] text-[#e0c0b1]/30 tracking-widest font-bold" style={{ fontFamily: 'Geist, sans-serif' }}>
+      {/* Footer */}
+      <footer className="relative z-30 w-full bg-[#050d1a]/80 border-t border-white/[0.03]">
+        <div className="flex flex-col md:flex-row justify-between items-center w-full px-6 md:px-12 py-6 max-w-7xl mx-auto text-[11px] text-white/30 tracking-widest font-bold font-sans">
           <p>© 2024 TGPCOP UNIFIED</p>
           <div className="flex gap-8 mt-4 md:mt-0">
-            <a className="hover:text-[#ff7a21] transition-colors" href="#">SECURITY</a>
-            <a className="hover:text-[#ff7a21] transition-colors" href="#">STATUS</a>
-            <a className="hover:text-[#ff7a21] transition-colors" href="#">PRIVACY</a>
+            <a
+              className="hover:text-[#C84B0E] transition-colors"
+              href="https://www.linkedin.com/company/tgpcop-council"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              LINKEDIN
+            </a>
+            <a className="hover:text-[#C84B0E] transition-colors" href="#">SECURITY</a>
+            <a className="hover:text-[#C84B0E] transition-colors" href="#">STATUS</a>
+            <a className="hover:text-[#C84B0E] transition-colors" href="#">PRIVACY</a>
           </div>
         </div>
       </footer>
