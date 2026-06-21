@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Mail, Megaphone, Calendar, Image as ImageIcon, Globe, LogOut,
   Users, Sliders, ClipboardList, Bug, Sun, Moon, CheckSquare, MessageSquare,
   MessageCircle, Award, Newspaper, HeartHandshake, BadgeCheck, AlertTriangle,
-  Wrench, CreditCard, GraduationCap, Camera, UserPlus, X, ChevronDown,
+  Wrench, CreditCard, GraduationCap, Camera, UserPlus, X, ChevronDown, FolderOpen,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -101,6 +101,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
     const content: NavItem[] = [
       { path: '/admin/homepage', name: 'Homepage Settings', icon: <Sliders className="w-4 h-4 text-orange-burnt" strokeWidth={2.4} />, badgeText: 'NEW' },
+      { path: '/admin/files', name: 'File Manager', icon: <FolderOpen className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/notices', name: 'Notices', icon: <Megaphone className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/events', name: 'Events', icon: <Calendar className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/exams', name: 'Exam Schedule', icon: <GraduationCap className="w-4 h-4" strokeWidth={2.2} /> },

@@ -353,6 +353,25 @@ html.light [class*="via-[#1"] {
 html.light [class*="text-white"] {
   color: var(--text-primary) !important;
 }
+html.light [class*="text-white/95"] { color: color-mix(in srgb, var(--text-primary) 95%, transparent) !important; }
+html.light [class*="text-white/90"] { color: color-mix(in srgb, var(--text-primary) 90%, transparent) !important; }
+html.light [class*="text-white/85"] { color: color-mix(in srgb, var(--text-primary) 85%, transparent) !important; }
+html.light [class*="text-white/80"] { color: color-mix(in srgb, var(--text-primary) 80%, transparent) !important; }
+html.light [class*="text-white/75"] { color: color-mix(in srgb, var(--text-primary) 75%, transparent) !important; }
+html.light [class*="text-white/70"] { color: color-mix(in srgb, var(--text-primary) 70%, transparent) !important; }
+html.light [class*="text-white/65"] { color: color-mix(in srgb, var(--text-primary) 65%, transparent) !important; }
+html.light [class*="text-white/60"] { color: color-mix(in srgb, var(--text-primary) 60%, transparent) !important; }
+html.light [class*="text-white/55"] { color: color-mix(in srgb, var(--text-primary) 55%, transparent) !important; }
+html.light [class*="text-white/50"] { color: color-mix(in srgb, var(--text-primary) 50%, transparent) !important; }
+html.light [class*="text-white/45"] { color: color-mix(in srgb, var(--text-primary) 45%, transparent) !important; }
+html.light [class*="text-white/40"] { color: color-mix(in srgb, var(--text-primary) 40%, transparent) !important; }
+html.light [class*="text-white/35"] { color: color-mix(in srgb, var(--text-primary) 35%, transparent) !important; }
+html.light [class*="text-white/30"] { color: color-mix(in srgb, var(--text-primary) 30%, transparent) !important; }
+html.light [class*="text-white/25"] { color: color-mix(in srgb, var(--text-primary) 25%, transparent) !important; }
+html.light [class*="text-white/20"] { color: color-mix(in srgb, var(--text-primary) 20%, transparent) !important; }
+html.light [class*="text-white/15"] { color: color-mix(in srgb, var(--text-primary) 15%, transparent) !important; }
+html.light [class*="text-white/10"] { color: color-mix(in srgb, var(--text-primary) 10%, transparent) !important; }
+html.light [class*="text-white/5"]  { color: color-mix(in srgb, var(--text-primary) 5%, transparent) !important; }
 
 /* text-gray-* shades that are too dark for light mode */
 html.light [class*="text-slate-"],

@@ -93,8 +93,19 @@ export const StudentProfile: React.FC = () => {
 
   // Load and check authorization
   useEffect(() => {
-    if (!isAuthLoading && !studentProfile) {
-      navigate('/');
+    if (!isAuthLoading) {
+      if (!studentProfile) {
+        navigate('/');
+      } else {
+        const isComplete = studentProfile.full_name && 
+                           studentProfile.full_name !== 'Student' && 
+                           studentProfile.full_name !== 'Member' && 
+                           studentProfile.phone && 
+                           studentProfile.year;
+        if (!isComplete) {
+          navigate('/complete-profile');
+        }
+      }
     }
   }, [studentProfile, isAuthLoading, navigate]);
 

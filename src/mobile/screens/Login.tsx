@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStudentAuth } from '../../lib/StudentAuthProvider';
 import { supabase } from '../../lib/supabase';
 import { useToast } from '../../components/admin/Toast';
-import { ShieldCheck, Lock, GraduationCap, Loader2, Sparkles } from 'lucide-react';
+import { ShieldCheck, Lock, GraduationCap, Loader2, Sparkles, Mail, Phone, BookOpen, User } from 'lucide-react';
 
 interface LoginProps {
   onLoginComplete: () => void;
@@ -13,37 +13,82 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
   const { studentProfile, signInWithGoogle, refreshProfile } = useStudentAuth();
   const toast = useToast();
 
-  const [step, setStep] = useState<'login' | 'prn'>('login');
+  const [step, setStep] = useState<'login' | 'complete-profile' | 'prn'>('login');
   const [prnInput, setPrnInput] = useState('');
   
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // Transition to PRN step if student logged in but not verified
+  // Email OTP states
+  const [loginMethod, setLoginMethod] = useState<'options' | 'otp'>('options');
+  const [otpStep, setOtpStep] = useState<'email' | 'verify'>('email');
+  const [emailInput, setEmailInput] = useState('');
+  const [otpInput, setOtpInput] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  // Complete Profile states
+  const [fullNameInput, setFullNameInput] = useState('');
+  const [yearInput, setYearInput] = useState('First Year');
+  const [phoneInput, setPhoneInput] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (cooldown > 0) {
+      timer = setInterval(() => {
+        setCooldown((c) => c - 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [cooldown]);
+
+  // Transition steps based on login and profile state
   useEffect(() => {
     if (studentProfile) {
-      // Check if already verified
-      const checkVerification = async () => {
-        try {
-          const { data } = await supabase
-            .from('student_verifications')
-            .select('*')
-            .eq('user_id', studentProfile.id)
-            .single();
-          
-          if (data && data.verification_status === 'verified') {
-            // Already verified, complete onboarding instantly
-            onLoginComplete();
-          } else {
-            // Not verified, transition to PRN step
+      const isComplete = studentProfile.full_name && 
+                         studentProfile.full_name !== 'Student' && 
+                         studentProfile.full_name !== 'Member' && 
+                         studentProfile.phone && 
+                         studentProfile.year;
+
+      if (!isComplete) {
+        setStep('complete-profile');
+        // Pre-fill name from Google details if available
+        const name = studentProfile.full_name || '';
+        if (name !== 'Student' && name !== 'Member') {
+          setFullNameInput(name);
+        }
+        setYearInput(studentProfile.year || 'First Year');
+        setPhoneInput(studentProfile.phone || '');
+      } else {
+        // Check if already verified
+        const checkVerification = async () => {
+          try {
+            const { data } = await supabase
+              .from('student_verifications')
+              .select('*')
+              .eq('user_id', studentProfile.id)
+              .single();
+            
+            if (data && data.verification_status === 'verified') {
+              // Already verified, complete onboarding instantly
+              onLoginComplete();
+            } else {
+              // Not verified, transition to PRN step
+              setStep('prn');
+            }
+          } catch (err) {
+            // No verification record, show PRN step
             setStep('prn');
           }
-        } catch (err) {
-          // No verification record, show PRN step
-          setStep('prn');
-        }
-      };
-      checkVerification();
+        };
+        checkVerification();
+      }
     } else {
       setStep('login');
     }
@@ -71,6 +116,83 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
       toast.error(`❌ Google Login failed: ${errorMsg}`);
     } finally {
       setIsLoggingIn(false);
+    }
+  };
+
+  const handleSendOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!emailInput.trim()) {
+      return toast.error('Please enter a valid email address');
+    }
+    setIsSendingOtp(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: emailInput.trim(),
+        options: {
+          shouldCreateUser: true
+        }
+      });
+      if (error) throw error;
+      setOtpStep('verify');
+      setCooldown(60);
+      toast.success('Verification code sent successfully!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send verification code.');
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpInput.trim() || otpInput.trim().length < 6) {
+      return toast.error('Please enter the 6-digit verification code');
+    }
+    setIsVerifyingOtp(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: emailInput.trim(),
+        token: otpInput.trim(),
+        type: 'email'
+      });
+      if (error) throw error;
+      toast.success('OTP verified successfully!');
+    } catch (err: any) {
+      toast.error(err.message || 'Verification failed. Please check the code.');
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!studentProfile) return;
+    if (!fullNameInput.trim() || fullNameInput.trim().length < 3) {
+      return toast.error('Please enter your full name (minimum 3 characters)');
+    }
+    if (!phoneInput.trim() || phoneInput.trim().length < 10) {
+      return toast.error('Please enter a valid phone number (minimum 10 digits)');
+    }
+    setIsSavingProfile(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: fullNameInput.trim(),
+          year: yearInput,
+          phone: phoneInput.trim(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', studentProfile.id);
+
+      if (error) throw error;
+      
+      await refreshProfile();
+      toast.success('Profile details saved successfully!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update profile');
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -134,6 +256,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
     onLoginComplete();
   };
 
+
   return (
     <div className="min-h-screen bg-[#050B18] text-white flex flex-col justify-between p-6 relative overflow-hidden font-sans">
       {/* Decorative Blur Background Orbs */}
@@ -172,9 +295,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
         >
           Student Portal App
         </motion.p>
-      </div>
-
-      {/* Dynamic Slide Steps */}
+      </div>      {/* Dynamic Slide Steps */}
       <div className="my-auto py-8 z-10 w-full max-w-sm mx-auto">
         <AnimatePresence mode="wait">
           {step === 'login' ? (
@@ -188,43 +309,220 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
             >
               <div className="text-center space-y-1.5">
                 <h2 className="font-display font-bold text-lg text-white">Student Sign In</h2>
-                <p className="text-white/60 text-xs font-sans">Google authentication is required to access your student portal.</p>
+                <p className="text-white/60 text-xs font-sans">Access the TGPCOP Nagpur student portal using Google or Email OTP.</p>
               </div>
 
-              {/* Login Button Container */}
-              <div className="space-y-4">
-                {/* Google Login Button */}
+              {loginMethod === 'options' ? (
+                <div className="space-y-4">
+                  {/* Google Login Button */}
+                  <button
+                    onClick={handleGoogleLogin}
+                    disabled={isLoggingIn}
+                    className="w-full py-4 bg-white hover:bg-gray-100 text-black font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
+                  >
+                    {isLoggingIn ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-orange-burnt" />
+                    ) : (
+                      <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          fill="#4285F4"
+                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        />
+                        <path
+                          fill="#34A853"
+                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        />
+                        <path
+                          fill="#FBBC05"
+                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                        />
+                        <path
+                          fill="#EA4335"
+                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                        />
+                      </svg>
+                    )}
+                    <span>Sign in with Google</span>
+                  </button>
+
+                  {/* Email OTP Login Button */}
+                  <button
+                    onClick={() => {
+                      setLoginMethod('otp');
+                      setOtpStep('email');
+                    }}
+                    disabled={isLoggingIn}
+                    className="w-full py-4 bg-transparent hover:bg-white/5 border border-white/10 hover:border-orange-burnt/50 text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
+                  >
+                    <Mail className="w-5 h-5 text-orange-burnt" />
+                    <span>Sign in with Email OTP</span>
+                  </button>
+                </div>
+              ) : otpStep === 'email' ? (
+                <form onSubmit={handleSendOtp} className="space-y-4">
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <input
+                      type="email"
+                      required
+                      placeholder="Enter email address"
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      disabled={isSendingOtp}
+                      className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-white/10 bg-[#0F1E42]/80 outline-none text-xs text-white placeholder-white/20 focus:border-orange-burnt transition-all"
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setLoginMethod('options')}
+                      className="flex-1 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/75 font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSendingOtp || !emailInput.trim()}
+                      className="flex-1 py-3 bg-orange-burnt hover:bg-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                    >
+                      {isSendingOtp ? (
+                        <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                      ) : (
+                        <span>Send OTP</span>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                  <div className="text-left bg-white/5 border border-white/10 p-3 rounded-xl">
+                    <p className="text-[9px] text-white/50 uppercase tracking-wider">Sending OTP to</p>
+                    <p className="text-xs text-white font-bold truncate">{emailInput}</p>
+                  </div>
+
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      placeholder="Enter 6-digit OTP"
+                      value={otpInput}
+                      onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
+                      disabled={isVerifyingOtp}
+                      className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-white/10 bg-[#0F1E42]/80 outline-none text-xs text-white tracking-[0.2em] text-center placeholder-white/20 focus:border-orange-burnt transition-all font-mono font-bold"
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setOtpStep('email')}
+                      className="flex-1 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/75 font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isVerifyingOtp || otpInput.trim().length < 6}
+                      className="flex-1 py-3 bg-orange-burnt hover:bg-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                    >
+                      {isVerifyingOtp ? (
+                        <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                      ) : (
+                        <span>Verify OTP</span>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="text-center pt-2">
+                    <button
+                      type="button"
+                      disabled={cooldown > 0 || isSendingOtp}
+                      onClick={() => handleSendOtp()}
+                      className="text-xs font-display font-bold uppercase tracking-wider text-orange-burnt hover:text-[#E06D2B] disabled:text-white/30 transition-colors cursor-pointer"
+                    >
+                      {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend Code'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </motion.div>
+          ) : step === 'complete-profile' ? (
+            <motion.div
+              key="complete-profile"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              <div className="text-center space-y-2">
+                <User className="w-10 h-10 text-orange-burnt mx-auto animate-pulse" />
+                <h2 className="font-display font-bold text-lg text-white">Complete Profile</h2>
+                <p className="text-white/60 text-xs font-sans leading-relaxed">
+                  Provide your details to unlock student dashboards and event passes.
+                </p>
+              </div>
+
+              <form onSubmit={handleSaveProfile} className="space-y-4">
+                {/* Full Name */}
+                <div className="relative">
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                  <input
+                    type="text"
+                    required
+                    placeholder="Full Name"
+                    value={fullNameInput}
+                    onChange={(e) => setFullNameInput(e.target.value)}
+                    disabled={isSavingProfile}
+                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-white/10 bg-[#0F1E42]/80 outline-none text-xs text-white placeholder-white/20 focus:border-orange-burnt transition-all"
+                  />
+                </div>
+
+                {/* Academic Year */}
+                <div className="relative">
+                  <BookOpen className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                  <select
+                    value={yearInput}
+                    onChange={(e) => setYearInput(e.target.value)}
+                    disabled={isSavingProfile}
+                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-white/10 bg-[#080F25] outline-none text-xs text-white focus:border-orange-burnt transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="First Year">First Year</option>
+                    <option value="Second Year">Second Year</option>
+                    <option value="Third Year">Third Year</option>
+                    <option value="Final Year">Final Year</option>
+                  </select>
+                </div>
+
+                {/* WhatsApp Phone */}
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                  <input
+                    type="tel"
+                    required
+                    placeholder="WhatsApp Phone Number"
+                    value={phoneInput}
+                    onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    disabled={isSavingProfile}
+                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-white/10 bg-[#0F1E42]/80 outline-none text-xs text-white placeholder-white/20 focus:border-orange-burnt transition-all"
+                  />
+                </div>
+
                 <button
-                  onClick={handleGoogleLogin}
-                  disabled={isLoggingIn}
-                  className="w-full py-4 bg-white hover:bg-gray-100 text-black font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3"
+                  type="submit"
+                  disabled={isSavingProfile || !fullNameInput.trim() || !phoneInput.trim()}
+                  className="w-full py-3.5 bg-orange-burnt hover:bg-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                 >
-                  {isLoggingIn ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-orange-burnt" />
+                  {isSavingProfile ? (
+                    <Loader2 className="w-4.5 h-4.5 animate-spin" />
                   ) : (
-                    <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        fill="#4285F4"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="#34A853"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="#FBBC05"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                      />
-                      <path
-                        fill="#EA4335"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                      />
-                    </svg>
+                    <span>Save & Continue</span>
                   )}
-                  <span>Sign in with Google</span>
                 </button>
-
-              </div>
+              </form>
             </motion.div>
           ) : (
             <motion.div
@@ -258,7 +556,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
                 <div className="flex gap-3">
                   <button
                     onClick={handleAddLater}
-                    className="flex-1 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/75 font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
+                    className="flex-1 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/75 font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer"
                   >
                     Add Later
                   </button>
@@ -266,7 +564,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
                   <button
                     onClick={handlePrnVerify}
                     disabled={isVerifying || !prnInput.trim()}
-                    className="flex-1 py-3 bg-orange-burnt hover:bg-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    className="flex-1 py-3 bg-orange-burnt hover:bg-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                   >
                     {isVerifying ? (
                       <Loader2 className="w-4.5 h-4.5 animate-spin" />

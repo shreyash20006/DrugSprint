@@ -50,6 +50,7 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Refunds = lazy(() => import('./pages/Refunds'));
 const Search = lazy(() => import('./pages/Search'));
 const ExamSchedule = lazy(() => import('./pages/ExamSchedule'));
+const CompleteProfile = lazy(() => import('./pages/CompleteProfile'));
 
 const MobileEventRegister = lazy(() => import('./mobile/screens/EventRegister'));
 const MobileEventFeedback = lazy(() => import('./mobile/screens/EventFeedback'));
@@ -66,6 +67,7 @@ const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
 const AdminGallery = lazy(() => import('./pages/admin/AdminGallery'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
+const AdminFileManager = lazy(() => import('./pages/admin/AdminFileManager'));
 const AdminHomepageSettings = lazy(() => import('./pages/admin/AdminHomepageSettings'));
 const AdminLogs = lazy(() => import('./pages/admin/AdminLogs'));
 const AdminBugs = lazy(() => import('./pages/admin/AdminBugs'));
@@ -205,6 +207,7 @@ const AppContent: React.FC = () => {
               <Route path="/admin/complaints" element={<AdminComplaints />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/files" element={<AdminFileManager />} />
               <Route path="/admin/homepage" element={<AdminHomepageSettings />} />
               <Route path="/admin/logs" element={<AdminLogs />} />
               <Route path="/admin/bugs" element={<AdminBugs />} />
@@ -255,6 +258,7 @@ const AppContent: React.FC = () => {
             <Route path="/mentors" element={<Mentors />} />
             <Route path="/profile" element={<StudentProfile />} />
             <Route path="/dashboard" element={<StudentProfile />} />
+            <Route path="/complete-profile" element={<CompleteProfile />} />
             <Route path="/calendar" element={<DesktopOnlyWrapper><MyCalendar /></DesktopOnlyWrapper>} />
             <Route path="/leaderboard" element={<DesktopOnlyWrapper><Leaderboard /></DesktopOnlyWrapper>} />
             <Route path="/board" element={<MessageBoard />} />
@@ -309,6 +313,7 @@ const AppContent: React.FC = () => {
               <Route path="/admin/complaints" element={<AdminComplaints />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/files" element={<AdminFileManager />} />
               <Route path="/admin/homepage" element={<AdminHomepageSettings />} />
               <Route path="/admin/logs" element={<AdminLogs />} />
               <Route path="/admin/bugs" element={<AdminBugs />} />
