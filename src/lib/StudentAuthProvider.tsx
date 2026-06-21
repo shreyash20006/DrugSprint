@@ -14,6 +14,10 @@ export interface StudentProfile {
   created_at: string;
   role?: string;
   is_active?: boolean;
+  course?: string;
+  semester?: string;
+  prn?: string;
+  linkedin_id?: string;
 }
 
 type StudentAuthContextType = {

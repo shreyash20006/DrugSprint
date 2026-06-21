@@ -101,7 +101,8 @@ export const StudentProfile: React.FC = () => {
                            studentProfile.full_name !== 'Student' && 
                            studentProfile.full_name !== 'Member' && 
                            studentProfile.phone && 
-                           studentProfile.year;
+                           studentProfile.course &&
+                           studentProfile.semester;
         if (!isComplete) {
           navigate('/complete-profile');
         }

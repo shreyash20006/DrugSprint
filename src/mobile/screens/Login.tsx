@@ -30,9 +30,27 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
 
   // Complete Profile states
   const [fullNameInput, setFullNameInput] = useState('');
-  const [yearInput, setYearInput] = useState('First Year');
+  const [courseInput, setCourseInput] = useState('B.Pharm');
+  const [semesterInput, setSemesterInput] = useState('Semester I');
   const [phoneInput, setPhoneInput] = useState('');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  // Semesters config for mobile
+  const SEMESTER_OPTIONS: Record<string, string[]> = {
+    'B.Pharm': [
+      'Semester I', 'Semester II', 'Semester III', 'Semester IV',
+      'Semester V', 'Semester VI', 'Semester VII', 'Semester VIII'
+    ],
+    'D.Pharm': ['Year I', 'Year II'],
+    'M.Pharm': ['Semester I', 'Semester II', 'Semester III', 'Semester IV']
+  };
+
+  // Reset semester selection when course changes
+  useEffect(() => {
+    if (SEMESTER_OPTIONS[courseInput] && !SEMESTER_OPTIONS[courseInput].includes(semesterInput)) {
+      setSemesterInput(SEMESTER_OPTIONS[courseInput][0]);
+    }
+  }, [courseInput]);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -54,16 +72,25 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
                          studentProfile.full_name !== 'Student' && 
                          studentProfile.full_name !== 'Member' && 
                          studentProfile.phone && 
-                         studentProfile.year;
+                         studentProfile.course &&
+                         studentProfile.semester;
 
       if (!isComplete) {
         setStep('complete-profile');
-        // Pre-fill name from Google details if available
+        // Pre-fill name from Google/LinkedIn details if available
         const name = studentProfile.full_name || '';
         if (name !== 'Student' && name !== 'Member') {
           setFullNameInput(name);
         }
-        setYearInput(studentProfile.year || 'First Year');
+        if (studentProfile.course) {
+          setCourseInput(studentProfile.course);
+        }
+        if (studentProfile.semester) {
+          setSemesterInput(studentProfile.semester);
+        }
+        if (studentProfile.prn) {
+          setPrnInput(studentProfile.prn);
+        }
         setPhoneInput(studentProfile.phone || '');
       } else {
         // Check if already verified
@@ -114,6 +141,25 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
         }
       }
       toast.error(`❌ Google Login failed: ${errorMsg}`);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleLinkedInLogin = async () => {
+    setIsLoggingIn(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'linkedin_oidc',
+        options: {
+          redirectTo: window.location.origin + '/profile',
+        }
+      });
+      if (error) throw error;
+      toast.success('Redirecting to LinkedIn...');
+    } catch (err: any) {
+      console.error('[StudentLogin] LinkedIn login error:', err);
+      toast.error(`❌ LinkedIn Login failed: ${err.message || JSON.stringify(err)}`);
     } finally {
       setIsLoggingIn(false);
     }
@@ -179,7 +225,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
         .from('profiles')
         .update({
           full_name: fullNameInput.trim(),
-          year: yearInput,
+          course: courseInput,
+          semester: semesterInput,
+          prn: prnInput.trim() || null,
+          year: `${courseInput} - ${semesterInput}`,
           phone: phoneInput.trim(),
           updated_at: new Date().toISOString()
         })
@@ -345,6 +394,22 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
                     <span>Sign in with Google</span>
                   </button>
 
+                  {/* LinkedIn Login Button */}
+                  <button
+                    onClick={handleLinkedInLogin}
+                    disabled={isLoggingIn}
+                    className="w-full py-4 bg-[#0077B5] hover:bg-[#006297] text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
+                  >
+                    {isLoggingIn ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    ) : (
+                      <svg className="w-5 h-5 shrink-0 fill-white" viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                      </svg>
+                    )}
+                    <span>Sign in with LinkedIn</span>
+                  </button>
+
                   {/* Email OTP Login Button */}
                   <button
                     onClick={() => {
@@ -481,20 +546,47 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
                   />
                 </div>
 
-                {/* Academic Year */}
+                {/* Course Dropdown */}
                 <div className="relative">
                   <BookOpen className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                   <select
-                    value={yearInput}
-                    onChange={(e) => setYearInput(e.target.value)}
+                    value={courseInput}
+                    onChange={(e) => setCourseInput(e.target.value)}
                     disabled={isSavingProfile}
                     className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-white/10 bg-[#080F25] outline-none text-xs text-white focus:border-orange-burnt transition-all appearance-none cursor-pointer"
                   >
-                    <option value="First Year">First Year</option>
-                    <option value="Second Year">Second Year</option>
-                    <option value="Third Year">Third Year</option>
-                    <option value="Final Year">Final Year</option>
+                    <option value="B.Pharm">B.Pharm (Bachelor of Pharmacy)</option>
+                    <option value="D.Pharm">D.Pharm (Diploma in Pharmacy)</option>
+                    <option value="M.Pharm">M.Pharm (Master of Pharmacy)</option>
                   </select>
+                </div>
+
+                {/* Year / Semester Dropdown */}
+                <div className="relative">
+                  <BookOpen className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                  <select
+                    value={semesterInput}
+                    onChange={(e) => setSemesterInput(e.target.value)}
+                    disabled={isSavingProfile}
+                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-white/10 bg-[#080F25] outline-none text-xs text-white focus:border-orange-burnt transition-all appearance-none cursor-pointer"
+                  >
+                    {SEMESTER_OPTIONS[courseInput]?.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Optional PRN input */}
+                <div className="relative">
+                  <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                  <input
+                    type="text"
+                    placeholder="PRN Number (Optional)"
+                    value={prnInput}
+                    onChange={(e) => setPrnInput(e.target.value.replace(/\s/g, ''))}
+                    disabled={isSavingProfile}
+                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-white/10 bg-[#0F1E42]/80 outline-none text-xs text-white placeholder-white/20 focus:border-orange-burnt transition-all"
+                  />
                 </div>
 
                 {/* WhatsApp Phone */}

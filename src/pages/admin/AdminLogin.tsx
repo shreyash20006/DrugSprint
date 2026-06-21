@@ -80,7 +80,7 @@ export const AdminLogin: React.FC = () => {
                                 profile.full_name && 
                                 profile.full_name !== 'Student' && 
                                 profile.full_name !== 'Member' && 
-                                (!isStudent || (profile.phone && profile.year));
+                                (!isStudent || (profile.phone && profile.course && profile.semester));
 
           if (!profileExists) {
             navigate('/complete-profile', { replace: true });
@@ -131,6 +131,31 @@ export const AdminLogin: React.FC = () => {
       }
       setErrorMessage(errMsg);
       toast.error(`Google login failed: ${errMsg}`);
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleLinkedInLogin = async () => {
+    setIsLoggingIn(true);
+    setErrorMessage('');
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'linkedin_oidc',
+        options: {
+          redirectTo: window.location.origin + '/admin',
+        },
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      let errMsg = 'Failed to initialize LinkedIn Sign-in.';
+      if (err) {
+        if (typeof err === 'string') errMsg = err;
+        else if (err.message) errMsg = err.message;
+        else if (err.error) errMsg = err.error;
+        else errMsg = JSON.stringify(err);
+      }
+      setErrorMessage(errMsg);
+      toast.error(`LinkedIn login failed: ${errMsg}`);
       setIsLoggingIn(false);
     }
   };
@@ -385,6 +410,34 @@ export const AdminLogin: React.FC = () => {
                           </svg>
                           <span>Continue with Google</span>
                           <ArrowUpRight className="w-3.5 h-3.5 ml-1" strokeWidth={2.6} />
+                        </>
+                      )}
+                    </motion.button>
+
+                    {/* LinkedIn Button */}
+                    <motion.button
+                      onClick={handleLinkedInLogin}
+                      disabled={isLoggingIn}
+                      whileHover={{ scale: isLoggingIn ? 1 : 1.015 }}
+                      whileTap={{ scale: isLoggingIn ? 1 : 0.98 }}
+                      className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl bg-[#0077B5] text-white font-display font-bold text-sm tracking-tight shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {isLoggingIn ? (
+                        <>
+                          <motion.div
+                            className="w-4 h-4 rounded-full border-2 border-white border-t-transparent"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                          />
+                          <span>Authenticating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 shrink-0 fill-white" viewBox="0 0 24 24">
+                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                          </svg>
+                          <span>Continue with LinkedIn</span>
+                          <ArrowUpRight className="w-3.5 h-3.5 ml-1 text-white/70" strokeWidth={2.6} />
                         </>
                       )}
                     </motion.button>

@@ -12,9 +12,28 @@ export const CompleteProfile: React.FC = () => {
   const toast = useToast();
 
   const [fullName, setFullName] = useState('');
-  const [year, setYear] = useState('First Year');
+  const [course, setCourse] = useState('B.Pharm');
+  const [semester, setSemester] = useState('Semester I');
+  const [prn, setPrn] = useState('');
   const [phone, setPhone] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  // Course semesters configuration
+  const SEMESTER_OPTIONS: Record<string, string[]> = {
+    'B.Pharm': [
+      'Semester I', 'Semester II', 'Semester III', 'Semester IV',
+      'Semester V', 'Semester VI', 'Semester VII', 'Semester VIII'
+    ],
+    'D.Pharm': ['Year I', 'Year II'],
+    'M.Pharm': ['Semester I', 'Semester II', 'Semester III', 'Semester IV']
+  };
+
+  // Reset semester selection when course changes
+  useEffect(() => {
+    if (SEMESTER_OPTIONS[course] && !SEMESTER_OPTIONS[course].includes(semester)) {
+      setSemester(SEMESTER_OPTIONS[course][0]);
+    }
+  }, [course]);
 
   // Redirect to login if user session doesn't exist
   useEffect(() => {
@@ -23,7 +42,7 @@ export const CompleteProfile: React.FC = () => {
     }
   }, [studentUser, isLoading, navigate]);
 
-  // Pre-fill profile name if available from Google login
+  // Pre-fill profile name if available from social logins or existing profile
   useEffect(() => {
     if (studentProfile) {
       const name = studentProfile.full_name || '';
@@ -31,7 +50,13 @@ export const CompleteProfile: React.FC = () => {
       if (name !== 'Student' && name !== 'Member') {
         setFullName(name);
       }
-      setYear(studentProfile.year || 'First Year');
+      if (studentProfile.course) {
+        setCourse(studentProfile.course);
+      }
+      if (studentProfile.semester) {
+        setSemester(studentProfile.semester);
+      }
+      setPrn(studentProfile.prn || '');
       setPhone(studentProfile.phone || '');
     }
   }, [studentProfile]);
@@ -43,7 +68,8 @@ export const CompleteProfile: React.FC = () => {
                          studentProfile.full_name !== 'Student' && 
                          studentProfile.full_name !== 'Member' && 
                          studentProfile.phone && 
-                         studentProfile.year;
+                         studentProfile.course &&
+                         studentProfile.semester;
       if (isComplete) {
         navigate('/dashboard');
       }
@@ -67,7 +93,10 @@ export const CompleteProfile: React.FC = () => {
         .from('profiles')
         .update({
           full_name: fullName.trim(),
-          year: year,
+          course: course,
+          semester: semester,
+          prn: prn.trim() || null,
+          year: `${course} - ${semester}`, // Fallback combined string for backward compatibility
           phone: phone.trim(),
           updated_at: new Date().toISOString()
         })
@@ -164,22 +193,55 @@ export const CompleteProfile: React.FC = () => {
               </div>
             </div>
 
-            {/* Academic Year Field */}
+            {/* Course Field */}
             <div>
-              <label className="block text-[10px] font-bold text-white/60 uppercase mb-1.5 pl-1">Academic Year</label>
+              <label className="block text-[10px] font-bold text-white/60 uppercase mb-1.5 pl-1">Course</label>
               <div className="relative flex items-center">
                 <BookOpen className="absolute left-3.5 w-4 h-4 text-white/30" />
                 <select
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
+                  value={course}
+                  onChange={(e) => setCourse(e.target.value)}
                   disabled={isSaving}
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#080F25] text-xs text-white outline-none focus:border-orange-burnt transition-all appearance-none cursor-pointer"
                 >
-                  <option value="First Year">First Year</option>
-                  <option value="Second Year">Second Year</option>
-                  <option value="Third Year">Third Year</option>
-                  <option value="Final Year">Final Year</option>
+                  <option value="B.Pharm">B.Pharm (Bachelor of Pharmacy)</option>
+                  <option value="D.Pharm">D.Pharm (Diploma in Pharmacy)</option>
+                  <option value="M.Pharm">M.Pharm (Master of Pharmacy)</option>
                 </select>
+              </div>
+            </div>
+
+            {/* Year/Semester Field */}
+            <div>
+              <label className="block text-[10px] font-bold text-white/60 uppercase mb-1.5 pl-1">Year / Semester</label>
+              <div className="relative flex items-center">
+                <BookOpen className="absolute left-3.5 w-4 h-4 text-white/30" />
+                <select
+                  value={semester}
+                  onChange={(e) => setSemester(e.target.value)}
+                  disabled={isSaving}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#080F25] text-xs text-white outline-none focus:border-orange-burnt transition-all appearance-none cursor-pointer"
+                >
+                  {SEMESTER_OPTIONS[course]?.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* PRN Field */}
+            <div>
+              <label className="block text-[10px] font-bold text-white/60 uppercase mb-1.5 pl-1">PRN Number (Optional)</label>
+              <div className="relative flex items-center">
+                <ShieldCheck className="absolute left-3.5 w-4 h-4 text-white/30" />
+                <input
+                  type="text"
+                  placeholder="e.g. 240467311..."
+                  value={prn}
+                  onChange={(e) => setPrn(e.target.value.replace(/\s/g, ''))}
+                  disabled={isSaving}
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#0F1E42]/80 text-xs text-white placeholder-white/20 outline-none focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/20 transition-all"
+                />
               </div>
             </div>
 
