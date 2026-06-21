@@ -324,34 +324,32 @@ html.dark [class*="bg-[#0A1428]/50"] {
 
 /* ---- PAGE BACKGROUNDS ---- */
 /* Override any dark navy page/section backgrounds */
-html.light [class*="bg-[#0"],
-html.light [class*="bg-[#1"],
-html.light .bg-navy-dark,
-html.light .bg-navy-card,
-html.light .bg-gray-light {
+html.light [class*="bg-[#0]"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*="bg-[#1]"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light .bg-navy-dark:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light .bg-navy-card:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light .bg-gray-light:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   background-color: var(--bg-surface) !important;
 }
 
 /* Cards that use bg-white/5 (barely visible in dark) → solid white in light */
-html.light [class^="bg-white/"],
-html.light [class*=" bg-white/"] {
+html.light [class^="bg-white/"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" bg-white/"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   background-color: var(--bg-card) !important;
 }
 
 /* Hover/active states in light mode */
-html.light [class*="hover:bg-white/"]:hover {
-  background-color: rgba(15, 30, 66, 0.06) !important;
-}
-html.light .group:hover [class*="group-hover:bg-white/"] {
+html.light [class*="hover:bg-white/"]:hover:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light .group:hover [class*="group-hover:bg-white/"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   background-color: rgba(15, 30, 66, 0.06) !important;
 }
 
 /* Dark gradient backgrounds → gentle light gradients */
-html.light [class*="from-[#0"],
-html.light [class*="from-[#1"],
-html.light [class*="from-navy"],
-html.light [class*="via-[#0"],
-html.light [class*="via-[#1"] {
+html.light [class*="from-[#0"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*="from-[#1"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*="from-navy"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*="via-[#0"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*="via-[#1"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   --tw-gradient-from: var(--bg-surface) !important;
   --tw-gradient-via: var(--bg-base) !important;
   --tw-gradient-to: var(--bg-surface) !important;
@@ -359,72 +357,70 @@ html.light [class*="via-[#1"] {
 
 /* ---- TEXT COLORS ---- */
 /* Base text-white override (non-prefixed) */
-html.light [class^="text-white"],
-html.light [class*=" text-white"] {
+html.light [class^="text-white"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-white"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   color: var(--text-primary) !important;
 }
 
 /* Specific text-white opacities mapped to high-contrast theme variables */
-html.light [class^="text-white/9"],
-html.light [class*=" text-white/9"],
-html.light [class^="text-white/8"],
-html.light [class*=" text-white/8"] {
+html.light [class^="text-white/9"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-white/9"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class^="text-white/8"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-white/8"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   color: var(--text-primary) !important;
 }
 
-html.light [class^="text-white/7"],
-html.light [class*=" text-white/7"],
-html.light [class^="text-white/6"],
-html.light [class*=" text-white/6"],
-html.light [class^="text-white/5"],
-html.light [class*=" text-white/5"] {
+html.light [class^="text-white/7"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-white/7"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class^="text-white/6"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-white/6"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class^="text-white/5"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-white/5"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   color: var(--text-secondary) !important;
 }
 
-html.light [class^="text-white/4"],
-html.light [class*=" text-white/4"],
-html.light [class^="text-white/3"],
-html.light [class*=" text-white/3"],
-html.light [class^="text-white/2"],
-html.light [class*=" text-white/2"],
-html.light [class^="text-white/1"],
-html.light [class*=" text-white/1"] {
+html.light [class^="text-white/4"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-white/4"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class^="text-white/3"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-white/3"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class^="text-white/2"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-white/2"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class^="text-white/1"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-white/1"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   color: var(--text-muted) !important;
 }
 
 /* Hover/active text colors in light mode */
-html.light [class*="hover:text-white"]:hover {
-  color: var(--text-primary) !important;
-}
-html.light .group:hover [class*="group-hover:text-white"] {
+html.light [class*="hover:text-white"]:hover:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light .group:hover [class*="group-hover:text-white"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   color: var(--text-primary) !important;
 }
 
 /* text-gray-* / text-slate-* shades that are too dark for light mode */
-html.light [class^="text-slate-"],
-html.light [class*=" text-slate-"],
-html.light [class^="text-gray-"],
-html.light [class*=" text-gray-"] {
+html.light [class^="text-slate-"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-slate-"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class^="text-gray-"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" text-gray-"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   color: var(--text-secondary) !important;
 }
 
 /* Headings that inherit white */
-html.light h1[class*="text-white"],
-html.light h2[class*="text-white"],
-html.light h3[class*="text-white"],
-html.light h4[class*="text-white"] {
+html.light h1[class*="text-white"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light h2[class*="text-white"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light h3[class*="text-white"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light h4[class*="text-white"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   color: var(--text-primary) !important;
 }
 
 /* ---- BORDERS ---- */
-html.light [class^="border-white"],
-html.light [class*=" border-white"] {
+html.light [class^="border-white"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
+html.light [class*=" border-white"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   border-color: var(--border-mid) !important;
 }
-html.light [class*="hover:border-white"]:hover {
+html.light [class*="hover:border-white"]:hover:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   border-color: var(--color-orange-burnt) !important;
 }
-html.light [class*="focus:border-white"]:focus {
+html.light [class*="focus:border-white"]:focus:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
   border-color: var(--color-orange-burnt) !important;
 }
 

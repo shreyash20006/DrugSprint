@@ -152,7 +152,10 @@ export const DNAHero: React.FC = () => {
   // Mobile bypass rendering (keeps it responsive and clean on phone viewports)
   if (mobileMode) {
     return (
-      <section className="relative w-full h-screen flex items-center justify-center overflow-hidden z-10 bg-[#050B18]">
+      <section 
+        className="relative w-full h-screen flex items-center justify-center overflow-hidden z-10 bg-[#050B18]"
+        data-keep-dark="true"
+      >
         {styleTag}
         {isVideoUrl(bannerUrl) ? (
           <video
@@ -253,7 +256,10 @@ export const DNAHero: React.FC = () => {
 
   // Desktop/Tablet rendering with Glassmorphism grid layout and rotating 3D shape
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden z-10 bg-[#050B18] pt-20 pb-12">
+    <section 
+      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden z-10 bg-[#050B18] pt-20 pb-12"
+      data-keep-dark="true"
+    >
       {styleTag}
       
       {/* College Photo Base background */}

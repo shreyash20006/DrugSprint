@@ -110,6 +110,7 @@ export const HeroSection: React.FC = () => {
     <section
       className="relative w-full min-h-[100svh] overflow-hidden bg-[#050B1F] text-white flex items-end"
       data-testid="hero-section"
+      data-keep-dark="true"
     >
       {/* Parallax background */}
       <motion.div className="absolute inset-0 z-0" style={{ y: bgY }}>
