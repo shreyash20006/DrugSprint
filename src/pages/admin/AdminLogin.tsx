@@ -220,12 +220,30 @@ export const AdminLogin: React.FC = () => {
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <motion.div
           style={{ y: orbY }}
+          animate={{
+            x: [0, 20, -15, 0],
+            y: [0, -30, 20, 0],
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
           className="absolute -top-32 -left-32 w-[520px] h-[520px] rounded-full"
         >
           <div className="w-full h-full ambient-orb-orange rounded-full" />
         </motion.div>
         <motion.div
           style={{ y: orbY }}
+          animate={{
+            x: [0, -25, 20, 0],
+            y: [0, 20, -30, 0],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
           className="absolute -bottom-32 -right-32 w-[560px] h-[560px] rounded-full"
         >
           <div className="w-full h-full ambient-orb-gold rounded-full" />
@@ -380,175 +398,200 @@ export const AdminLogin: React.FC = () => {
                 </AnimatePresence>
 
                 {/* Auth Forms */}
-                {loginMethod === 'options' ? (
-                  <div className="space-y-3 relative z-10">
-                    {/* Google Button */}
-                    <motion.button
-                      onClick={handleGoogleLogin}
-                      disabled={isLoggingIn}
-                      whileHover={{ scale: isLoggingIn ? 1 : 1.015 }}
-                      whileTap={{ scale: isLoggingIn ? 1 : 0.98 }}
-                      data-testid="google-signin-btn"
-                      className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl bg-white text-gray-900 font-display font-bold text-sm tracking-tight shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                <AnimatePresence mode="wait">
+                  {loginMethod === 'options' ? (
+                    <motion.div
+                      key="options"
+                      initial={{ opacity: 0, x: -16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 16 }}
+                      transition={{ duration: 0.22, ease: 'easeInOut' }}
+                      className="space-y-3 relative z-10"
                     >
-                      {isLoggingIn ? (
-                        <>
-                          <motion.div
-                            className="w-4 h-4 rounded-full border-2 border-orange-burnt border-t-transparent"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                          />
-                          <span className="text-orange-burnt">Authenticating...</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 3.01-.97 4.14v3.45h1.59c3.27-3 5.43-7.42 5.43-12.44z" />
-                            <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.84-2.98c-1.07.72-2.44 1.15-4.12 1.15-3.17 0-5.85-2.14-6.81-5.02H1.23v3.1A11.996 11.996 0 0012 24z" />
-                            <path fill="#FBBC05" d="M5.19 14.24A7.2 7.2 0 014.8 12c0-.79.13-1.57.39-2.31V6.59H1.23A11.96 11.96 0 000 12c0 2.23.6 4.32 1.66 6.13l3.53-2.89z" />
-                            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.22 0 12 0 7.34 0 3.37 2.67 1.23 6.59l3.96 3.1c.96-2.88 3.64-5.02 6.81-5.02z" />
-                          </svg>
-                          <span>Continue with Google</span>
-                          <ArrowUpRight className="w-3.5 h-3.5 ml-1" strokeWidth={2.6} />
-                        </>
-                      )}
-                    </motion.button>
-
-                    {/* LinkedIn Button */}
-                    <motion.button
-                      onClick={handleLinkedInLogin}
-                      disabled={isLoggingIn}
-                      whileHover={{ scale: isLoggingIn ? 1 : 1.015 }}
-                      whileTap={{ scale: isLoggingIn ? 1 : 0.98 }}
-                      className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl bg-[#0077B5] text-white font-display font-bold text-sm tracking-tight shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      {isLoggingIn ? (
-                        <>
-                          <motion.div
-                            className="w-4 h-4 rounded-full border-2 border-white border-t-transparent"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                          />
-                          <span>Authenticating...</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-4 h-4 shrink-0 fill-white" viewBox="0 0 24 24">
-                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-                          </svg>
-                          <span>Continue with LinkedIn</span>
-                          <ArrowUpRight className="w-3.5 h-3.5 ml-1 text-white/70" strokeWidth={2.6} />
-                        </>
-                      )}
-                    </motion.button>
-
-                    {/* Email OTP Button */}
-                    <motion.button
-                      onClick={() => {
-                        setLoginMethod('otp');
-                        setOtpStep('email');
-                        setErrorMessage('');
-                      }}
-                      disabled={isLoggingIn}
-                      whileHover={{ scale: isLoggingIn ? 1 : 1.015 }}
-                      whileTap={{ scale: isLoggingIn ? 1 : 0.98 }}
-                      className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl border border-orange-burnt/35 hover:border-orange-burnt bg-white/[0.03] hover:bg-orange-burnt/5 text-white font-display font-bold text-sm tracking-tight transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-                    >
-                      <Mail className="w-4 h-4 text-orange-burnt shrink-0" strokeWidth={2.4} />
-                      <span>Continue with Email OTP</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 ml-1" strokeWidth={2.6} />
-                    </motion.button>
-                  </div>
-                ) : otpStep === 'email' ? (
-                  <form onSubmit={handleSendOtp} className="space-y-4 relative z-10">
-                    <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                      <input
-                        type="email"
-                        required
-                        placeholder="Enter your email address"
-                        value={emailInput}
-                        onChange={(e) => setEmailInput(e.target.value)}
-                        disabled={isSendingOtp}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#0F1E42]/85 outline-none text-xs text-white placeholder-white/20 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/20 transition-all font-sans"
-                      />
-                    </div>
-
-                    <div className="flex gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() => setLoginMethod('options')}
-                        className="flex-1 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
+                      {/* Google Button */}
+                      <motion.button
+                        onClick={handleGoogleLogin}
+                        disabled={isLoggingIn}
+                        whileHover={{ scale: isLoggingIn ? 1 : 1.015 }}
+                        whileTap={{ scale: isLoggingIn ? 1 : 0.98 }}
+                        data-testid="google-signin-btn"
+                        className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl bg-white text-gray-900 font-display font-bold text-sm tracking-tight shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                       >
-                        Back
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={isSendingOtp || !emailInput.trim()}
-                        className="flex-1 py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
-                      >
-                        {isSendingOtp ? (
-                          <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        {isLoggingIn ? (
+                          <>
+                            <motion.div
+                              className="w-4 h-4 rounded-full border-2 border-orange-burnt border-t-transparent"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                            />
+                            <span className="text-orange-burnt">Authenticating...</span>
+                          </>
                         ) : (
-                          <span>Send Code</span>
+                          <>
+                            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69c-.29 1.5-.14 3.01-.97 4.14v3.45h1.59c3.27-3 5.43-7.42 5.43-12.44z" />
+                              <path fill="#34A853" d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-3.84-2.98c-1.07.72-2.44 1.15-4.12 1.15-3.17 0-5.85-2.14-6.81-5.02H1.23v3.1A11.996 11.996 0 0012 24z" />
+                              <path fill="#FBBC05" d="M5.19 14.24A7.2 7.2 0 014.8 12c0-.79.13-1.57.39-2.31V6.59H1.23A11.96 11.96 0 000 12c0 2.23.6 4.32 1.66 6.13l3.53-2.89z" />
+                              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.22 0 12 0 7.34 0 3.37 2.67 1.23 6.59l3.96 3.1c.96-2.88 3.64-5.02 6.81-5.02z" />
+                            </svg>
+                            <span>Continue with Google</span>
+                            <ArrowUpRight className="w-3.5 h-3.5 ml-1" strokeWidth={2.6} />
+                          </>
                         )}
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <form onSubmit={handleVerifyOtp} className="space-y-4 relative z-10">
-                    <div className="text-left bg-white/[0.02] border border-white/[0.04] p-3.5 rounded-xl">
-                      <p className="text-[10px] text-white/45 uppercase tracking-wider">Sending OTP to</p>
-                      <p className="text-xs text-white font-bold font-sans truncate">{emailInput}</p>
-                    </div>
+                      </motion.button>
 
-                    <div className="relative">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                      <input
-                        type="text"
-                        required
-                        maxLength={8}
-                        placeholder="Enter 8-digit OTP"
-                        value={otpInput}
-                        onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
-                        disabled={isVerifyingOtp}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#0F1E42]/85 outline-none text-xs text-white tracking-[0.2em] text-center placeholder-white/20 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/20 transition-all font-mono font-bold"
-                      />
-                    </div>
-
-                    <div className="flex gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() => setOtpStep('email')}
-                        className="flex-1 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
+                      {/* LinkedIn Button */}
+                      <motion.button
+                        onClick={handleLinkedInLogin}
+                        disabled={isLoggingIn}
+                        whileHover={{ scale: isLoggingIn ? 1 : 1.015 }}
+                        whileTap={{ scale: isLoggingIn ? 1 : 0.98 }}
+                        className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl bg-[#0077B5] text-white font-display font-bold text-sm tracking-tight shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                       >
-                        Back
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={isVerifyingOtp || otpInput.trim().length !== 8}
-                        className="flex-1 py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
-                      >
-                        {isVerifyingOtp ? (
-                          <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        {isLoggingIn ? (
+                          <>
+                            <motion.div
+                              className="w-4 h-4 rounded-full border-2 border-white border-t-transparent"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                            />
+                            <span>Authenticating...</span>
+                          </>
                         ) : (
-                          <span>Verify OTP</span>
+                          <>
+                            <svg className="w-4 h-4 shrink-0 fill-white" viewBox="0 0 24 24">
+                              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                            </svg>
+                            <span>Continue with LinkedIn</span>
+                            <ArrowUpRight className="w-3.5 h-3.5 ml-1 text-white/70" strokeWidth={2.6} />
+                          </>
                         )}
-                      </button>
-                    </div>
+                      </motion.button>
 
-                    <div className="text-center pt-1.5">
-                      <button
-                        type="button"
-                        disabled={cooldown > 0 || isSendingOtp}
-                        onClick={() => handleSendOtp()}
-                        className="text-[10px] font-display font-bold uppercase tracking-wider text-orange-burnt hover:text-[#E06D2B] disabled:text-white/30 transition-colors"
+                      {/* Email OTP Button */}
+                      <motion.button
+                        onClick={() => {
+                          setLoginMethod('otp');
+                          setOtpStep('email');
+                          setErrorMessage('');
+                        }}
+                        disabled={isLoggingIn}
+                        whileHover={{ scale: isLoggingIn ? 1 : 1.015 }}
+                        whileTap={{ scale: isLoggingIn ? 1 : 0.98 }}
+                        className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-xl border border-orange-burnt/35 hover:border-orange-burnt bg-white/[0.03] hover:bg-orange-burnt/5 text-white font-display font-bold text-sm tracking-tight transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                       >
-                        {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend Code'}
-                      </button>
-                    </div>
-                  </form>
-                )}
+                        <Mail className="w-4 h-4 text-orange-burnt shrink-0" strokeWidth={2.4} />
+                        <span>Continue with Email OTP</span>
+                        <ArrowUpRight className="w-3.5 h-3.5 ml-1" strokeWidth={2.6} />
+                      </motion.button>
+                    </motion.div>
+                  ) : otpStep === 'email' ? (
+                    <motion.form
+                      key="email-input"
+                      onSubmit={handleSendOtp}
+                      initial={{ opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -16 }}
+                      transition={{ duration: 0.22, ease: 'easeInOut' }}
+                      className="space-y-4 relative z-10"
+                    >
+                      <div className="relative">
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <input
+                          type="email"
+                          required
+                          placeholder="Enter your email address"
+                          value={emailInput}
+                          onChange={(e) => setEmailInput(e.target.value)}
+                          disabled={isSendingOtp}
+                          className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#0F1E42]/85 outline-none text-xs text-white placeholder-white/20 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/20 transition-all font-sans"
+                        />
+                      </div>
+
+                      <div className="flex gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() => setLoginMethod('options')}
+                          className="flex-1 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={isSendingOtp || !emailInput.trim()}
+                          className="flex-1 py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
+                        >
+                          {isSendingOtp ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-white" />
+                          ) : (
+                            <span>Send Code</span>
+                          )}
+                        </button>
+                      </div>
+                    </motion.form>
+                  ) : (
+                    <motion.form
+                      key="verify-input"
+                      onSubmit={handleVerifyOtp}
+                      initial={{ opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -16 }}
+                      transition={{ duration: 0.22, ease: 'easeInOut' }}
+                      className="space-y-4 relative z-10"
+                    >
+                      <div className="text-left bg-white/[0.02] border border-white/[0.04] p-3.5 rounded-xl">
+                        <p className="text-[10px] text-white/45 uppercase tracking-wider">Sending OTP to</p>
+                        <p className="text-xs text-white font-bold font-sans truncate">{emailInput}</p>
+                      </div>
+
+                      <div className="relative">
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <input
+                          type="text"
+                          required
+                          maxLength={8}
+                          placeholder="Enter 8-digit OTP"
+                          value={otpInput}
+                          onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ''))}
+                          disabled={isVerifyingOtp}
+                          className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/10 bg-[#0F1E42]/85 outline-none text-xs text-white tracking-[0.2em] text-center placeholder-white/20 focus:border-orange-burnt focus:ring-1 focus:ring-orange-burnt/20 transition-all font-mono font-bold"
+                        />
+                      </div>
+
+                      <div className="flex gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() => setOtpStep('email')}
+                          className="flex-1 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={isVerifyingOtp || otpInput.trim().length !== 8}
+                          className="flex-1 py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-50"
+                        >
+                          {isVerifyingOtp ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-white" />
+                          ) : (
+                            <span>Verify OTP</span>
+                          )}
+                        </button>
+                      </div>
+
+                      <div className="text-center pt-1.5">
+                        <button
+                          type="button"
+                          disabled={cooldown > 0 || isSendingOtp}
+                          onClick={() => handleSendOtp()}
+                          className="text-[10px] font-display font-bold uppercase tracking-wider text-orange-burnt hover:text-[#E06D2B] disabled:text-white/30 transition-colors"
+                        >
+                          {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend Code'}
+                        </button>
+                      </div>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
 
                 {/* Helper text */}
                 <p className="relative z-10 text-white/35 text-[10px] text-center mt-4 leading-relaxed font-sans">
