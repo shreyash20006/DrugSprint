@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStudentAuth } from '../../lib/StudentAuthProvider';
 import { supabase } from '../../lib/supabase';
 import { useToast } from '../../components/admin/Toast';
-import { ShieldCheck, Lock, GraduationCap, Loader2, Sparkles, Mail, Phone, BookOpen, User } from 'lucide-react';
+import { ShieldCheck, Lock, GraduationCap, Loader2, Sparkles, Mail, Phone, BookOpen, User, Fingerprint } from 'lucide-react';
 
 interface LoginProps {
   onLoginComplete: () => void;
@@ -160,6 +160,26 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
     } catch (err: any) {
       console.error('[StudentLogin] LinkedIn login error:', err);
       toast.error(`❌ LinkedIn Login failed: ${err.message || JSON.stringify(err)}`);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handlePasskeyLogin = async () => {
+    setIsLoggingIn(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPasskey();
+      if (error) throw error;
+      console.log('Passkey sign-in successful:', data);
+      toast.success('Signed in successfully with Passkey!');
+      onLoginComplete();
+    } catch (err: any) {
+      console.error('[StudentLogin] Passkey login error:', err);
+      let errMsg = err.message || 'Passkey sign-in failed.';
+      if (err.name === 'NotAllowedError' || errMsg.includes('abort') || errMsg.includes('cancel')) {
+        errMsg = 'Passkey sign-in cancelled.';
+      }
+      toast.error(`❌ Passkey login failed: ${errMsg}`);
     } finally {
       setIsLoggingIn(false);
     }
@@ -438,6 +458,16 @@ export const Login: React.FC<LoginProps> = ({ onLoginComplete }) => {
                         </svg>
                       )}
                       <span>Sign in with LinkedIn</span>
+                    </button>
+
+                    {/* Passkey Login Button */}
+                    <button
+                      onClick={handlePasskeyLogin}
+                      disabled={isLoggingIn}
+                      className="w-full py-4 bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
+                    >
+                      <Fingerprint className="w-5 h-5 text-white animate-pulse" />
+                      <span>Sign in with Passkey</span>
                     </button>
 
                     {/* Email OTP Login Button */}
