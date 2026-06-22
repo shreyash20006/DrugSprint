@@ -6,7 +6,7 @@ import { useStudentAuth } from '../lib/StudentAuthProvider';
 import { generateUploadAndDownloadReceipt } from '../lib/receiptPdf';
 import { 
   User, Mail, Phone, Calendar, LogOut, CheckCircle, 
-  MessageSquare, BookOpen, Clock, Heart, CreditCard, Download, Loader2, BadgeCheck
+  MessageSquare, BookOpen, Clock, Heart, CreditCard, Download, Loader2, BadgeCheck, Fingerprint, Trash2
 } from 'lucide-react';
 import { useToast } from '../components/admin/Toast';
 
@@ -65,6 +65,78 @@ export const StudentProfile: React.FC = () => {
   const [prnInput, setPrnInput] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationData, setVerificationData] = useState<any>(null);
+
+  // Passkeys State
+  const [passkeys, setPasskeys] = useState<any[]>([]);
+  const [isLoadingPasskeys, setIsLoadingPasskeys] = useState(false);
+  const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
+  const [newPasskeyName, setNewPasskeyName] = useState('');
+  const [showPasskeyForm, setShowPasskeyForm] = useState(false);
+
+  const fetchPasskeys = async () => {
+    if (!studentProfile) return;
+    setIsLoadingPasskeys(true);
+    try {
+      const { data, error } = await supabase.auth.passkey.list();
+      if (error) throw error;
+      setPasskeys(data || []);
+    } catch (err: any) {
+      console.error('Error fetching passkeys:', err);
+    } finally {
+      setIsLoadingPasskeys(false);
+    }
+  };
+
+  useEffect(() => {
+    if (studentProfile) {
+      fetchPasskeys();
+    }
+  }, [studentProfile]);
+
+  const handleRegisterPasskey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPasskeyName.trim()) return;
+    setIsRegisteringPasskey(true);
+    try {
+      const { data, error } = await supabase.auth.registerPasskey();
+      if (error) throw error;
+      
+      // Post-register: rename credential to friendlyName
+      if (data?.id) {
+        await supabase.auth.passkey.update({
+          passkeyId: data.id,
+          friendlyName: newPasskeyName.trim()
+        });
+      }
+      
+      toast.success('✅ Passkey registered successfully!');
+      setNewPasskeyName('');
+      setShowPasskeyForm(false);
+      fetchPasskeys();
+    } catch (err: any) {
+      console.error('Error registering passkey:', err);
+      let errMsg = err.message || 'Passkey registration failed.';
+      if (err.name === 'NotAllowedError' || errMsg.includes('abort') || errMsg.includes('cancel')) {
+        errMsg = 'Passkey registration cancelled.';
+      }
+      toast.error('❌ ' + errMsg);
+    } finally {
+      setIsRegisteringPasskey(false);
+    }
+  };
+
+  const handleDeletePasskey = async (passkeyId: string) => {
+    if (!window.confirm('Are you sure you want to delete this passkey? You won\'t be able to use it to sign in anymore.')) return;
+    try {
+      const { error } = await supabase.auth.passkey.delete({ passkeyId });
+      if (error) throw error;
+      toast.success('✅ Passkey deleted successfully!');
+      fetchPasskeys();
+    } catch (err: any) {
+      console.error('Error deleting passkey:', err);
+      toast.error('❌ Failed to delete passkey: ' + err.message);
+    }
+  };
 
   // Sync state with profile
   useEffect(() => {
@@ -546,6 +618,106 @@ export const StudentProfile: React.FC = () => {
                     </div>
                   )}
                 </div>
+              </div>
+            </motion.div>
+
+            {/* Passkey Settings Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mt-6 bg-[#080F25]/90 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3 text-[#3B82F6]">
+                  <Fingerprint className="w-5 h-5 animate-pulse" />
+                  <h3 className="font-display font-extrabold text-sm uppercase tracking-wider text-white">
+                    Passkeys Security
+                  </h3>
+                </div>
+                
+                <p className="text-white/60 text-xs leading-relaxed">
+                  Register a passkey to sign in password-free using biometrics (Touch ID, Face ID, Windows Hello) or security keys.
+                </p>
+
+                {/* Enrolled Passkeys List */}
+                {isLoadingPasskeys ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 animate-spin text-[#3B82F6]" />
+                  </div>
+                ) : passkeys.length > 0 ? (
+                  <div className="space-y-2.5">
+                    <span className="block text-[9px] font-bold text-white/40 uppercase tracking-wider pl-1">
+                      Enrolled Passkeys ({passkeys.length})
+                    </span>
+                    {passkeys.map((pk) => (
+                      <div key={pk.id} className="flex items-center justify-between bg-white/5 border border-white/5 px-3 py-2.5 rounded-xl text-xs">
+                        <div className="flex items-center space-x-2.5">
+                          <Fingerprint className="w-4 h-4 text-[#3B82F6] shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <span className="block font-semibold text-white truncate">{pk.friendly_name || 'Unnamed Passkey'}</span>
+                            <span className="block text-[9px] text-white/40">
+                              Added {new Date(pk.created_at).toLocaleDateString('en-IN')}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleDeletePasskey(pk.id)}
+                          className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer shrink-0"
+                          title="Delete Passkey"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-3 text-center rounded-xl bg-white/[0.02] border border-white/5 text-[11px] text-white/45">
+                    No passkeys enrolled yet.
+                  </div>
+                )}
+
+                {/* Enrollment Interface */}
+                {showPasskeyForm ? (
+                  <form onSubmit={handleRegisterPasskey} className="space-y-3 pt-2">
+                    <div>
+                      <label className="block text-[10px] font-bold text-white/50 uppercase mb-1 pl-1">Passkey Device Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={newPasskeyName}
+                        onChange={(e) => setNewPasskeyName(e.target.value)}
+                        placeholder="e.g. My Phone, Personal Laptop"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-white outline-none focus:border-[#3B82F6] transition-colors"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => { setShowPasskeyForm(false); setNewPasskeyName(''); }}
+                        className="flex-1 py-2 rounded-xl border border-white/10 hover:bg-white/5 text-white/70 text-xs font-bold transition-all"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isRegisteringPasskey || !newPasskeyName.trim()}
+                        className="flex-1 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50"
+                      >
+                        {isRegisteringPasskey ? 'Enrolling...' : 'Register'}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <button
+                    onClick={() => setShowPasskeyForm(true)}
+                    className="w-full py-2.5 rounded-xl border border-white/10 hover:border-[#3B82F6] bg-white/5 hover:bg-[#3B82F6]/10 text-white font-display text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+                  >
+                    <span>➕ Enroll New Passkey</span>
+                  </button>
+                )}
               </div>
             </motion.div>
           </div>

@@ -5,7 +5,7 @@ import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ShieldCheck, Lock, Mail, Loader2, Zap, FileCheck, ArrowLeft
+  ShieldCheck, Lock, Mail, Loader2, Zap, FileCheck, ArrowLeft, Fingerprint
 } from 'lucide-react';
 import { useToast } from '../../components/admin/Toast';
 import { logAction } from '../../lib/logger';
@@ -302,6 +302,25 @@ export const AdminLogin: React.FC = () => {
     }
   };
 
+  const handlePasskeyLogin = async () => {
+    setIsLoggingIn(true);
+    setErrorMessage('');
+    try {
+      const { data, error } = await supabase.auth.signInWithPasskey();
+      if (error) throw error;
+      console.log('Passkey sign-in successful:', data);
+      toast.success('Signed in successfully with Passkey!');
+    } catch (err: any) {
+      let errMsg = err.message || 'Passkey sign-in failed.';
+      if (err.name === 'NotAllowedError' || errMsg.includes('abort') || errMsg.includes('cancel')) {
+        errMsg = 'Passkey sign-in cancelled.';
+      }
+      setErrorMessage(errMsg);
+      toast.error(errMsg);
+      setIsLoggingIn(false);
+    }
+  };
+
   const handleSendOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!emailInput.trim()) {
@@ -568,6 +587,23 @@ export const AdminLogin: React.FC = () => {
                           </span>
                         </div>
                         <span className="font-bold text-base text-gray-900 transition-transform group-hover:translate-x-1">↗</span>
+                      </motion.button>
+
+                      {/* Passkey Button */}
+                      <motion.button
+                        onClick={handlePasskeyLogin}
+                        disabled={isLoggingIn}
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full h-12 bg-gradient-to-r from-[#1E40AF] to-[#3B82F6] text-white transition-all font-semibold rounded-xl flex items-center justify-between px-6 group cursor-pointer disabled:opacity-50"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Fingerprint className="w-5 h-5 text-white animate-pulse" />
+                          <span className="text-sm font-bold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
+                            {isLoggingIn ? 'Authenticating...' : 'Continue with Passkey'}
+                          </span>
+                        </div>
+                        <span className="font-bold text-base transition-transform group-hover:translate-x-1">↗</span>
                       </motion.button>
 
                       {/* Email OTP Button */}

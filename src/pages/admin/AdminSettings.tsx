@@ -4,7 +4,7 @@ import { useAuth } from '../../components/admin/ProtectedRoute';
 import QRCode from 'react-qr-code';
 import { useToast } from '../../components/admin/Toast';
 import { logActivity } from '../../lib/logs';
-import { Sliders, Upload, ImageIcon, Loader2, Check, RotateCcw, ExternalLink, Sun, Megaphone, QrCode, Copy, CreditCard, Trash2 } from 'lucide-react';
+import { Sliders, Upload, ImageIcon, Loader2, Check, RotateCcw, ExternalLink, Sun, Megaphone, QrCode, Copy, CreditCard, Trash2, Fingerprint } from 'lucide-react';
 
 const isVideoUrl = (url: string): boolean => {
   if (!url) return false;
@@ -75,6 +75,71 @@ export const AdminSettings: React.FC = () => {
   const bannerImgRef = useRef<HTMLImageElement>(null);
   const faviconImgRef = useRef<HTMLImageElement>(null);
   const profileImgRef = useRef<HTMLImageElement>(null);
+
+  // Passkeys State
+  const [passkeys, setPasskeys] = useState<any[]>([]);
+  const [isLoadingPasskeys, setIsLoadingPasskeys] = useState(false);
+  const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
+  const [newPasskeyName, setNewPasskeyName] = useState('');
+  const [showPasskeyForm, setShowPasskeyForm] = useState(false);
+
+  const fetchPasskeys = async () => {
+    setIsLoadingPasskeys(true);
+    try {
+      const { data, error } = await supabase.auth.passkey.list();
+      if (error) throw error;
+      setPasskeys(data || []);
+    } catch (err: any) {
+      console.error('Error fetching passkeys:', err);
+    } finally {
+      setIsLoadingPasskeys(false);
+    }
+  };
+
+  const handleRegisterPasskey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPasskeyName.trim()) return;
+    setIsRegisteringPasskey(true);
+    try {
+      const { data, error } = await supabase.auth.registerPasskey();
+      if (error) throw error;
+      
+      // Post-register: rename credential to friendlyName
+      if (data?.id) {
+        await supabase.auth.passkey.update({
+          passkeyId: data.id,
+          friendlyName: newPasskeyName.trim()
+        });
+      }
+      
+      toast.success('✅ Passkey registered successfully!');
+      setNewPasskeyName('');
+      setShowPasskeyForm(false);
+      fetchPasskeys();
+    } catch (err: any) {
+      console.error('Error registering passkey:', err);
+      let errMsg = err.message || 'Passkey registration failed.';
+      if (err.name === 'NotAllowedError' || errMsg.includes('abort') || errMsg.includes('cancel')) {
+        errMsg = 'Passkey registration cancelled.';
+      }
+      toast.error('❌ ' + errMsg);
+    } finally {
+      setIsRegisteringPasskey(false);
+    }
+  };
+
+  const handleDeletePasskey = async (passkeyId: string) => {
+    if (!window.confirm('Are you sure you want to delete this passkey? You won\'t be able to use it to sign in anymore.')) return;
+    try {
+      const { error } = await supabase.auth.passkey.delete({ passkeyId });
+      if (error) throw error;
+      toast.success('✅ Passkey deleted successfully!');
+      fetchPasskeys();
+    } catch (err: any) {
+      console.error('Error deleting passkey:', err);
+      toast.error('❌ Failed to delete passkey: ' + err.message);
+    }
+  };
 
   // Payment Purposes State
   const [purposes, setPurposes] = useState<any[]>([]);
@@ -213,6 +278,7 @@ export const AdminSettings: React.FC = () => {
   useEffect(() => { 
     fetchSettings(); 
     fetchPurposes();
+    fetchPasskeys();
   }, []);
 
   const validateUrl = (url: string): boolean => {
@@ -606,6 +672,95 @@ export const AdminSettings: React.FC = () => {
             <span>Reset</span>
           </button>
         </div>
+      </div>
+
+      {/* ── Passkey Settings (WebAuthn) ─────────────────────────────────── */}
+      <div className="bg-[#0D1B3E]/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg p-6 space-y-5">
+        <div className="flex items-center space-x-2 pb-3 border-b border-white/5">
+          <Fingerprint className="w-4 h-4 text-orange-burnt animate-pulse" />
+          <h4 className="font-display font-bold text-sm text-white">👤 Passkeys Security (WebAuthn)</h4>
+        </div>
+
+        <p className="text-xs text-white/60 leading-relaxed font-sans">
+          Add biometrics, hardware keys, or platform authenticators to log in instantly and password-free.
+        </p>
+
+        {/* Enrolled Passkeys List */}
+        {isLoadingPasskeys ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="w-6 h-6 animate-spin text-orange-burnt" />
+          </div>
+        ) : passkeys.length > 0 ? (
+          <div className="space-y-2.5">
+            <span className="block text-[10px] font-bold text-white/40 uppercase tracking-wider pl-1">
+              Enrolled Devices ({passkeys.length})
+            </span>
+            {passkeys.map((pk) => (
+              <div key={pk.id} className="flex items-center justify-between bg-white/5 border border-white/5 px-4 py-3 rounded-xl text-xs sm:text-sm font-sans">
+                <div className="flex items-center space-x-3">
+                  <Fingerprint className="w-5 h-5 text-orange-burnt shrink-0" />
+                  <div className="min-w-0">
+                    <span className="block font-semibold text-white truncate">{pk.friendly_name || 'Unnamed Passkey'}</span>
+                    <span className="block text-[10px] text-white/40">
+                      Added {new Date(pk.created_at).toLocaleDateString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleDeletePasskey(pk.id)}
+                  className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer shrink-0"
+                  title="Delete Passkey"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-4 text-center rounded-xl bg-white/[0.02] border border-white/5 text-xs text-white/40 font-sans">
+            No passkeys registered yet.
+          </div>
+        )}
+
+        {/* Enrollment Interface */}
+        {showPasskeyForm ? (
+          <form onSubmit={handleRegisterPasskey} className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <label className="block text-[10px] font-bold text-white/55 uppercase mb-1 pl-1">Passkey Name / Label</label>
+              <input
+                type="text"
+                required
+                value={newPasskeyName}
+                onChange={(e) => setNewPasskeyName(e.target.value)}
+                placeholder="e.g. My Office Mac, Windows Hello"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white outline-none focus:border-orange-burnt transition-colors placeholder:text-white/20"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => { setShowPasskeyForm(false); setNewPasskeyName(''); }}
+                className="flex-1 py-2.5 rounded-lg border border-white/10 hover:bg-white/5 text-white/70 text-xs font-bold font-display uppercase tracking-wider transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isRegisteringPasskey || !newPasskeyName.trim()}
+                className="flex-1 py-2.5 rounded-lg bg-orange-burnt hover:bg-orange-burnt/90 text-white text-xs font-bold font-display uppercase tracking-wider transition-all disabled:opacity-50"
+              >
+                {isRegisteringPasskey ? 'Enrolling...' : 'Register'}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <button
+            onClick={() => setShowPasskeyForm(true)}
+            className="w-full py-2.5 rounded-lg border border-white/10 hover:border-orange-burnt bg-white/5 hover:bg-orange-burnt/10 text-white font-display text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs"
+          >
+            <span>➕ Register Passkey Device</span>
+          </button>
+        )}
       </div>
 
       {/* ── College Logo ─────────────────────────────────────────────────── */}
