@@ -1,60 +1,60 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 /* ============================================
-   DESIGN TOKENS â€” PW INSPIRED CLEAN DESIGN
-   Primary: Purple  #7C3AED / #6D28D9
-   Accent:  Yellow  #FBBF24 / #F59E0B
-   Warm:    Orange  #F97316
+   DESIGN TOKENS Ã¢â‚¬â€ PW INSPIRED CLEAN DESIGN
+   Primary: Purple  #1E7B34 / #166B2A
+   Accent:  Yellow  #F57C00 / #E65100
+   Warm:    Orange  #E65100
    ============================================ */
 
 @theme {
-  --color-navy-dark:     #1E1B4B;
+  --color-navy-dark:     #0D1B3E;
   --color-navy-card:     #FFFFFF;
-  --color-orange-burnt:  #7C3AED;
-  --color-gold-accent:   #FBBF24;
-  --color-gray-light:    #F8F7FF;
+  --color-orange-burnt:  #E65100;
+  --color-gold-accent:   #F57C00;
+  --color-gray-light:    #F4F6F9;
   --font-sans:    'Inter', sans-serif;
   --font-display: 'Poppins', sans-serif;
 }
 
 /* ============================================
-   LIGHT MODE (DEFAULT â€” PW Clean Style)
+   LIGHT MODE (DEFAULT Ã¢â‚¬â€ PW Clean Style)
    ============================================ */
 
 :root,
 html.light {
-  --bg-base:         #F8F7FF;
+  --bg-base:         #F4F6F9;
   --bg-card:         #FFFFFF;
-  --bg-surface:      #F0EEFF;
-  --bg-nav:          rgba(255, 255, 255, 0.96);
+  --bg-surface:      #EEF2F7;
+  --bg-nav:          rgba(255, 255, 255, 0.97);
   --bg-drawer:       rgba(255, 255, 255, 0.99);
   --bg-dropdown:     rgba(255, 255, 255, 0.99);
-  --bg-input:        rgba(124, 58, 237, 0.05);
-  --text-primary:    #1E1B4B;
-  --text-secondary:  #4C4780;
-  --text-muted:      #8B88B8;
-  --border-subtle:   rgba(124, 58, 237, 0.08);
-  --border-mid:      rgba(124, 58, 237, 0.16);
-  --glass-bg:        rgba(255, 255, 255, 0.85);
-  --glass-dark-bg:   rgba(240, 238, 255, 0.9);
-  --shimmer-from:    rgba(124, 58, 237, 0.04);
-  --shimmer-mid:     rgba(124, 58, 237, 0.09);
-  --grid-line:       rgba(124, 58, 237, 0.04);
-  --scrollbar-track: #F0EEFF;
-  --scrollbar-thumb: rgba(124, 58, 237, 0.25);
-  --card-shadow:     0 2px 12px rgba(124, 58, 237, 0.08), 0 1px 3px rgba(0,0,0,0.04);
-  --card-shadow-hover: 0 8px 32px rgba(124, 58, 237, 0.18), 0 2px 8px rgba(0,0,0,0.06);
+  --bg-input:        rgba(13, 27, 62, 0.04);
+  --text-primary:    #0D1B3E;
+  --text-secondary:  #2D4270;
+  --text-muted:      #7A8AAD;
+  --border-subtle:   rgba(13, 27, 62, 0.08);
+  --border-mid:      rgba(13, 27, 62, 0.16);
+  --glass-bg:        rgba(255, 255, 255, 0.88);
+  --glass-dark-bg:   rgba(238, 242, 247, 0.92);
+  --shimmer-from:    rgba(13, 27, 62, 0.04);
+  --shimmer-mid:     rgba(13, 27, 62, 0.09);
+  --grid-line:       rgba(13, 27, 62, 0.04);
+  --scrollbar-track: #EEF2F7;
+  --scrollbar-thumb: rgba(30, 123, 52, 0.30);
+  --card-shadow:     0 2px 12px rgba(13, 27, 62, 0.08), 0 1px 3px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 8px 32px rgba(13, 27, 62, 0.14), 0 2px 8px rgba(0,0,0,0.06);
 
-  /* PW Accent Colors */
-  --pw-purple:      #7C3AED;
-  --pw-purple-dark: #6D28D9;
-  --pw-yellow:      #FBBF24;
-  --pw-yellow-dark: #F59E0B;
-  --pw-orange:      #F97316;
-  --pw-green:       #10B981;
-  --pw-red:         #EF4444;
+  /* TGPCOP Brand Colors */
+  --pw-purple:      #1E7B34;
+  --pw-purple-dark: #166B2A;
+  --pw-yellow:      #F57C00;
+  --pw-yellow-dark: #E65100;
+  --pw-orange:      #E65100;
+  --pw-green:       #1E7B34;
+  --pw-red:         #D32F2F;
 }
 
 /* ============================================
@@ -62,34 +62,34 @@ html.light {
    ============================================ */
 
 html.dark {
-  --bg-base:         #0D0B1E;
-  --bg-card:         #161330;
-  --bg-surface:      #120F28;
-  --bg-nav:          rgba(13, 11, 30, 0.92);
-  --bg-drawer:       rgba(13, 11, 30, 0.98);
-  --bg-dropdown:     rgba(18, 15, 40, 0.98);
-  --bg-input:        rgba(124, 58, 237, 0.12);
-  --text-primary:    #F1F0FF;
-  --text-secondary:  rgba(241, 240, 255, 0.72);
-  --text-muted:      rgba(241, 240, 255, 0.42);
-  --border-subtle:   rgba(124, 58, 237, 0.12);
-  --border-mid:      rgba(124, 58, 237, 0.22);
-  --glass-bg:        rgba(124, 58, 237, 0.08);
-  --glass-dark-bg:   rgba(13, 11, 30, 0.75);
+  --bg-base:         #050D1A;
+  --bg-card:         #0A1628;
+  --bg-surface:      #0D1B3E;
+  --bg-nav:          rgba(5, 13, 26, 0.93);
+  --bg-drawer:       rgba(5, 13, 26, 0.98);
+  --bg-dropdown:     rgba(10, 22, 40, 0.98);
+  --bg-input:        rgba(30, 123, 52, 0.10);
+  --text-primary:    #F0F4FF;
+  --text-secondary:  rgba(240, 244, 255, 0.72);
+  --text-muted:      rgba(240, 244, 255, 0.42);
+  --border-subtle:   rgba(30, 123, 52, 0.12);
+  --border-mid:      rgba(30, 123, 52, 0.22);
+  --glass-bg:        rgba(30, 123, 52, 0.07);
+  --glass-dark-bg:   rgba(5, 13, 26, 0.75);
   --shimmer-from:    rgba(255, 255, 255, 0.03);
   --shimmer-mid:     rgba(255, 255, 255, 0.08);
-  --grid-line:       rgba(124, 58, 237, 0.06);
-  --scrollbar-track: #0D0B1E;
-  --scrollbar-thumb: rgba(124, 58, 237, 0.3);
+  --grid-line:       rgba(30, 123, 52, 0.06);
+  --scrollbar-track: #050D1A;
+  --scrollbar-thumb: rgba(30, 123, 52, 0.35);
   --card-shadow:     0 4px 32px rgba(0,0,0,0.5);
-  --card-shadow-hover: 0 12px 48px rgba(124,58,237,0.3);
+  --card-shadow-hover: 0 12px 48px rgba(30,123,52,0.25);
 
-  --pw-purple:      #9F67FF;
-  --pw-purple-dark: #7C3AED;
-  --pw-yellow:      #FBBF24;
-  --pw-yellow-dark: #F59E0B;
-  --pw-orange:      #FB923C;
-  --pw-green:       #34D399;
+  --pw-purple:      #2E9E48;
+  --pw-purple-dark: #1E7B34;
+  --pw-yellow:      #F57C00;
+  --pw-yellow-dark: #E65100;
+  --pw-orange:      #FF8A40;
+  --pw-green:       #4ADE80;
   --pw-red:         #F87171;
 }
 
@@ -146,7 +146,7 @@ html.lenis, html.lenis body { height: auto; }
 header#navbar {
   background: var(--bg-nav) !important;
   border-bottom: 1px solid var(--border-subtle) !important;
-  box-shadow: 0 1px 20px rgba(124, 58, 237, 0.06) !important;
+  box-shadow: 0 1px 20px rgba(13, 27, 62, 0.06) !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
@@ -168,7 +168,7 @@ header#navbar {
   border-color: var(--border-mid);
 }
 
-/* Legacy glass panels â€” now PW-style clean */
+/* Legacy glass panels Ã¢â‚¬â€ now PW-style clean */
 .glass-panel {
   background: var(--glass-bg);
   backdrop-filter: blur(16px);
@@ -208,7 +208,7 @@ header#navbar {
    ============================================ */
 
 .btn-pw-primary {
-  background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+  background: linear-gradient(135deg, #1E7B34 0%, #166B2A 100%);
   color: #ffffff;
   font-weight: 600;
   font-family: var(--font-display);
@@ -217,16 +217,16 @@ header#navbar {
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 4px 16px rgba(13, 27, 62, 0.3);
 }
 .btn-pw-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45);
-  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  box-shadow: 0 8px 24px rgba(13, 27, 62, 0.45);
+  background: linear-gradient(135deg, #2E9E48 0%, #1E7B34 100%);
 }
 
 .btn-pw-secondary {
-  background: rgba(124, 58, 237, 0.08);
+  background: rgba(13, 27, 62, 0.08);
   color: var(--pw-purple);
   font-weight: 600;
   border: 1.5px solid var(--border-mid);
@@ -236,14 +236,14 @@ header#navbar {
   transition: all 0.2s ease;
 }
 .btn-pw-secondary:hover {
-  background: rgba(124, 58, 237, 0.14);
+  background: rgba(13, 27, 62, 0.14);
   border-color: var(--pw-purple);
   transform: translateY(-1px);
 }
 
 .btn-pw-yellow {
-  background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
-  color: #1E1B4B;
+  background: linear-gradient(135deg, #F57C00 0%, #E65100 100%);
+  color: #0D1B3E;
   font-weight: 700;
   font-family: var(--font-display);
   border-radius: 10px;
@@ -251,11 +251,11 @@ header#navbar {
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.35);
+  box-shadow: 0 4px 16px rgba(245, 124, 0, 0.35);
 }
 .btn-pw-yellow:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(251, 191, 36, 0.5);
+  box-shadow: 0 8px 24px rgba(245, 124, 0, 0.5);
 }
 
 /* ============================================
@@ -266,9 +266,9 @@ header#navbar {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(124, 58, 237, 0.1);
+  background: rgba(13, 27, 62, 0.1);
   color: var(--pw-purple);
-  border: 1px solid rgba(124, 58, 237, 0.2);
+  border: 1px solid rgba(13, 27, 62, 0.2);
   border-radius: 100px;
   padding: 4px 14px;
   font-size: 0.75rem;
@@ -278,23 +278,23 @@ header#navbar {
   text-transform: uppercase;
 }
 html.dark .pw-badge {
-  background: rgba(159, 103, 255, 0.12);
-  color: #B794FF;
-  border-color: rgba(159, 103, 255, 0.25);
+  background: rgba(30, 123, 52, 0.12);
+  color: #6FCF8A;
+  border-color: rgba(30, 123, 52, 0.25);
 }
 
 .pw-badge-yellow {
-  background: rgba(251, 191, 36, 0.12);
+  background: rgba(245, 124, 0, 0.12);
   color: #B45309;
-  border-color: rgba(251, 191, 36, 0.3);
+  border-color: rgba(245, 124, 0, 0.3);
 }
 html.dark .pw-badge-yellow {
-  color: #FBBF24;
-  background: rgba(251, 191, 36, 0.1);
+  color: #F57C00;
+  background: rgba(245, 124, 0, 0.1);
 }
 
 /* ============================================
-   AMBIENT ORBS â€” PW Purple style
+   AMBIENT ORBS Ã¢â‚¬â€ PW Purple style
    ============================================ */
 
 .ambient-orb-orange {
@@ -399,8 +399,8 @@ html.dark .pw-badge-yellow {
 }
 
 /* ============================================
-   LIGHT MODE â€” COMPREHENSIVE OVERRIDES
-   (Maps dark-mode tailwind classes â†’ PW light)
+   LIGHT MODE Ã¢â‚¬â€ COMPREHENSIVE OVERRIDES
+   (Maps dark-mode tailwind classes Ã¢â€ â€™ PW light)
    ============================================ */
 
 /* PAGE BACKGROUNDS */
@@ -418,7 +418,7 @@ html.light [class*=" bg-white/"]:not([data-keep-dark="true"]):not([data-keep-dar
 }
 
 html.light [class*="hover:bg-white/"]:hover:not([data-keep-dark="true"]):not([data-keep-dark="true"] *) {
-  background-color: rgba(124, 58, 237, 0.05) !important;
+  background-color: rgba(13, 27, 62, 0.05) !important;
 }
 
 html.light [class*="from-[#0"]:not([data-keep-dark="true"]):not([data-keep-dark="true"] *),
@@ -493,14 +493,14 @@ html.light [class*="focus:border-white"]:focus:not([data-keep-dark="true"]):not(
   border-color: var(--pw-purple) !important;
 }
 
-/* NAVBAR â€” PW Style */
+/* NAVBAR Ã¢â‚¬â€ PW Style */
 html.light header#navbar {
   background: rgba(255, 255, 255, 0.97) !important;
-  border-bottom: 1px solid rgba(124, 58, 237, 0.10) !important;
-  box-shadow: 0 2px 20px rgba(124, 58, 237, 0.06) !important;
+  border-bottom: 1px solid rgba(13, 27, 62, 0.10) !important;
+  box-shadow: 0 2px 20px rgba(13, 27, 62, 0.06) !important;
 }
 html.light header#navbar [class*="text-white"] {
-  color: #1E1B4B !important;
+  color: #0D1B3E !important;
 }
 
 /* MOBILE DRAWER */
@@ -537,21 +537,21 @@ html.light input:focus,
 html.light textarea:focus,
 html.light select:focus {
   border-color: var(--pw-purple) !important;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12) !important;
+  box-shadow: 0 0 0 3px rgba(13, 27, 62, 0.12) !important;
   outline: none !important;
 }
 
 /* SEMI-TRANSPARENT OVERLAYS */
 html.light [class*="bg-black/"] {
-  background-color: rgba(30, 27, 75, 0.06) !important;
+  background-color: rgba(13, 27, 62, 0.06) !important;
 }
 
-/* ACCENT COLORS â€” stay vivid */
-html.light .text-orange-burnt { color: var(--pw-purple) !important; }
-html.light .text-gold-accent  { color: #B45309 !important; }
-html.light .bg-orange-burnt   { background-color: var(--pw-purple) !important; }
+/* ACCENT COLORS Ã¢â‚¬â€ stay vivid */
+html.light .text-orange-burnt { color: #1E7B34 !important; }
+html.light .text-gold-accent  { color: #E65100 !important; }
+html.light .bg-orange-burnt   { background-color: #1E7B34 !important; }
 
-/* LIGHT CARD VARIANTS â€” PW Style */
+/* LIGHT CARD VARIANTS Ã¢â‚¬â€ PW Style */
 html.light .light-card {
   background-color: #ffffff !important;
   border: 1px solid var(--border-subtle) !important;
@@ -565,11 +565,11 @@ html.light .light-card--default {
 }
 html.light .light-card--glow {
   background: linear-gradient(135deg, #ffffff 0%, #F5F0FF 100%) !important;
-  border: 1px solid rgba(124, 58, 237, 0.18) !important;
-  box-shadow: 0 4px 24px rgba(124, 58, 237, 0.12) !important;
+  border: 1px solid rgba(13, 27, 62, 0.18) !important;
+  box-shadow: 0 4px 24px rgba(13, 27, 62, 0.12) !important;
 }
 html.light .light-card--flat {
-  background-color: #F8F7FF !important;
+  background-color: #F4F6F9 !important;
   border: 1px solid var(--border-subtle) !important;
   box-shadow: none !important;
 }
@@ -580,15 +580,15 @@ html.light .light-card--subtle {
 }
 html.light .light-card--highlight {
   background: linear-gradient(135deg, #F5F0FF 0%, #EDE8FF 100%) !important;
-  border: 1.5px solid rgba(124, 58, 237, 0.25) !important;
-  box-shadow: 0 4px 24px rgba(124, 58, 237, 0.15) !important;
+  border: 1.5px solid rgba(13, 27, 62, 0.25) !important;
+  box-shadow: 0 4px 24px rgba(13, 27, 62, 0.15) !important;
 }
 
 /* ADMIN CARD CONSISTENCY */
 html.dark [class*="bg-[#0A1428]/60"],
 html.dark [class*="bg-[#0A1428]/50"] {
   background-color: rgba(22, 19, 48, 0.6) !important;
-  border-color: rgba(124, 58, 237, 0.10) !important;
+  border-color: rgba(13, 27, 62, 0.10) !important;
   backdrop-filter: blur(12px);
 }
 
@@ -663,22 +663,17 @@ canvas { display: block; }
    PW-STYLE GRADIENT TEXT
    ============================================ */
 
-.pw-gradient-text {
-  background: linear-gradient(135deg, #7C3AED 0%, #9F67FF 50%, #FBBF24 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+.
 
 .pw-gradient-text-warm {
-  background: linear-gradient(135deg, #F97316 0%, #FBBF24 100%);
+  background: linear-gradient(135deg, #E65100 0%, #F57C00 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 /* ============================================================
-   PHASE 1 — PREMIUM DESIGN SYSTEM ADDITIONS
+   PHASE 1 â€” PREMIUM DESIGN SYSTEM ADDITIONS
    All classes below are purely additive.
    They use existing CSS custom property tokens so they
    automatically adapt to both dark and light modes.
@@ -693,7 +688,7 @@ canvas { display: block; }
   50%       { opacity: 0.35; }
 }
 
-/* Simple opacity-pulse skeleton — lower GPU cost than shimmer */
+/* Simple opacity-pulse skeleton â€” lower GPU cost than shimmer */
 .skeleton {
   background: var(--shimmer-from);
   border-radius: 6px;
@@ -720,7 +715,7 @@ canvas { display: block; }
 .skeleton-card  { border-radius: 16px; }
 
 /* ------------------------------------------------------------
-   FOCUS RING — Accessible keyboard focus indicator
+   FOCUS RING â€” Accessible keyboard focus indicator
    ------------------------------------------------------------ */
 
 .focus-ring {
@@ -748,7 +743,7 @@ canvas { display: block; }
 .input-premium:hover  { border-color: var(--border-mid); }
 .input-premium:focus  {
   border-color: var(--pw-purple);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+  box-shadow: 0 0 0 3px rgba(13, 27, 62, 0.12);
 }
 .input-premium.input-error {
   border-color: var(--pw-red);
@@ -760,7 +755,7 @@ canvas { display: block; }
 }
 
 /* ------------------------------------------------------------
-   STATUS BADGES — Semantic color variants
+   STATUS BADGES â€” Semantic color variants
    ------------------------------------------------------------ */
 
 .badge-base {
@@ -791,14 +786,14 @@ html.dark .badge-success {
 }
 
 .badge-warning {
-  background: rgba(251, 191, 36, 0.12);
+  background: rgba(245, 124, 0, 0.12);
   color: #B45309;
-  border-color: rgba(251, 191, 36, 0.28);
+  border-color: rgba(245, 124, 0, 0.28);
 }
 html.dark .badge-warning {
-  background: rgba(251, 191, 36, 0.10);
-  color: #FBBF24;
-  border-color: rgba(251, 191, 36, 0.22);
+  background: rgba(245, 124, 0, 0.10);
+  color: #F57C00;
+  border-color: rgba(245, 124, 0, 0.22);
 }
 
 .badge-danger {
@@ -813,14 +808,14 @@ html.dark .badge-danger {
 }
 
 .badge-info {
-  background: rgba(124, 58, 237, 0.10);
+  background: rgba(13, 27, 62, 0.10);
   color: var(--pw-purple);
-  border-color: rgba(124, 58, 237, 0.22);
+  border-color: rgba(13, 27, 62, 0.22);
 }
 html.dark .badge-info {
-  background: rgba(159, 103, 255, 0.10);
-  color: #B794FF;
-  border-color: rgba(159, 103, 255, 0.22);
+  background: rgba(30, 123, 52, 0.10);
+  color: #6FCF8A;
+  border-color: rgba(30, 123, 52, 0.22);
 }
 
 .badge-neutral {
@@ -899,7 +894,7 @@ html.dark .badge-orange {
 }
 
 /* ------------------------------------------------------------
-   SECTION HEADINGS — Consistent h2 blocks across public pages
+   SECTION HEADINGS â€” Consistent h2 blocks across public pages
    ------------------------------------------------------------ */
 
 .section-heading {
@@ -922,7 +917,7 @@ html.dark .badge-orange {
   text-transform: uppercase;
   color: var(--pw-purple);
 }
-html.dark .section-eyebrow { color: #B794FF; }
+html.dark .section-eyebrow { color: #6FCF8A; }
 
 .section-title {
   font-family: var(--font-display);
@@ -947,7 +942,7 @@ html.dark .section-eyebrow { color: #B794FF; }
 }
 
 /* ------------------------------------------------------------
-   BUTTON VARIANTS — Ghost, Danger, Success
+   BUTTON VARIANTS â€” Ghost, Danger, Success
    ------------------------------------------------------------ */
 
 .btn-ghost {
@@ -1016,7 +1011,7 @@ html.dark .section-eyebrow { color: #B794FF; }
 }
 .btn-success:active { transform: scale(0.97); }
 
-/* Icon button — square, no label */
+/* Icon button â€” square, no label */
 .btn-icon {
   display: inline-flex;
   align-items: center;
@@ -1058,7 +1053,7 @@ html.dark .section-eyebrow { color: #B794FF; }
   flex-shrink: 0;
 }
 
-/* Gradient divider — for dramatic section breaks */
+/* Gradient divider â€” for dramatic section breaks */
 .divider-gradient {
   width: 100%;
   height: 1px;
@@ -1076,7 +1071,7 @@ html.dark .section-eyebrow { color: #B794FF; }
    INTERACTIVE STATE UTILITIES
    ------------------------------------------------------------ */
 
-/* Base interactive element — apply to cards, buttons, links */
+/* Base interactive element â€” apply to cards, buttons, links */
 .interactive {
   cursor: pointer;
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
@@ -1086,7 +1081,7 @@ html.dark .section-eyebrow { color: #B794FF; }
 .interactive:hover  { transform: translateY(-3px); }
 .interactive:active { transform: translateY(-1px) scale(0.98); }
 
-/* Subtle version — smaller lift */
+/* Subtle version â€” smaller lift */
 .interactive-sm:hover  { transform: translateY(-2px); }
 .interactive-sm:active { transform: scale(0.97); }
 
@@ -1101,13 +1096,13 @@ html.dark .section-eyebrow { color: #B794FF; }
   transition: all 0.18s ease;
 }
 
-/* Press effect — for buttons */
+/* Press effect â€” for buttons */
 .press-effect:active {
   transform: scale(0.95) !important;
 }
 
 /* ------------------------------------------------------------
-   GRADIENT BORDERS — Premium card accents
+   GRADIENT BORDERS â€” Premium card accents
    ------------------------------------------------------------ */
 
 .gradient-border {
@@ -1136,11 +1131,11 @@ html.dark .section-eyebrow { color: #B794FF; }
 /* Purple-only border */
 .purple-border {
   border: 1.5px solid var(--pw-purple);
-  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.08);
+  box-shadow: 0 0 0 4px rgba(13, 27, 62, 0.08);
 }
 
 /* ------------------------------------------------------------
-   TAB BAR — Reusable filter/nav tab system
+   TAB BAR â€” Reusable filter/nav tab system
    ------------------------------------------------------------ */
 
 .tab-bar {
@@ -1183,11 +1178,11 @@ html.dark .section-eyebrow { color: #B794FF; }
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--border-subtle);
 }
 html.dark .tab-item.active {
-  color: #B794FF;
+  color: #6FCF8A;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--border-mid);
 }
 
-/* Pill tab variant — linear-style */
+/* Pill tab variant â€” linear-style */
 .tab-pill {
   padding: 6px 14px;
   border-radius: 100px;
@@ -1203,13 +1198,13 @@ html.dark .tab-item.active {
 .tab-pill:hover { color: var(--text-secondary); }
 .tab-pill.active {
   color: var(--pw-purple);
-  background: rgba(124, 58, 237, 0.10);
-  border-color: rgba(124, 58, 237, 0.22);
+  background: rgba(13, 27, 62, 0.10);
+  border-color: rgba(13, 27, 62, 0.22);
 }
 html.dark .tab-pill.active {
-  color: #B794FF;
-  background: rgba(159, 103, 255, 0.10);
-  border-color: rgba(159, 103, 255, 0.22);
+  color: #6FCF8A;
+  background: rgba(30, 123, 52, 0.10);
+  border-color: rgba(30, 123, 52, 0.22);
 }
 
 /* ------------------------------------------------------------
@@ -1244,7 +1239,7 @@ html.dark .tab-pill.active {
   flex-shrink: 0;
 }
 
-/* Live pulsing indicator — for real-time data */
+/* Live pulsing indicator â€” for real-time data */
 .live-indicator {
   display: inline-flex;
   align-items: center;
@@ -1267,7 +1262,7 @@ html.dark .tab-pill.active {
 }
 
 /* ------------------------------------------------------------
-   CARD VARIANTS — Semantic purpose-built cards
+   CARD VARIANTS â€” Semantic purpose-built cards
    ------------------------------------------------------------ */
 
 /* Stat card */
@@ -1301,7 +1296,7 @@ html.dark .tab-pill.active {
   overflow: hidden;
 }
 
-/* Bento card — for feature grids */
+/* Bento card â€” for feature grids */
 .bento-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -1321,7 +1316,7 @@ html.dark .tab-pill.active {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top left, rgba(124, 58, 237, 0.04) 0%, transparent 60%);
+  background: radial-gradient(circle at top left, rgba(13, 27, 62, 0.04) 0%, transparent 60%);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -1329,7 +1324,7 @@ html.dark .tab-pill.active {
 .bento-card:hover::after { opacity: 1; }
 
 /* ------------------------------------------------------------
-   SEARCH INPUT — Unified search box style
+   SEARCH INPUT â€” Unified search box style
    ------------------------------------------------------------ */
 
 .search-box {
@@ -1353,7 +1348,7 @@ html.dark .tab-pill.active {
 .search-box-input:focus {
   border-color: var(--pw-purple);
   background: var(--bg-card);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.10);
+  box-shadow: 0 0 0 3px rgba(13, 27, 62, 0.10);
 }
 .search-box-icon {
   position: absolute;
@@ -1365,7 +1360,7 @@ html.dark .tab-pill.active {
 }
 
 /* ------------------------------------------------------------
-   AVATAR — Consistent profile picture circles
+   AVATAR â€” Consistent profile picture circles
    ------------------------------------------------------------ */
 
 .avatar {
@@ -1386,8 +1381,8 @@ html.dark .tab-pill.active {
 /* Avatar placeholder (initials) */
 .avatar-placeholder {
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(124, 58, 237, 0.08) 100%);
-  border: 2px solid rgba(124, 58, 237, 0.25);
+  background: linear-gradient(135deg, rgba(13, 27, 62, 0.2) 0%, rgba(13, 27, 62, 0.08) 100%);
+  border: 2px solid rgba(13, 27, 62, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1430,7 +1425,7 @@ html.dark .tab-pill.active {
 }
 
 /* ------------------------------------------------------------
-   SCROLLBAR — Custom admin scrollbar
+   SCROLLBAR â€” Custom admin scrollbar
    ------------------------------------------------------------ */
 
 .custom-scrollbar { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }
@@ -1443,7 +1438,7 @@ html.dark .tab-pill.active {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--pw-purple); }
 
 /* ------------------------------------------------------------
-   PROGRESS BAR — for loading states and vote bars
+   PROGRESS BAR â€” for loading states and vote bars
    ------------------------------------------------------------ */
 
 .progress-bar-track {
@@ -1456,7 +1451,7 @@ html.dark .tab-pill.active {
 .progress-bar-fill {
   height: 100%;
   border-radius: 100px;
-  background: linear-gradient(90deg, var(--pw-purple) 0%, #9F67FF 100%);
+  background: linear-gradient(90deg, var(--pw-purple) 0%, #2E9E48 100%);
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .progress-bar-fill-yellow {
@@ -1467,7 +1462,7 @@ html.dark .tab-pill.active {
 }
 
 /* ------------------------------------------------------------
-   TOOLTIP — Hover information tooltip
+   TOOLTIP â€” Hover information tooltip
    ------------------------------------------------------------ */
 
 .tooltip-wrapper { position: relative; display: inline-flex; }
@@ -1496,7 +1491,7 @@ html.dark .tab-pill.active {
 }
 
 /* ------------------------------------------------------------
-   FORM FIELD WRAPPER — label + input + hint combo
+   FORM FIELD WRAPPER â€” label + input + hint combo
    ------------------------------------------------------------ */
 
 .form-field { display: flex; flex-direction: column; gap: 6px; }
@@ -1522,7 +1517,7 @@ html.dark .tab-pill.active {
 }
 
 /* ------------------------------------------------------------
-   ADMIN TABLE — Improved table design
+   ADMIN TABLE â€” Improved table design
    ------------------------------------------------------------ */
 
 .admin-table {
@@ -1561,7 +1556,7 @@ html.dark .tab-pill.active {
 }
 
 /* ------------------------------------------------------------
-   REDUCED MOTION — Respect user accessibility preferences
+   REDUCED MOTION â€” Respect user accessibility preferences
    ------------------------------------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1595,4 +1590,11 @@ html.dark .tab-pill.active {
 
   .motion-element { will-change: auto !important; }
 }
+
+
+
+
+
+.pw-gradient-text { background: linear-gradient(135deg, #0D1B3E 0%, #1E7B34 50%, #E65100 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.pw-gradient-text-warm { background: linear-gradient(135deg, #E65100 0%, #F57C00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
