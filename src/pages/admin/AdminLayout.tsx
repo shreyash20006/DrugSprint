@@ -31,6 +31,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/admin/stories': 'Stories Manager',
   '/admin/admissions': 'Admissions Leads',
   '/admin/developer': 'Developer Console',
+  '/admin/services': 'Services Manager',
+  '/admin/service-registrations': 'Service Registrations',
 };
 
 export const AdminLayout: React.FC = () => {

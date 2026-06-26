@@ -40,7 +40,8 @@ export const Profile: React.FC = () => {
 
   const { theme, toggleTheme } = useThemeContext();
 
-  const [activeTab, setActiveTab] = useState<'registrations' | 'bookmarks' | 'questions'>('registrations');
+  const [activeTab, setActiveTab] = useState<'registrations' | 'services' | 'bookmarks' | 'questions'>('registrations');
+  const [serviceRegistrations, setServiceRegistrations] = useState<any[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState('');
   const [year, setYear] = useState('First Year');
@@ -194,6 +195,14 @@ export const Profile: React.FC = () => {
         if (!questsErr && quests) {
           setAskedQuestions(quests);
         }
+
+        // 4. Fetch service registrations
+        const { data: svcRegs } = await supabase
+          .from('registrations')
+          .select('*, service:services(name, category, thumbnail)')
+          .eq('email', studentProfile.email)
+          .order('created_at', { ascending: false });
+        setServiceRegistrations(svcRegs || []);
 
       } catch (err: any) {
         console.error('Error loading student profile data:', err.message);
@@ -616,6 +625,7 @@ export const Profile: React.FC = () => {
       <div className="bg-[#080F25]/85 border border-white/10 rounded-2xl p-1 flex gap-1 overflow-x-auto scrollbar-hide">
         {[
           { id: 'registrations', label: 'Events', icon: CheckCircle },
+          { id: 'services', label: 'Services', icon: BookOpen },
           { id: 'bookmarks', label: 'Bookmarks', icon: Heart },
           { id: 'questions', label: 'Q&A Logs', icon: MessageSquare },
         ].map(t => {

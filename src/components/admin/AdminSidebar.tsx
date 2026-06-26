@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Mail, Megaphone, Calendar, Image as ImageIcon, Globe, LogOut,
   Users, Sliders, ClipboardList, Bug, Sun, Moon, CheckSquare, MessageSquare,
   MessageCircle, Award, Newspaper, HeartHandshake, BadgeCheck, AlertTriangle,
-  Wrench, CreditCard, GraduationCap, Camera, UserPlus, X, ChevronDown, FolderOpen,
+  Wrench, CreditCard, GraduationCap, Camera, UserPlus, X, ChevronDown, FolderOpen, Tag,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -112,11 +112,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     ];
 
     const engagement: NavItem[] = [
-      { path: '/admin/registrations', name: 'Registrations', icon: <ClipboardList className="w-4 h-4" strokeWidth={2.2} /> },
+      { path: '/admin/registrations', name: 'Event Registrations', icon: <ClipboardList className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/polls', name: 'Polls', icon: <CheckSquare className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/feedback', name: 'Feedback', icon: <MessageSquare className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/admissions', name: 'Admissions Leads', icon: <UserPlus className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/payments', name: 'Payments', icon: <CreditCard className="w-4 h-4" strokeWidth={2.2} /> },
+      { path: '/admin/services', name: 'Services Manager', icon: <Tag className="w-4 h-4" strokeWidth={2.2} />, badgeText: 'NEW' },
+      { path: '/admin/service-registrations', name: 'Service Registrations', icon: <ClipboardList className="w-4 h-4 text-orange-burnt" strokeWidth={2.2} /> },
     ];
 
     const admin: NavItem[] = [];

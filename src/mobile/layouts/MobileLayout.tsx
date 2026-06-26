@@ -43,11 +43,14 @@ const TermsScreen = lazy(() => import('../screens/Terms'));
 const RefundsScreen = lazy(() => import('../screens/Refunds'));
 const NewsScreen = lazy(() => import('../screens/News'));
 const StudyMaterialScreen = lazy(() => import('../../pages/StudyMaterial'));
+const ServicesScreen = lazy(() => import('../../pages/Services'));
+const ServiceDetailScreen = lazy(() => import('../../pages/ServiceDetail'));
 
 // More-drawer quick links config
 const MORE_ITEMS = [
   { label: 'Gallery',         icon: Camera,     route: '/gallery',       color: 'text-purple-400',   bg: 'bg-purple-500/10',   border: 'border-purple-500/20' },
   { label: 'Council',         icon: Users,       route: '/council',       color: 'text-blue-400',     bg: 'bg-blue-500/10',     border: 'border-blue-500/20'   },
+  { label: 'Services',        icon: Grid,        route: '/services',      color: 'text-emerald-400',  bg: 'bg-emerald-500/10',  border: 'border-emerald-500/20'},
   { label: 'Exam Schedule',   icon: Clock,       route: '/exams',         color: 'text-amber-400',    bg: 'bg-amber-500/10',    border: 'border-amber-500/20'  },
   { label: 'Contact',         icon: Phone,       route: '/contact',       color: 'text-emerald-400',  bg: 'bg-emerald-500/10',  border: 'border-emerald-500/20'},
   { label: 'Search',          icon: SearchIcon,  route: '/search',        color: 'text-cyan-400',     bg: 'bg-cyan-500/10',     border: 'border-cyan-500/20'   },
@@ -184,10 +187,12 @@ export const MobileLayout: React.FC = () => {
     if (p.startsWith('/news'))          return 'Council News';
     if (p.startsWith('/study-material')) return 'Study Material';
     if (p.startsWith('/profile'))       return 'My Profile';
+    if (p.startsWith('/services/'))     return 'Service Details';
+    if (p === '/services')              return 'Student Services';
     return '';
   };
 
-  const PRIMARY_ROUTES = ['/', '/dashboard', '/home', '/notices', '/resources', '/store', '/events'];
+  const PRIMARY_ROUTES = ['/', '/dashboard', '/home', '/notices', '/resources', '/store', '/events', '/services'];
   const isSubRoute = !PRIMARY_ROUTES.includes(location.pathname.toLowerCase());
   const pageTitle = getPageTitle(location.pathname);
 
@@ -309,6 +314,8 @@ export const MobileLayout: React.FC = () => {
                 <Route path="/news"           element={<NewsScreen />} />
                 <Route path="/study-material" element={<StudyMaterialScreen />} />
                 <Route path="/profile"        element={<ProfileScreen />} />
+                <Route path="/services"       element={<ServicesScreen />} />
+                <Route path="/services/:serviceId" element={<ServiceDetailScreen />} />
 
                 {/* Other sub-routes */}
                 <Route path="/lost-found"    element={<LostAndFoundScreen />} />

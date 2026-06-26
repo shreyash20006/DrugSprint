@@ -86,6 +86,11 @@ const AdminManageAdmins = lazy(() => import('./pages/admin/AdminManageAdmins'));
 const AdminExamSchedule = lazy(() => import('./pages/admin/AdminExamSchedule'));
 const AdminStories = lazy(() => import('./pages/admin/AdminStories'));
 const AdminAdmissions = lazy(() => import('./pages/admin/AdminAdmissions'));
+const AdminServicesMgr = lazy(() => import('./pages/admin/AdminServices'));
+const AdminServiceRegistrations = lazy(() => import('./pages/admin/AdminServiceRegistrations'));
+
+const Services = lazy(() => import('./pages/Services'));
+const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
 
 // Scroll to top helper
 const ScrollToTop: React.FC = () => {
@@ -217,6 +222,8 @@ const AppContent: React.FC = () => {
               <Route path="/admin/exams" element={<AdminExamSchedule />} />
               <Route path="/admin/stories" element={<AdminStories />} />
               <Route path="/admin/admissions" element={<AdminAdmissions />} />
+              <Route path="/admin/services" element={<AdminServicesMgr />} />
+              <Route path="/admin/service-registrations" element={<AdminServiceRegistrations />} />
             </Route>
 
             {/* Everything else maps to bottom-tabbed MobileLayout */}
@@ -275,6 +282,8 @@ const AppContent: React.FC = () => {
             <Route path="/refunds-and-cancellations" element={<Refunds />} />
             <Route path="/search" element={<Search />} />
             <Route path="/exams" element={<ExamSchedule />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/services/:serviceId" element={<ServiceDetail />} />
             <Route path="/exam-schedule" element={<ExamSchedule />} />
 
             {/* Secure Admin Routes */}
@@ -324,6 +333,8 @@ const AppContent: React.FC = () => {
               <Route path="/admin/exams" element={<AdminExamSchedule />} />
               <Route path="/admin/stories" element={<AdminStories />} />
               <Route path="/admin/admissions" element={<AdminAdmissions />} />
+              <Route path="/admin/services" element={<AdminServicesMgr />} />
+              <Route path="/admin/service-registrations" element={<AdminServiceRegistrations />} />
             </Route>
           </Routes>
         </Suspense>
