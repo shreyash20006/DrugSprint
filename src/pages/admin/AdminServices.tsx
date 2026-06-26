@@ -5,8 +5,8 @@ import { useAuth } from '../../components/admin/ProtectedRoute';
 import { logAction } from '../../lib/logger';
 import {
   Tag, Plus, Edit, Trash2, Eye, EyeOff, Copy,
-  Search, Loader2, Archive, ToggleLeft, ToggleRight,
-  Star, Users, CreditCard, X, Upload
+  Search, Loader2, ToggleLeft, ToggleRight,
+  Users, X, Upload
 } from 'lucide-react';
 import { uploadFileToCloudinary } from '../../lib/cloudinary';
 

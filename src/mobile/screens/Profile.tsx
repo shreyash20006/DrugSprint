@@ -708,7 +708,66 @@ export const Profile: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Tab 2: Bookmarked Events */}
+            {/* Tab 2: Service Registrations */}
+            {activeTab === 'services' && (
+              <motion.div
+                key="services"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="space-y-3.5"
+              >
+                <div className="flex justify-between items-center mb-1">
+                  <h4 className="font-display font-extrabold text-xs text-white uppercase tracking-wider">Service Registrations</h4>
+                  <span className="text-[9px] text-white/45 font-bold">{serviceRegistrations.length} records</span>
+                </div>
+
+                {serviceRegistrations.length === 0 ? (
+                  <div className="text-center py-10 border border-white/5 rounded-xl bg-white/[0.01]">
+                    <p className="text-xs text-white/45">No service registrations found.</p>
+                    <button
+                      onClick={() => navigate('/services')}
+                      className="mt-3 px-4 py-2 bg-orange-burnt/10 border border-orange-burnt/20 text-orange-burnt text-[9px] font-display font-bold uppercase tracking-wider rounded-xl"
+                    >
+                      Browse Services
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-3">
+                    {serviceRegistrations.map(reg => (
+                      <div key={reg.id} className="bg-white/5 border border-white/5 rounded-xl p-3.5">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            {reg.service?.thumbnail && (
+                              <img src={reg.service.thumbnail} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                            )}
+                            <div className="min-w-0">
+                              <span className="text-[8px] font-bold text-orange-burnt uppercase tracking-wider block">{reg.service?.category || 'Service'}</span>
+                              <h5 className="font-display font-bold text-xs text-white leading-snug truncate">{reg.service?.name || 'Service'}</h5>
+                            </div>
+                          </div>
+                          <span className={`shrink-0 text-[8px] font-bold px-2 py-0.5 rounded-full border ${
+                            reg.payment_status === 'completed'
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                              : reg.payment_status === 'pending'
+                              ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                              : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                          }`}>
+                            {reg.amount_paid ? `₹${reg.amount_paid}` : 'Free'}
+                          </span>
+                        </div>
+                        <div className="border-t border-white/5 pt-2 flex items-center justify-between">
+                          <span className="font-mono text-[8px] text-white/40">{reg.registration_id}</span>
+                          <span className="text-[9px] text-white/40">{new Date(reg.created_at).toLocaleDateString('en-IN')}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* Tab 3: Bookmarked Events */}
             {activeTab === 'bookmarks' && (
               <motion.div
                 key="bookmarks"

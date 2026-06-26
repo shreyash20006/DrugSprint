@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, Calendar, Users, MapPin, Clock, Download,
+  ArrowLeft, Users, Clock,
   Loader2, CheckCircle2, AlertTriangle, CreditCard,
-  Tag, FileText, Phone, Mail, GraduationCap, User,
-  ChevronRight, Star, Info, ShieldCheck
+  Phone, Mail, GraduationCap, User,
+  Star, ShieldCheck
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useStudentAuth } from '../lib/StudentAuthProvider';

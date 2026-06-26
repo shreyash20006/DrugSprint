@@ -6,7 +6,7 @@ import { downloadCsv } from '../../lib/exportCsv';
 import { logAction } from '../../lib/logger';
 import {
   Users, Search, Download, Eye, Trash2,
-  CheckCircle, XCircle, Clock, Filter, Loader2
+  CheckCircle, XCircle, Clock, Loader2
 } from 'lucide-react';
 
 export const AdminServiceRegistrations: React.FC = () => {

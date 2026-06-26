@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, BookOpen, Award, Users, FileText, Download,
-  Loader2, Search, ChevronRight, Star, Clock, Tag,
+  Search, ChevronRight, Star, Clock, Tag,
   Sparkles, GraduationCap, Ticket, BadgeCheck
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
