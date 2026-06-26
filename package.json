@@ -9,7 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "android:build": "npm run build && node node_modules/@capacitor/cli/bin/capacitor sync",
-    "android:open": "node node_modules/@capacitor/cli/bin/capacitor open android"
+    "android:open": "node node_modules/@capacitor/cli/bin/capacitor open android",
+    "android:run": "node node_modules/@capacitor/cli/bin/capacitor run android",
+    "android:sync": "node node_modules/@capacitor/cli/bin/capacitor sync android"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.0",

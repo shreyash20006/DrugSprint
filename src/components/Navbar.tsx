@@ -109,6 +109,7 @@ export const Navbar: React.FC = () => {
     { name: 'Leaderboard', path: '/leaderboard', icon: '🏆', desc: 'Top achievers', desktopOnly: true },
     { name: 'Message Board', path: '/board', icon: '💬', desc: 'Community board' },
     { name: 'Study Store', path: '/store', icon: '📚', desc: 'Syllabus handbooks & exam keys', desktopOnly: true },
+    { name: 'Study Material', path: '/study-material', icon: '📝', desc: 'B.Pharm handwritten notes by semester' },
     { name: 'Study Resources', path: '/resources', icon: '📂', desc: 'Share & download student notes' },
     { name: 'Lost & Found', path: '/lost-found', icon: '🔍', desc: 'Report lost or found belongings' },
     { name: 'GPAT & NIPER Prep', path: '/gpat-prep', icon: '🎓', desc: 'Daily quizzes & study flashcards' },
@@ -127,28 +128,36 @@ export const Navbar: React.FC = () => {
       <header
         id="navbar"
         style={{
-          background: isScrolled ? 'rgba(13, 27, 62, 0.95)' : 'transparent',
-          borderBottom: isScrolled ? '1px solid rgba(200, 75, 14, 0.2)' : '1px solid transparent',
-          backdropFilter: isScrolled ? 'blur(20px)' : 'none',
+          background: isScrolled ? 'var(--bg-nav)' : 'transparent',
+          borderBottom: isScrolled ? '1px solid var(--border-subtle)' : '1px solid transparent',
+          backdropFilter: isScrolled ? 'blur(24px)' : 'none',
+          WebkitBackdropFilter: isScrolled ? 'blur(24px)' : 'none',
+          boxShadow: isScrolled ? '0 4px 32px rgba(0,0,0,0.12), 0 1px 0 var(--border-subtle)' : 'none',
         }}
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-400 ${
           isScrolled
-            ? 'border-b py-2.5 shadow-2xl'
+            ? 'border-b py-2.5'
             : 'py-4'
         }`}
       >
-        {/* Dynamic Announcement Bar - upgraded with sleek glow */}
+        {/* Dynamic Announcement Bar */}
         {announcementEnabled && announcementText && (
-          <div className="w-full bg-gradient-to-r from-orange-burnt to-[#E06D2B] py-2 px-4 text-white text-[10px] sm:text-xs font-display font-bold tracking-wide flex items-center space-x-2 shadow-inner border-b border-white/5 relative overflow-hidden">
-            <div className="bg-white/20 border border-white/30 px-2 py-0.5 rounded text-[8px] sm:text-[9px] uppercase tracking-wider animate-pulse shrink-0 relative z-10 shadow-md">
-              LATEST
+          <div className="w-full bg-gradient-to-r from-orange-burnt via-[#D65A1E] to-[#E06D2B] py-1.5 px-4 text-white flex items-center gap-3 relative overflow-hidden border-b border-white/10">
+            {/* Shimmer sweep */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_3s_ease_infinite] pointer-events-none" />
+            {/* Live dot */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              <span className="text-[8px] sm:text-[9px] font-extrabold tracking-[0.2em] uppercase opacity-90">
+                Live
+              </span>
             </div>
-            <div className="flex-1 overflow-hidden relative flex items-center">
-              <div className="animate-marquee hover:opacity-90 cursor-default">
-                <span className="pr-12">{announcementText}</span>
-                <span className="pr-12">{announcementText}</span>
-                <span className="pr-12">{announcementText}</span>
-                <span className="pr-12">{announcementText}</span>
+            {/* Scrolling text */}
+            <div className="flex-1 overflow-hidden fade-x-mask">
+              <div className="animate-marquee text-[10px] sm:text-xs font-semibold tracking-wide">
+                <span className="pr-16">{announcementText}</span>
+                <span className="pr-16">{announcementText}</span>
+                <span className="pr-16">{announcementText}</span>
               </div>
             </div>
           </div>
@@ -247,39 +256,55 @@ export const Navbar: React.FC = () => {
               <AnimatePresence>
                 {isMoreDropdownOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 10, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 12, scale: 0.95 }}
-                    transition={{ duration: 0.2, ease: 'easeOut' }}
-                    className="absolute right-0 mt-2 w-[480px] sm:w-[520px] bg-[#080F25]/95 backdrop-blur-2xl rounded-2xl shadow-2xl p-3 border border-white/10 z-50 overflow-hidden text-white"
+                    exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    style={{ background: 'var(--bg-dropdown)', borderColor: 'var(--border-mid)' }}
+                    className="absolute right-0 mt-2 w-[500px] sm:w-[540px] backdrop-blur-2xl rounded-2xl shadow-2xl p-3 border z-50 overflow-hidden"
                   >
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {moreLinks.map((subLink) => (
-                        <Link
-                          key={subLink.path}
-                          to={subLink.path}
-                          onClick={() => setIsMoreDropdownOpen(false)}
-                          className={`block px-3.5 py-3 hover:bg-white/5 rounded-xl transition-all duration-200 ${
-                            subLink.highlight ? 'bg-red-500/5 hover:bg-red-500/10 border-l-2 border-red-500' : ''
-                          }`}
-                        >
-                          <div className="flex items-start space-x-3">
-                            <span className="text-base mt-0.5 shrink-0">{subLink.icon}</span>
-                            <div>
-                              <span
-                                className={`block text-xs font-semibold ${
-                                  subLink.highlight ? 'text-red-400 font-extrabold' : 'text-white hover:text-orange-burnt'
-                                }`}
-                              >
-                                {subLink.name}
-                              </span>
-                              <span className="block text-[10px] text-white/50 leading-tight mt-0.5">
-                                {subLink.desc}
-                              </span>
+                    {/* Header label */}
+                    <div className="px-3 pb-2 mb-1 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+                      <p className="text-[9px] font-bold tracking-[0.2em] uppercase" style={{ color: 'var(--text-muted)' }}>More Features</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      {moreLinks.map((subLink) => {
+                        const isSubActive = location.pathname === subLink.path;
+                        return (
+                          <Link
+                            key={subLink.path}
+                            to={subLink.path}
+                            onClick={() => setIsMoreDropdownOpen(false)}
+                            style={{
+                              background: isSubActive ? 'rgba(124,58,237,0.08)' : undefined,
+                            }}
+                            className={`group block px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                              subLink.highlight
+                                ? 'hover:bg-red-500/8 border-l-2 border-red-500'
+                                : 'hover:bg-orange-burnt/[0.06]'
+                            }`}
+                          >
+                            <div className="flex items-start space-x-2.5">
+                              <span className="text-sm mt-0.5 shrink-0">{subLink.icon}</span>
+                              <div className="min-w-0">
+                                <span
+                                  style={{ color: isSubActive ? 'var(--pw-purple)' : undefined }}
+                                  className={`block text-[12px] font-semibold truncate transition-colors ${
+                                    subLink.highlight
+                                      ? 'text-red-400 font-extrabold'
+                                      : 'text-[var(--text-primary)] group-hover:text-orange-burnt'
+                                  }`}
+                                >
+                                  {subLink.name}
+                                </span>
+                                <span className="block text-[10px] leading-tight mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                                  {subLink.desc}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        </Link>
-                      ))}
+                          </Link>
+                        );
+                      })}
                     </div>
                   </motion.div>
                 )}
@@ -380,83 +405,128 @@ export const Navbar: React.FC = () => {
         }`}
       />
 
-      {/* Slide-in Drawer with GPU layer force CSS translate */}
-      <div
-        style={{ background: '#0D1B3E', borderLeft: '1px solid rgba(200, 75, 14, 0.2)' }}
-        className={`fixed right-0 top-0 bottom-0 w-[290px] p-6 z-50 shadow-2xl flex flex-col justify-between md:hidden overflow-y-auto transition-transform duration-250 ease-in-out ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+      {/* Slide-in Drawer — Framer Motion stagger */}
+      <motion.div
+        initial={false}
+        animate={{ x: isMobileMenuOpen ? 0 : '100%' }}
+        transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.8 }}
+        style={{
+          background: 'var(--bg-drawer)',
+          borderLeft: '1px solid var(--border-mid)',
+        }}
+        className="fixed right-0 top-0 bottom-0 w-[300px] p-6 z-50 shadow-2xl flex flex-col justify-between md:hidden overflow-y-auto custom-scrollbar"
       >
         <div>
-          <div className="flex items-center justify-between mb-8">
-            <span className="font-display font-extrabold text-lg text-orange-burnt uppercase tracking-wider">
-              TGPCOP Council
-            </span>
+          {/* Drawer header */}
+          <div className="flex items-center justify-between mb-7">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-burnt to-[#E06D2B] flex items-center justify-center shadow-md shadow-orange-burnt/20">
+                <GraduationCap className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <span className="font-display font-extrabold text-sm block" style={{ color: 'var(--text-primary)' }}>TGPCOP</span>
+                <span className="text-[9px] text-orange-burnt font-bold tracking-widest uppercase">Student Council</span>
+              </div>
+            </div>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
-              className="p-2 rounded-xl hover:bg-white/5 transition-colors cursor-pointer"
+              className="btn-icon"
+              aria-label="Close menu"
             >
-              <X className="w-6 h-6 text-white" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
-          <nav className="flex flex-col space-y-4">
-            {navLinks.map((link) => {
+          {/* Primary nav links */}
+          <nav className="flex flex-col gap-1 mb-4">
+            {navLinks.map((link, idx) => {
               const isActive = location.pathname === link.path;
               return (
-                <div key={link.path}>
+                <motion.div
+                  key={link.path}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={isMobileMenuOpen ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
+                  transition={{ delay: idx * 0.045, duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                >
                   <Link
                     to={link.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`font-display font-semibold text-sm py-2 flex items-center justify-between border-b border-white/5 transition-colors ${
-                      isActive ? 'text-orange-burnt font-extrabold' : 'text-white/80 hover:text-white'
+                    style={{
+                      background: isActive ? 'rgba(124,58,237,0.08)' : undefined,
+                      color: isActive ? 'var(--pw-purple)' : 'var(--text-secondary)',
+                    }}
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl font-display font-semibold text-sm transition-all ${
+                      isActive ? '' : 'hover:bg-[var(--bg-surface)]'
                     }`}
                   >
-                    {link.name}
+                    <span style={isActive ? { color: 'var(--pw-purple)' } : {}}>{link.name}</span>
                     {isActive && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-burnt shadow-md shadow-orange-burnt/50" />
+                      <motion.span
+                        layoutId="mobileActiveIndicator"
+                        className="w-1.5 h-1.5 rounded-full bg-orange-burnt"
+                      />
                     )}
                   </Link>
-                </div>
+                </motion.div>
               );
             })}
-
-            {/* Expandable Mobile "More" Items */}
-            <div>
-              <button
-                onClick={() => setIsMobileMoreOpen(!isMobileMoreOpen)}
-                className="w-full font-display font-semibold text-sm py-2 flex items-center justify-between outline-none text-white/80 cursor-pointer"
-              >
-                <span>More Features</span>
-                <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-300 ${
-                    isMobileMoreOpen ? 'rotate-180 text-orange-burnt' : ''
-                  }`}
-                />
-              </button>
-
-              {isMobileMoreOpen && (
-                <div className="pl-4 pb-2 mt-2 space-y-3 overflow-hidden flex flex-col border-l border-white/5 text-xs">
-                  {moreLinks.filter(l => !l.desktopOnly).map((subLink) => {
-                    const isSubActive = location.pathname === subLink.path;
-                    return (
-                      <Link
-                        key={subLink.path}
-                        to={subLink.path}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={`py-1 flex items-center space-x-2 transition-colors ${
-                          isSubActive ? 'text-orange-burnt font-extrabold' : 'text-white/60 hover:text-white'
-                        }`}
-                      >
-                        <span>{subLink.icon}</span>
-                        <span>{subLink.name}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
           </nav>
+
+          {/* Divider */}
+          <div className="divider-h mb-4" />
+
+          {/* Expandable "More" section */}
+          <div>
+            <button
+              onClick={() => setIsMobileMoreOpen(!isMobileMoreOpen)}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-xl font-display font-semibold text-sm outline-none cursor-pointer transition-colors hover:bg-[var(--bg-surface)]"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              <span>More Features</span>
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  isMobileMoreOpen ? 'rotate-180 text-orange-burnt' : ''
+                }`}
+                style={{ color: 'var(--text-muted)' }}
+              />
+            </button>
+
+            <AnimatePresence>
+              {isMobileMoreOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="pl-3 pt-2 pb-1 space-y-0.5">
+                    {moreLinks.filter(l => !l.desktopOnly).map((subLink) => {
+                      const isSubActive = location.pathname === subLink.path;
+                      return (
+                        <Link
+                          key={subLink.path}
+                          to={subLink.path}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          style={{
+                            color: isSubActive ? 'var(--pw-purple)' : 'var(--text-muted)',
+                          }}
+                          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                            subLink.highlight
+                              ? 'text-red-400 hover:bg-red-500/5'
+                              : 'hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]'
+                          }`}
+                        >
+                          <span className="text-sm">{subLink.icon}</span>
+                          <span>{subLink.name}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         <div className="mt-8 pt-6 border-t border-white/5">
@@ -506,12 +576,13 @@ export const Navbar: React.FC = () => {
             id="theme-toggle-mobile"
             onClick={toggleTheme}
             aria-label="Toggle dark/light mode"
-            className="w-full flex items-center justify-between py-3 px-4 mb-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all cursor-pointer"
+            style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
+            className="w-full flex items-center justify-between py-3 px-4 mb-3 rounded-xl border transition-all cursor-pointer hover:border-orange-burnt/40"
           >
-            <span className="font-display font-semibold text-xs text-white/80">
+            <span className="font-display font-semibold text-xs" style={{ color: 'var(--text-secondary)' }}>
               {theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
             </span>
-            <div className="relative w-12 h-6 rounded-full border border-white/15 bg-white/10 flex items-center px-1">
+            <div className="relative w-12 h-6 rounded-full border flex items-center px-1" style={{ borderColor: 'var(--border-mid)', background: 'var(--bg-input)' }}>
               <div
                 className="w-4 h-4 rounded-full bg-gradient-to-br from-orange-burnt to-gold-accent transition-transform duration-250 ease-out"
                 style={{ transform: theme === 'dark' ? 'translateX(0)' : 'translateX(22px)' }}
@@ -522,15 +593,15 @@ export const Navbar: React.FC = () => {
           <Link
             to={getPortalPath(studentProfile?.role)}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="w-full text-center py-3 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg shadow-orange-burnt/15 transition-all block mb-4 active:scale-98 border border-white/5"
+            className="btn-pw-primary w-full text-center py-3 font-display text-xs font-bold uppercase tracking-widest rounded-xl block mb-4"
           >
             🔑 Admin Portal
           </Link>
-          <div className="text-center text-[10px] text-white/45 tracking-wider">
+          <div className="text-center text-[10px] tracking-wider" style={{ color: 'var(--text-muted)' }}>
             TGPCOP Student Council © 2026
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Global Command Palette Search */}
       <CommandPalette isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

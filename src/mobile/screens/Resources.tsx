@@ -2,11 +2,13 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Star, ShoppingBag, ExternalLink, X, BookMarked, 
-  Layers, Upload, Download, Trash2, Plus, FileText, Loader2, AlertCircle 
+  Layers, Upload, Download, Trash2, Plus, FileText, Loader2, AlertCircle, RefreshCw
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useStudentAuth } from '../../lib/StudentAuthProvider';
 import { uploadFileToCloudinary } from '../../lib/cloudinary';
+import { getCache, setCache } from '../../lib/cache';
+import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 
 interface StudyBook {
   id: string;
@@ -187,9 +189,9 @@ export const Resources: React.FC = () => {
     }
   ];
 
-  // Fetch shared resources from Supabase
-  const fetchSharedResources = useCallback(async () => {
-    setIsLoadingShared(true);
+  // Fetch shared resources from Supabase with offline cache
+  const fetchSharedResources = useCallback(async (showLoader = false) => {
+    if (showLoader) setIsLoadingShared(true);
     try {
       const { data, error } = await supabase
         .from('study_resources')
@@ -197,7 +199,9 @@ export const Resources: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSharedResources(data || []);
+      const items = data || [];
+      setSharedResources(items);
+      setCache('resources', items, 60);
     } catch (err: any) {
       console.error('Error fetching shared resources:', err.message);
     } finally {
@@ -206,8 +210,19 @@ export const Resources: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchSharedResources();
+    const cached = getCache<SharedResource[]>('resources');
+    if (cached) {
+      setSharedResources(cached);
+      setIsLoadingShared(false);
+      fetchSharedResources(false);
+    } else {
+      fetchSharedResources(true);
+    }
   }, [fetchSharedResources]);
+
+  const { isRefreshing, pullProgress } = usePullToRefresh({
+    onRefresh: () => fetchSharedResources(false),
+  });
 
   // Filters Shared Notes
   const filteredShared = useMemo(() => {
@@ -294,7 +309,7 @@ export const Resources: React.FC = () => {
       setIsUploadDrawerOpen(false);
 
       // Refresh
-      fetchSharedResources();
+      fetchSharedResources(true);
     } catch (err: any) {
       console.error('Mobile upload failed:', err);
       setUploadError(err.message || 'An error occurred during file upload.');
@@ -332,6 +347,22 @@ export const Resources: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-6 pt-4 text-white">
+      {/* Pull-to-refresh indicator */}
+      <AnimatePresence>
+        {(isRefreshing || pullProgress > 0) && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 40 }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-center justify-center"
+          >
+            <RefreshCw
+              className={`w-5 h-5 text-orange-burnt ${isRefreshing ? 'animate-spin' : ''}`}
+              style={{ transform: `rotate(${pullProgress * 360}deg)` }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Welcome Hero Section */}
       <section className="space-y-1">
         <span className="font-display text-xs font-bold text-orange-burnt tracking-widest uppercase">

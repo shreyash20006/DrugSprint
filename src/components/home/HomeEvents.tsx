@@ -1,9 +1,20 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Calendar, CalendarDays, Clock, MapPin, ArrowUpRight, Trophy, Users } from 'lucide-react';
 import { Card, CardBadge } from '../ui/Card';
 import { Section, SectionHeader } from './Section';
 import type { HomeEvent } from '../../hooks/useHomePageData';
+
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 220, damping: 24 } },
+};
 
 export const HomeEvents: React.FC<{ events: HomeEvent[] }> = ({ events }) => {
   useEffect(() => {
@@ -33,16 +44,22 @@ export const HomeEvents: React.FC<{ events: HomeEvent[] }> = ({ events }) => {
         cta={
           <Link
             to="/events"
-            className="group inline-flex items-center gap-2 text-orange-burnt font-display font-extrabold text-sm hover:text-gold-accent transition-colors"
+            className="group inline-flex items-center gap-1.5 font-display font-extrabold text-sm transition-colors text-orange-burnt hover:text-gold-accent"
             data-testid="view-all-events"
           >
-            <span>Explore Events Timeline</span>
+            <span>Explore Events</span>
             <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
         }
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-7 items-start">
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-60px' }}
+        variants={containerVariants}
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start"
+      >
         {/* Render events from database */}
         {events.map((event) => {
           const capacity = event.capacity || 100;
@@ -51,12 +68,19 @@ export const HomeEvents: React.FC<{ events: HomeEvent[] }> = ({ events }) => {
           const progressPct = Math.min(100, ((event.registered_count || 0) / capacity) * 100);
 
           return (
-            <Card key={event.id} variant="default" padding="none" hover className="flex flex-col h-full">
-              <div className="h-44 bg-[#080F25] relative overflow-hidden border-b border-white/5">
+            <motion.div key={event.id} variants={cardVariants}>
+              <Card variant="default" padding="none" hover className="flex flex-col h-full">
+              <div
+                className="h-44 relative overflow-hidden border-b"
+                style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}
+              >
                 {event.image_url ? (
-                  <img src={event.image_url} alt={event.name} className="w-full h-full object-cover opacity-90" />
+                  <img src={event.image_url} alt={event.name} className="w-full h-full object-cover" loading="lazy" />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#080F25] via-[#0D1B3E] to-orange-burnt/15 flex flex-col p-6 justify-between">
+                  <div
+                    className="absolute inset-0 flex flex-col p-6 justify-between"
+                    style={{ background: 'linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-card) 60%, rgba(124,58,237,0.08) 100%)' }}
+                  >
                     <CardBadge tone="orange">
                       {event.type === 'competition' ? (
                         <>
@@ -107,20 +131,23 @@ export const HomeEvents: React.FC<{ events: HomeEvent[] }> = ({ events }) => {
                   )}
                 </div>
 
+                {/* Animated seat-fill progress bar */}
                 <div className="space-y-1.5 pt-1">
                   <div className="flex justify-between items-center text-[10px] font-bold">
                     <span className={`inline-flex items-center gap-1.5 ${isFull ? 'text-red-400' : 'text-emerald-400'}`}>
                       <Users className="w-3 h-3" strokeWidth={2.4} />
                       {isFull ? 'House Full' : `${seatsLeft} seats left`}
                     </span>
-                    <span className="text-white/45">Cap: {capacity}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>Cap: {capacity}</span>
                   </div>
-                  <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      style={{ width: `${progressPct}%` }}
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        isFull ? 'bg-red-500' : 'bg-gradient-to-r from-emerald-500 to-teal-400'
-                      }`}
+                  <div className="progress-bar-track">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${progressPct}%` }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
+                      style={{ height: '100%', borderRadius: '100px' }}
+                      className={isFull ? 'bg-red-500' : 'progress-bar-fill-green'}
                     />
                   </div>
                 </div>
@@ -143,19 +170,30 @@ export const HomeEvents: React.FC<{ events: HomeEvent[] }> = ({ events }) => {
                   {!isFull && <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.4} />}
                 </Link>
               </div>
-            </Card>
+              </Card>
+            </motion.div>
           );
         })}
 
-        {/* If there are no upcoming events in the database, show a stay tuned placeholder */}
+        {/* Improved empty state */}
         {events.length === 0 && (
-          <Card variant="default" padding="xl" className="text-center md:col-span-2 flex flex-col justify-center py-12 min-h-[380px]">
-            <Calendar className="w-10 h-10 text-white/10 mx-auto mb-3 animate-pulse" strokeWidth={1.6} />
-            <h3 className="font-display font-bold text-white/60 text-base">Stay Tuned for More Events</h3>
-            <p className="text-xs text-white/40 max-w-sm mx-auto mt-2 leading-relaxed font-sans">
-              We are actively planning new quizzes, cultural symposiums, and sports competitions. Check back soon or follow our Instagram feed for immediate updates!
-            </p>
-          </Card>
+          <div className="md:col-span-2 content-card">
+            <div className="empty-state py-16">
+              <div className="empty-state-icon w-16 h-16 rounded-2xl">
+                <Calendar className="w-7 h-7" strokeWidth={1.5} />
+              </div>
+              <p className="empty-state-title">Stay Tuned for More Events</p>
+              <p className="empty-state-description">
+                We are actively planning new quizzes, cultural symposiums, and sports competitions. Check back soon!
+              </p>
+              <Link
+                to="/events"
+                className="btn-pw-secondary mt-2"
+              >
+                View All Events
+              </Link>
+            </div>
+          </div>
         )}
 
         {/* Instagram Post Embed Card */}
@@ -224,7 +262,7 @@ export const HomeEvents: React.FC<{ events: HomeEvent[] }> = ({ events }) => {
             </blockquote>
           </div>
         </Card>
-      </div>
+      </motion.div>
     </Section>
   );
 };

@@ -2,10 +2,12 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Megaphone, Eye, Download, 
-  ExternalLink, FileText, AlertTriangle, X
+  ExternalLink, FileText, AlertTriangle, X, RefreshCw
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { DNALoader } from '../../components/DNALoader';
+import { getCache, setCache } from '../../lib/cache';
+import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 
 export const Notices: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<'All' | 'Academic' | 'Event' | 'Alert' | 'General'>('All');
@@ -22,8 +24,10 @@ export const Notices: React.FC = () => {
   // Pagination State
   const [visibleCount, setVisibleCount] = useState(4);
 
-  const fetchNotices = async () => {
-    setIsLoading(true);
+  const CACHE_KEY = 'notices';
+
+  const fetchNotices = useCallback(async (showLoader = false) => {
+    if (showLoader) setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('notices')
@@ -32,17 +36,42 @@ export const Notices: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setNotices(data || []);
+      const items = data || [];
+      setNotices(items);
+      setCache(CACHE_KEY, items, 30);
     } catch (err: any) {
       console.error('Error fetching notices:', err.message);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchNotices();
   }, []);
+
+  // Load cache immediately, then refresh in background
+  useEffect(() => {
+    const cached = getCache<any[]>(CACHE_KEY);
+    if (cached) {
+      setNotices(cached);
+      setIsLoading(false);
+      fetchNotices(false);
+    } else {
+      fetchNotices(true);
+    }
+  }, [fetchNotices]);
+
+  // Supabase Realtime — live sync when admin publishes a new notice
+  useEffect(() => {
+    const channel = supabase
+      .channel('notices_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notices' }, () => {
+        fetchNotices(false);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [fetchNotices]);
+
+  const { isRefreshing, pullProgress } = usePullToRefresh({
+    onRefresh: () => fetchNotices(false),
+  });
 
   const filteredNotices = useMemo(() => {
     return notices.filter(
@@ -93,6 +122,22 @@ export const Notices: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-6 pt-4">
+      {/* Pull-to-refresh indicator */}
+      <AnimatePresence>
+        {(isRefreshing || pullProgress > 0) && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 40 }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-center justify-center"
+          >
+            <RefreshCw
+              className={`w-5 h-5 text-orange-burnt ${isRefreshing ? 'animate-spin' : ''}`}
+              style={{ transform: `rotate(${pullProgress * 360}deg)` }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Header Section */}
       <section className="space-y-1">
         <span className="font-display text-xs font-bold text-orange-burnt tracking-widest uppercase">

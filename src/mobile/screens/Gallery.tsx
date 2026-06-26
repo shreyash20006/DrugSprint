@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Camera, X, ChevronLeft, ChevronRight, 
+  Camera, X, ChevronLeft, ChevronRight, RefreshCw,
   Image as ImageIcon, Play, Video, Music, AlertCircle
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { getCloudinaryThumbnail, getCloudinaryMediaUrl } from '../../lib/cloudinary';
+import { usePullToRefresh } from '../../hooks/usePullToRefresh';
 
 interface GalleryItem {
   id: string;
@@ -126,7 +127,7 @@ export const Gallery: React.FC = () => {
     setActivePhotoIndex(0);
   }, [lightboxIndex]);
 
-  const fetchPhotos = async () => {
+  const fetchPhotos = useCallback(async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -141,11 +142,15 @@ export const Gallery: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchPhotos();
-  }, []);
+  }, [fetchPhotos]);
+
+  const { isRefreshing, pullProgress } = usePullToRefresh({
+    onRefresh: fetchPhotos,
+  });
 
   useEffect(() => {
     let result = [...photos];
@@ -205,6 +210,22 @@ export const Gallery: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-20">
+      {/* Pull-to-refresh indicator */}
+      <AnimatePresence>
+        {(isRefreshing || pullProgress > 0) && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 40 }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-center justify-center pt-4"
+          >
+            <RefreshCw
+              className={`w-5 h-5 text-orange-burnt ${isRefreshing ? 'animate-spin' : ''}`}
+              style={{ transform: `rotate(${pullProgress * 360}deg)` }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Header */}
       <section className="space-y-1.5 pt-4">
         <div className="flex items-center gap-2">

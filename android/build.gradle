@@ -22,7 +22,8 @@ allprojects {
         google()
         mavenCentral()
     }
-    buildDir = "D:/tgpcop_build/${project.name}"
+    // buildDir uses standard relative path (works on all machines)
+    // buildDir = "D:/tgpcop_build/${project.name}"
 }
 
 task clean(type: Delete) {

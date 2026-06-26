@@ -3,13 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Mail, Phone, BookOpen, Clock, Heart, 
-  CreditCard, CheckCircle, MessageSquare, LogOut, 
-  BadgeCheck, Loader2, Download, Edit, Fingerprint, Trash2 
+  CheckCircle, MessageSquare, LogOut, 
+  BadgeCheck, Loader2, Edit, Fingerprint, Trash2, Sun, Moon
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useStudentAuth } from '../../lib/StudentAuthProvider';
 import { useToast } from '../../components/admin/Toast';
-import { generateUploadAndDownloadReceipt } from '../../lib/receiptPdf';
+import { useThemeContext } from '../../lib/ThemeProvider';
 
 const getRoleBadgeClasses = (role: string): string => {
   const badgeMap: Record<string, string> = {
@@ -38,7 +38,9 @@ export const Profile: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const [activeTab, setActiveTab] = useState<'registrations' | 'bookmarks' | 'questions' | 'payments'>('registrations');
+  const { theme, toggleTheme } = useThemeContext();
+
+  const [activeTab, setActiveTab] = useState<'registrations' | 'bookmarks' | 'questions'>('registrations');
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState('');
   const [year, setYear] = useState('First Year');
@@ -48,10 +50,7 @@ export const Profile: React.FC = () => {
   const [registeredEvents, setRegisteredEvents] = useState<any[]>([]);
   const [bookmarkedEvents, setBookmarkedEvents] = useState<any[]>([]);
   const [askedQuestions, setAskedQuestions] = useState<any[]>([]);
-  const [myPayments, setMyPayments] = useState<any[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
-  const [isLoadingPayments, setIsLoadingPayments] = useState(false);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const [prnInput, setPrnInput] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -206,42 +205,6 @@ export const Profile: React.FC = () => {
     fetchProfileData();
   }, [studentProfile]);
 
-  // Fetch payment logs
-  const fetchMyPayments = async () => {
-    if (!studentProfile) return;
-    setIsLoadingPayments(true);
-    try {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-
-      let query = supabase
-        .from('payments')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (authUser?.id && authUser?.email) {
-        query = query.or(`student_email.eq.${authUser.email},user_id.eq.${authUser.id}`);
-      } else {
-        query = query.eq('student_email', studentProfile.email);
-      }
-
-      const { data: pays, error: paysErr } = await query;
-      if (paysErr) throw paysErr;
-
-      const unique = pays
-        ? pays.filter((p, i, arr) => arr.findIndex(x => x.id === p.id) === i)
-        : [];
-      setMyPayments(unique);
-    } catch (err: any) {
-      console.error('Payment fetch exception:', err.message);
-    } finally {
-      setIsLoadingPayments(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!studentProfile) return;
-    fetchMyPayments();
-  }, [studentProfile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -525,6 +488,34 @@ export const Profile: React.FC = () => {
         )}
       </div>
 
+      {/* Theme Toggle Card */}
+      <div className="bg-[#0D1B3E]/95 border border-white/10 rounded-2xl p-5 shadow-lg flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-xl ${theme === 'dark' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-amber-500/10 text-amber-400'}`}>
+            {theme === 'dark' ? <Moon className="w-4.5 h-4.5" /> : <Sun className="w-4.5 h-4.5" />}
+          </div>
+          <div>
+            <h4 className="text-xs font-display font-bold text-white">App Theme</h4>
+            <p className="text-[10px] text-white/50 font-sans mt-0.5">
+              Currently: {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={toggleTheme}
+          className={`relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none ${
+            theme === 'dark' ? 'bg-indigo-500' : 'bg-amber-400'
+          }`}
+          aria-label="Toggle theme"
+        >
+          <span
+            className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+              theme === 'dark' ? 'translate-x-6' : 'translate-x-0'
+            }`}
+          />
+        </button>
+      </div>
+
       {/* Passkey Settings Widget */}
       <div className="bg-[#0D1B3E]/95 border border-white/10 rounded-2xl p-5 shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-xl pointer-events-none" />
@@ -627,7 +618,6 @@ export const Profile: React.FC = () => {
           { id: 'registrations', label: 'Events', icon: CheckCircle },
           { id: 'bookmarks', label: 'Bookmarks', icon: Heart },
           { id: 'questions', label: 'Q&A Logs', icon: MessageSquare },
-          { id: 'payments', label: 'Payments', icon: CreditCard },
         ].map(t => {
           const Icon = t.icon;
           const active = activeTab === t.id;
@@ -636,7 +626,6 @@ export const Profile: React.FC = () => {
               key={t.id}
               onClick={() => {
                 setActiveTab(t.id as any);
-                if (t.id === 'payments') fetchMyPayments();
               }}
               className={`flex-1 whitespace-nowrap flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-display font-bold uppercase tracking-wide transition-all ${
                 active 
@@ -653,7 +642,7 @@ export const Profile: React.FC = () => {
 
       {/* List Container */}
       <div className="bg-[#080F25]/95 border border-white/5 rounded-2xl p-5 min-h-[250px] relative shadow-inner">
-        {isLoadingData || (activeTab === 'payments' && isLoadingPayments) ? (
+        {isLoadingData ? (
           <div className="absolute inset-0 flex items-center justify-center bg-[#080F25]/50 z-10">
             <Loader2 className="w-6 h-6 animate-spin text-orange-burnt" />
           </div>
@@ -803,76 +792,6 @@ export const Profile: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Tab 4: Payments history */}
-            {activeTab === 'payments' && (
-              <motion.div
-                key="payments"
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="space-y-3.5"
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <h4 className="font-display font-extrabold text-xs text-white uppercase tracking-wider">Payment History Logs</h4>
-                  <button 
-                    onClick={fetchMyPayments}
-                    className="text-[9px] text-orange-burnt font-bold uppercase tracking-wider"
-                  >
-                    Refresh
-                  </button>
-                </div>
-
-                {myPayments.length === 0 ? (
-                  <div className="text-center py-10 border border-white/5 rounded-xl bg-white/[0.01]">
-                    <p className="text-xs text-white/45">No records found.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2.5">
-                    {myPayments.map(pay => {
-                      const isSuccess = pay.status === 'completed';
-                      return (
-                        <div key={pay.id} className="bg-white/5 border border-white/5 rounded-xl p-3 flex flex-col justify-between">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h5 className="font-display font-bold text-xs text-white truncate leading-snug">{pay.purpose || 'Council Registration Fee'}</h5>
-                              <span className="block text-[9px] text-white/40 mt-0.5">ID: {pay.transaction_id || pay.order_id || 'N/A'}</span>
-                            </div>
-                            <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                              isSuccess ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
-                            }`}>
-                              {pay.status}
-                            </span>
-                          </div>
-
-                          <div className="mt-3 flex items-center justify-between border-t border-white/5 pt-2">
-                            <span className="text-xs font-display font-extrabold text-orange-burnt">₹{pay.amount}</span>
-                            {isSuccess && (
-                              <button
-                                onClick={async () => {
-                                  setDownloadingId(pay.id);
-                                  try {
-                                    await generateUploadAndDownloadReceipt(pay.id);
-                                  } catch (err: any) {
-                                    toast.error(`Error downloading receipt: ${err.message}`);
-                                  } finally {
-                                    setDownloadingId(null);
-                                  }
-                                }}
-                                disabled={downloadingId === pay.id}
-                                className="inline-flex items-center gap-1 text-[8px] font-bold text-white/80 bg-white/5 hover:bg-white/10 px-2 py-1 rounded-lg border border-white/10"
-                              >
-                                {downloadingId === pay.id ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <Download className="w-2.5 h-2.5" />}
-                                <span>Receipt</span>
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </motion.div>
-            )}
           </AnimatePresence>
         )}
       </div>

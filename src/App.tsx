@@ -42,6 +42,7 @@ const MyCalendar = lazy(() => import('./pages/MyCalendar'));
 const Leaderboard = lazy(() => import('./pages/Leaderboard'));
 const MessageBoard = lazy(() => import('./pages/MessageBoard'));
 const Store = lazy(() => import('./pages/Store'));
+const StudyMaterial = lazy(() => import('./pages/StudyMaterial'));
 const Resources = lazy(() => import('./pages/Resources'));
 const LostAndFound = lazy(() => import('./pages/LostAndFound'));
 const GPATPrep = lazy(() => import('./pages/GPATPrep'));
@@ -263,6 +264,7 @@ const AppContent: React.FC = () => {
             <Route path="/leaderboard" element={<DesktopOnlyWrapper><Leaderboard /></DesktopOnlyWrapper>} />
             <Route path="/board" element={<MessageBoard />} />
             <Route path="/store" element={<DesktopOnlyWrapper><Store /></DesktopOnlyWrapper>} />
+            <Route path="/study-material" element={<StudyMaterial />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/lost-found" element={<LostAndFound />} />
             <Route path="/gpat-prep" element={<GPATPrep />} />
