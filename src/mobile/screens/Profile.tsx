@@ -8,6 +8,7 @@ import {
   QrCode, Award, Ticket
 } from 'lucide-react';
 import QRCode from 'react-qr-code';
+const QRCodeComponent = (QRCode as any).default || QRCode;
 import { generateCertificatePdf } from '../../lib/certificatePdf';
 import { supabase } from '../../lib/supabase';
 import { useStudentAuth } from '../../lib/StudentAuthProvider';
@@ -959,7 +960,7 @@ export const Profile: React.FC = () => {
 
                 {/* QR Code Container */}
                 <div className="bg-white p-3 rounded-2xl shadow-xl border-4 border-orange-burnt/10 relative">
-                  <QRCode
+                  <QRCodeComponent
                     value={selectedTicket.qr_payload || ''}
                     size={150}
                     bgColor="#ffffff"

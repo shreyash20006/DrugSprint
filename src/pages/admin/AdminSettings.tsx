@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../components/admin/ProtectedRoute';
 import QRCode from 'react-qr-code';
+const QRCodeComponent = (QRCode as any).default || QRCode;
 import { useToast } from '../../components/admin/Toast';
 import { logActivity } from '../../lib/logs';
 import { Sliders, Upload, ImageIcon, Loader2, Check, RotateCcw, ExternalLink, Sun, Megaphone, QrCode, Copy, CreditCard, Trash2, Fingerprint } from 'lucide-react';
@@ -1420,7 +1421,7 @@ export const AdminSettings: React.FC = () => {
                 </div>
                 <div className="flex flex-col items-center justify-center p-4 bg-white/5 border border-white/10 rounded-xl space-y-2">
                   <div className="p-2 bg-white rounded-lg shadow-sm">
-                    <QRCode value={generatedUrl} size={140} />
+                    <QRCodeComponent value={generatedUrl} size={140} />
                   </div>
                   <span className="text-[9px] text-white/40 font-semibold uppercase tracking-wider">
                     Scan to pay on mobile device

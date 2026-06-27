@@ -10,6 +10,7 @@ import {
   QrCode, Award, Ticket
 } from 'lucide-react';
 import QRCode from 'react-qr-code';
+const QRCodeComponent = (QRCode as any).default || QRCode;
 import { generateCertificatePdf } from '../lib/certificatePdf';
 import { useToast } from '../components/admin/Toast';
 
@@ -1254,7 +1255,7 @@ export const StudentProfile: React.FC = () => {
 
                 {/* QR Code Container with nice aesthetic styling */}
                 <div className="bg-white p-4 rounded-2xl shadow-xl border-4 border-orange-burnt/10 relative">
-                  <QRCode
+                  <QRCodeComponent
                     value={selectedTicket.qr_payload || ''}
                     size={160}
                     bgColor="#ffffff"

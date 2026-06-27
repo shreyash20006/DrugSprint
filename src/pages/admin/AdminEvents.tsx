@@ -4,6 +4,7 @@ import { DataTable } from '../../components/admin/DataTable';
 import { EventModal } from '../../components/admin/EventModal';
 import { useToast } from '../../components/admin/Toast';
 import QRCode from 'react-qr-code';
+const QRCodeComponent = (QRCode as any).default || QRCode;
 import { 
   Plus, 
   Trash2, 
@@ -469,7 +470,7 @@ export const AdminEvents: React.FC = () => {
                 {/* QR Code display */}
                 <div className="flex flex-col items-center justify-center space-y-3 bg-white/[0.03] p-4 rounded-xl border border-white/10">
                   <div className="p-2.5 bg-white rounded-lg border border-white/20 shadow-sm flex items-center justify-center">
-                    <QRCode value={generatedUrl} size={150} />
+                    <QRCodeComponent value={generatedUrl} size={150} />
                   </div>
                   <span className="text-[10px] text-white/30 font-semibold uppercase tracking-wider">
                     Scan with WhatsApp or UPI camera
