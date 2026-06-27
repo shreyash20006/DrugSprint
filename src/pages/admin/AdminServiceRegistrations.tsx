@@ -6,8 +6,12 @@ import { downloadCsv } from '../../lib/exportCsv';
 import { logAction } from '../../lib/logger';
 import {
   Users, Search, Download, Eye, Trash2,
-  CheckCircle, XCircle, Clock, Loader2
+  CheckCircle, XCircle, Clock, Loader2, QrCode, UserCheck, BarChart3,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { generateAttendancePdf } from '../../lib/attendancePdf';
+import { downloadAttendanceExcel } from '../../lib/attendanceExcel';
+import { computeAttendanceStats } from '../../lib/checkIn';
 
 export const AdminServiceRegistrations: React.FC = () => {
   const toast = useToast();
@@ -20,6 +24,7 @@ export const AdminServiceRegistrations: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [serviceFilter, setServiceFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
+  const [checkInFilter, setCheckInFilter] = useState('all');
   const [selectedReg, setSelectedReg] = useState<any | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -76,14 +81,61 @@ export const AdminServiceRegistrations: React.FC = () => {
       r.registration_id?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchService = serviceFilter === 'all' || r.service_id === serviceFilter;
     const matchPayment = paymentFilter === 'all' || r.payment_status === paymentFilter;
-    return matchSearch && matchService && matchPayment;
+    const matchCheckIn = checkInFilter === 'all'
+      || (checkInFilter === 'checked_in' && r.checked_in)
+      || (checkInFilter === 'pending' && !r.checked_in);
+    return matchSearch && matchService && matchPayment && matchCheckIn;
   });
 
+  const attendanceStats = computeAttendanceStats(
+    registrations.filter(r => serviceFilter === 'all' || r.service_id === serviceFilter)
+  );
   const stats = {
     total: registrations.length,
     paid: registrations.filter(r => r.payment_status === 'completed').length,
     free: registrations.filter(r => !r.amount_paid || r.amount_paid === 0).length,
     revenue: registrations.filter(r => r.payment_status === 'completed').reduce((sum, r) => sum + (r.amount_paid || 0), 0),
+    checked_in: attendanceStats.checked_in,
+    pending_checkin: attendanceStats.pending,
+  };
+
+  const handleExportAttendancePdf = () => {
+    const svcName = serviceFilter === 'all' ? 'All Services' : (services.find(s => s.id === serviceFilter)?.name || 'Event');
+    const rows = filtered.map((r, i) => ({
+      sr: i + 1,
+      registration_id: r.registration_id,
+      full_name: r.full_name,
+      year: r.year || '',
+      prn: r.prn || '',
+      college: r.college || '',
+      payment_status: r.payment_status,
+      checked_in: !!r.checked_in,
+      checked_in_at: r.checked_in_at || null,
+    }));
+    generateAttendancePdf(rows, svcName, attendanceStats);
+    toast.success('Attendance PDF downloaded');
+  };
+
+  const handleExportAttendanceExcel = () => {
+    const svcName = serviceFilter === 'all' ? 'All Services' : (services.find(s => s.id === serviceFilter)?.name || 'Event');
+    const rows = filtered.map((r, i) => ({
+      sr: i + 1,
+      registration_id: r.registration_id,
+      full_name: r.full_name,
+      year: r.year || '',
+      prn: r.prn || '',
+      college: r.college || '',
+      branch: r.branch || '',
+      email: r.email,
+      phone: r.phone || '',
+      amount_paid: r.amount_paid,
+      payment_status: r.payment_status,
+      checked_in: !!r.checked_in,
+      checked_in_at: r.checked_in_at || null,
+      manual_check_in: !!r.manual_check_in,
+    }));
+    downloadAttendanceExcel(rows, svcName, attendanceStats);
+    toast.success('Attendance Excel downloaded');
   };
 
   return (
@@ -97,17 +149,37 @@ export const AdminServiceRegistrations: React.FC = () => {
             <p className="text-white/40 text-xs">All student service registrations and payment records</p>
           </div>
         </div>
-        <button onClick={handleExportCsv} disabled={filtered.length === 0}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold rounded-xl shadow-md hover:-translate-y-px transition-all disabled:opacity-50">
-          <Download className="w-4 h-4" /> Export CSV
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/admin/qr-scanner"
+            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 font-display text-xs font-bold rounded-xl hover:bg-emerald-500/25 transition-all">
+            <QrCode className="w-4 h-4" /> QR Scanner
+          </Link>
+          <Link to="/admin/attendance"
+            className="flex items-center gap-2 px-4 py-2.5 bg-cyan-500/15 text-cyan-400 border border-cyan-500/25 font-display text-xs font-bold rounded-xl hover:bg-cyan-500/25 transition-all">
+            <BarChart3 className="w-4 h-4" /> Attendance
+          </Link>
+          <button onClick={handleExportAttendanceExcel} disabled={filtered.length === 0}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 text-white/70 border border-white/10 font-display text-xs font-bold rounded-xl hover:bg-white/10 transition-all disabled:opacity-50">
+            <Download className="w-4 h-4" /> Attendance Excel
+          </button>
+          <button onClick={handleExportAttendancePdf} disabled={filtered.length === 0}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 text-white/70 border border-white/10 font-display text-xs font-bold rounded-xl hover:bg-white/10 transition-all disabled:opacity-50">
+            <Download className="w-4 h-4" /> Attendance PDF
+          </button>
+          <button onClick={handleExportCsv} disabled={filtered.length === 0}
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-burnt to-[#E06D2B] text-white font-display text-xs font-bold rounded-xl shadow-md hover:-translate-y-px transition-all disabled:opacity-50">
+            <Download className="w-4 h-4" /> Export CSV
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {[
           { label: 'Total', value: stats.total, color: 'text-blue-400' },
           { label: 'Paid', value: stats.paid, color: 'text-emerald-400' },
+          { label: 'Checked In', value: stats.checked_in, color: 'text-cyan-400' },
+          { label: 'Pending Check-in', value: stats.pending_checkin, color: 'text-amber-400' },
           { label: 'Free', value: stats.free, color: 'text-purple-400' },
           { label: 'Revenue', value: `₹${stats.revenue.toLocaleString('en-IN')}`, color: 'text-orange-burnt' },
         ].map(s => (
@@ -138,6 +210,12 @@ export const AdminServiceRegistrations: React.FC = () => {
           <option value="pending">Pending</option>
           <option value="failed">Failed</option>
         </select>
+        <select value={checkInFilter} onChange={e => setCheckInFilter(e.target.value)}
+          className="px-3 py-2.5 bg-[#0D1B3E] border border-white/10 rounded-lg text-sm text-white outline-none focus:border-orange-burnt">
+          <option value="all">All Check-ins</option>
+          <option value="checked_in">Checked In</option>
+          <option value="pending">Pending</option>
+        </select>
       </div>
 
       {/* Table */}
@@ -162,6 +240,7 @@ export const AdminServiceRegistrations: React.FC = () => {
                   <th className="text-left px-5 py-3.5">Year</th>
                   <th className="text-right px-5 py-3.5">Amount</th>
                   <th className="text-center px-5 py-3.5">Payment</th>
+                  <th className="text-center px-5 py-3.5">Check-in</th>
                   <th className="text-left px-5 py-3.5">Date</th>
                   <th className="text-right px-5 py-3.5">Actions</th>
                 </tr>
@@ -204,6 +283,16 @@ export const AdminServiceRegistrations: React.FC = () => {
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-[9px] font-bold">
                           Free
                         </span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3.5 text-center">
+                      {reg.checked_in ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-bold">
+                          <UserCheck className="w-2.5 h-2.5" />
+                          {reg.checked_in_at ? new Date(reg.checked_in_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : 'Yes'}
+                        </span>
+                      ) : (
+                        <span className="text-[9px] text-white/30 font-bold">Pending</span>
                       )}
                     </td>
                     <td className="px-5 py-3.5 text-xs text-white/40">
@@ -249,6 +338,7 @@ export const AdminServiceRegistrations: React.FC = () => {
                 ['Amount Paid', selectedReg.amount_paid ? `₹${selectedReg.amount_paid}` : 'Free'],
                 ['Payment ID', selectedReg.payment_id || '—'],
                 ['Payment Status', selectedReg.payment_status?.toUpperCase() || 'N/A'],
+                ['Check-in', selectedReg.checked_in ? `Yes · ${selectedReg.checked_in_at ? new Date(selectedReg.checked_in_at).toLocaleString('en-IN') : ''}` : 'Pending'],
                 ['Registered On', new Date(selectedReg.created_at).toLocaleString('en-IN')],
               ].map(([label, value]) => (
                 <div key={label} className="flex justify-between gap-4">

@@ -70,6 +70,15 @@ CREATE TABLE IF NOT EXISTS registrations (
                       CHECK (payment_status IN ('pending','completed','failed','refunded','cancelled')),
   amount_paid       NUMERIC(10,2) DEFAULT 0,
 
+  -- QR Check-in (Event Entry)
+  qr_token          TEXT,
+  qr_payload        TEXT,
+  checked_in        BOOLEAN NOT NULL DEFAULT false,
+  checked_in_at     TIMESTAMPTZ,
+  checked_by        UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  manual_check_in   BOOLEAN NOT NULL DEFAULT false,
+  certificate_issued_at TIMESTAMPTZ,
+
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );

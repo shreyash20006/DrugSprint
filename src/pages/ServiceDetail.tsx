@@ -11,6 +11,8 @@ import { supabase } from '../lib/supabase';
 import { useStudentAuth } from '../lib/StudentAuthProvider';
 import { initiatePayment } from '../lib/cashfree';
 import { sendAdminNotification } from '../lib/brevo';
+import { generateQrToken, encodeQrPayload } from '../lib/qrToken';
+import QRCode from 'qrcode';
 
 const generateRegistrationId = () => {
   const prefix = 'TGPCOP';
@@ -33,6 +35,7 @@ export const ServiceDetail: React.FC = () => {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'payment' | 'success' | 'duplicate' | 'full' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [registrationId, setRegistrationId] = useState('');
+  const [qrDataUrl, setQrDataUrl] = useState('');
 
   const [form, setForm] = useState({
     full_name: '',
@@ -97,6 +100,8 @@ export const ServiceDetail: React.FC = () => {
 
       const regId = generateRegistrationId();
       const orderId = generateOrderId();
+      const qrToken = generateQrToken();
+      const qrPayload = encodeQrPayload(qrToken, regId);
 
       if (isFree) {
         // Free: insert directly
@@ -116,11 +121,14 @@ export const ServiceDetail: React.FC = () => {
           payment_status: 'completed',
           amount_paid: 0,
           user_id: studentProfile?.id || null,
+          qr_token: qrToken,
+          qr_payload: qrPayload,
         });
         if (error) throw error;
-        // Increment count
         await supabase.from('services').update({ registered_count: (service.registered_count || 0) + 1 }).eq('id', serviceId);
         setRegistrationId(regId);
+        const dataUrl = await QRCode.toDataURL(qrPayload, { width: 300, margin: 2, color: { dark: '#0D1B3E', light: '#FFFFFF' } });
+        setQrDataUrl(dataUrl);
         setStatus('success');
         await sendConfirmationEmail(regId, 0);
         return;
@@ -140,7 +148,6 @@ export const ServiceDetail: React.FC = () => {
 
       const paymentId = result?.razorpay_payment_id || result?.cfOrderId || orderId;
 
-      // Insert registration
       const { error: regErr } = await supabase.from('registrations').insert({
         service_id: serviceId,
         registration_id: regId,
@@ -158,6 +165,8 @@ export const ServiceDetail: React.FC = () => {
         payment_status: 'completed',
         amount_paid: service.discount_price || service.price,
         user_id: studentProfile?.id || null,
+        qr_token: qrToken,
+        qr_payload: qrPayload,
       });
       if (regErr) throw regErr;
 
@@ -180,6 +189,8 @@ export const ServiceDetail: React.FC = () => {
       setRegistrationId(regId);
       setStatus('success');
       await sendConfirmationEmail(regId, service.discount_price || service.price);
+      const dataUrl = await QRCode.toDataURL(qrPayload, { width: 300, margin: 2, color: { dark: '#0D1B3E', light: '#FFFFFF' } });
+      setQrDataUrl(dataUrl);
     } catch (err: any) {
       console.error('Registration error:', err);
       setErrorMsg(err.message || 'Registration failed. Please try again.');
@@ -238,25 +249,43 @@ export const ServiceDetail: React.FC = () => {
           <p className="text-[var(--text-secondary)] text-sm mb-4">
             You have successfully registered for <strong>{service.name}</strong>.
           </p>
-          <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-4 mb-6">
+
+          {/* QR Code */}
+          {qrDataUrl && (
+            <div className="bg-white rounded-2xl p-4 mb-4 mx-auto w-fit border-4 border-[var(--pw-purple)]">
+              <img src={qrDataUrl} alt="Event QR Code" className="w-48 h-48 mx-auto" />
+              <p className="text-xs text-[#0D1B3E] font-bold mt-2 font-display tracking-wider">SCAN AT EVENT ENTRY</p>
+            </div>
+          )}
+
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-xl p-4 mb-4">
             <span className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Registration ID</span>
             <span className="font-mono font-bold text-[var(--pw-purple)] text-sm">{registrationId}</span>
           </div>
-          <p className="text-xs text-[var(--text-muted)] mb-6">
-            A confirmation has been sent to <strong>{form.email}</strong>. Keep your Registration ID safe for reference.
+
+          <p className="text-xs text-[var(--text-muted)] mb-4">
+            Show this QR code at the event entry. Screenshot and save it.
+            A confirmation has been sent to <strong>{form.email}</strong>.
           </p>
-          <div className="flex gap-3">
-            <button
-              onClick={() => navigate('/services')}
-              className="flex-1 py-3 rounded-xl border border-[var(--border-mid)] text-[var(--text-secondary)] font-display text-xs font-bold uppercase tracking-wide hover:bg-[var(--bg-surface)] transition-colors"
+
+          {qrDataUrl && (
+            <a
+              href={qrDataUrl}
+              download={`QR_${registrationId}.png`}
+              className="block w-full mb-3 py-2.5 rounded-xl bg-[var(--pw-purple)] text-white font-display text-xs font-bold uppercase tracking-wide hover:opacity-90 transition-opacity"
             >
+              ↓ Download QR Code
+            </a>
+          )}
+
+          <div className="flex gap-3">
+            <button onClick={() => navigate('/services')}
+              className="flex-1 py-3 rounded-xl border border-[var(--border-mid)] text-[var(--text-secondary)] font-display text-xs font-bold uppercase tracking-wide hover:bg-[var(--bg-surface)] transition-colors">
               Browse More
             </button>
-            <button
-              onClick={() => navigate('/profile')}
-              className="flex-1 py-3 rounded-xl bg-[var(--pw-purple)] text-white font-display text-xs font-bold uppercase tracking-wide hover:bg-[var(--pw-purple-dark)] transition-colors"
-            >
-              My Registrations
+            <button onClick={() => navigate('/profile')}
+              className="flex-1 py-3 rounded-xl bg-[var(--pw-orange)] text-white font-display text-xs font-bold uppercase tracking-wide hover:opacity-90 transition-opacity">
+              My Profile
             </button>
           </div>
         </motion.div>

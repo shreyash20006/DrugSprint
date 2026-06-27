@@ -6,8 +6,11 @@ import { useStudentAuth } from '../lib/StudentAuthProvider';
 import { generateUploadAndDownloadReceipt } from '../lib/receiptPdf';
 import { 
   User, Mail, Phone, Calendar, LogOut, CheckCircle, 
-  MessageSquare, BookOpen, Clock, Heart, CreditCard, Download, Loader2, BadgeCheck, Fingerprint, Trash2
+  MessageSquare, BookOpen, Clock, Heart, CreditCard, Download, Loader2, BadgeCheck, Fingerprint, Trash2,
+  QrCode, Award, Ticket
 } from 'lucide-react';
+import QRCode from 'react-qr-code';
+import { generateCertificatePdf } from '../lib/certificatePdf';
 import { useToast } from '../components/admin/Toast';
 
 const getRoleBadgeClasses = (role: string): string => {
@@ -47,7 +50,7 @@ export const StudentProfile: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const [activeTab, setActiveTab] = useState<'registrations' | 'bookmarks' | 'questions' | 'payments'>('registrations');
+  const [activeTab, setActiveTab] = useState<'registrations' | 'services' | 'bookmarks' | 'questions' | 'payments'>('registrations');
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState('');
   const [year, setYear] = useState('First Year');
@@ -55,6 +58,8 @@ export const StudentProfile: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const [registeredEvents, setRegisteredEvents] = useState<any[]>([]);
+  const [serviceRegistrations, setServiceRegistrations] = useState<any[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
   const [bookmarkedEvents, setBookmarkedEvents] = useState<any[]>([]);
   const [askedQuestions, setAskedQuestions] = useState<any[]>([]);
   const [myPayments, setMyPayments] = useState<any[]>([]);
@@ -197,6 +202,17 @@ export const StudentProfile: React.FC = () => {
 
         if (regsErr) throw regsErr;
         setRegisteredEvents(regs || []);
+
+        // 1.5. Fetch service/event registrations
+        const { data: svcRegs, error: svcErr } = await supabase
+          .from('registrations')
+          .select('*, service:services(name, category, thumbnail, description)')
+          .eq('email', studentProfile.email)
+          .order('created_at', { ascending: false });
+
+        if (!svcErr && svcRegs) {
+          setServiceRegistrations(svcRegs);
+        }
 
         // 2. Fetch bookmarks from localStorage
         const storedBookmarks: string[] = JSON.parse(localStorage.getItem('tgpcop_saved_events') || '[]');
@@ -729,6 +745,7 @@ export const StudentProfile: React.FC = () => {
             <div className="bg-[#080F25]/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-1.5 flex gap-1 flex-wrap">
               {[
                 { id: 'registrations', label: 'Events',   icon: CheckCircle },
+                { id: 'services',      label: 'Service Passes', icon: Ticket },
                 { id: 'bookmarks',    label: 'Saved',    icon: Heart },
                 { id: 'questions',    label: 'Q&A',      icon: MessageSquare },
                 { id: 'payments',     label: 'Payments', icon: CreditCard },
@@ -822,6 +839,108 @@ export const StudentProfile: React.FC = () => {
                                   >
                                     ✍️ Give Feedback
                                   </Link>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+
+                  {/* Tab 1.5: Service/Event Passes (registrations table) */}
+                  {activeTab === 'services' && (
+                    <motion.div
+                      key="services"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="space-y-4"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-display font-extrabold text-white text-base uppercase">Service Passes & Tickets</h3>
+                        <span className="text-[10px] text-white/50">{serviceRegistrations.length} passes active</span>
+                      </div>
+
+                      {serviceRegistrations.length === 0 ? (
+                        <div className="text-center py-16 border border-white/5 rounded-2xl bg-white/20">
+                          <Ticket className="w-12 h-12 mx-auto text-white/20 mb-3 animate-pulse" />
+                          <p className="text-sm text-white/50 font-sans">No service passes or tickets found under this email.</p>
+                          <Link to="/services" className="mt-4 inline-block text-orange-burnt text-xs font-display font-bold uppercase hover:underline">
+                            Browse services & workshops →
+                          </Link>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {serviceRegistrations.map((reg) => {
+                            const svc = reg.service;
+                            if (!svc) return null;
+                            return (
+                              <div
+                                key={reg.id}
+                                className="border border-white/10 bg-white/5 rounded-2xl p-4 flex flex-col justify-between hover:border-orange-burnt/30 transition-all shadow-inner"
+                              >
+                                <div>
+                                  <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[9px] font-extrabold uppercase bg-orange-burnt/10 border border-orange-burnt/20 text-orange-burnt px-2 py-0.5 rounded-full">
+                                      {svc.category || 'Pass'}
+                                    </span>
+                                    <span className="text-[9px] text-white/40 font-semibold flex items-center">
+                                      <Clock className="w-2.5 h-2.5 mr-1" />
+                                      {new Date(reg.created_at).toLocaleDateString('en-IN')}
+                                    </span>
+                                  </div>
+                                  <h4 className="font-display font-bold text-white text-sm leading-snug line-clamp-1">{svc.name}</h4>
+                                  <p className="text-[10px] text-white/40 mt-1 font-mono">Reg ID: {reg.registration_id}</p>
+                                  <div className="mt-2 flex items-center gap-2">
+                                    {reg.checked_in ? (
+                                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-bold">
+                                        ✓ Checked In
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[9px] font-bold">
+                                        ⏱️ Attendance Pending
+                                      </span>
+                                    )}
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-bold ${
+                                      reg.payment_status === 'completed'
+                                        ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                                        : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                                    }`}>
+                                      {reg.payment_status?.toUpperCase()}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                <div className="mt-4 flex gap-2">
+                                  {reg.payment_status === 'completed' && (
+                                    <button
+                                      onClick={() => setSelectedTicket(reg)}
+                                      className="flex-1 py-1.5 text-center rounded-xl bg-orange-burnt/10 hover:bg-orange-burnt/20 border border-orange-burnt/20 text-orange-burnt text-[10px] font-display font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                                    >
+                                      <QrCode className="w-3.5 h-3.5" /> View QR Pass
+                                    </button>
+                                  )}
+                                  {reg.checked_in && (
+                                    <button
+                                      onClick={() => {
+                                        generateCertificatePdf({
+                                          studentName: reg.full_name,
+                                          eventName: svc.name,
+                                          registrationId: reg.registration_id,
+                                          date: reg.checked_in_at
+                                            ? new Date(reg.checked_in_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+                                            : new Date().toLocaleDateString('en-IN'),
+                                          year: reg.year || undefined,
+                                          college: reg.college || undefined,
+                                        });
+                                        toast.success('Certificate downloaded successfully!');
+                                      }}
+                                      className="flex-1 py-1.5 text-center rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 text-[10px] font-display font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                                    >
+                                      <Award className="w-3.5 h-3.5" /> Certificate
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                             );
@@ -1086,6 +1205,147 @@ export const StudentProfile: React.FC = () => {
         </div>
 
       </div>
+
+      {/* QR Ticket Modal */}
+      <AnimatePresence>
+        {selectedTicket && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedTicket(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="relative w-full max-w-md bg-[#0D1B3E] border-2 border-white/10 rounded-3xl overflow-hidden shadow-2xl z-10"
+            >
+              {/* Decorative top bar */}
+              <div className="bg-gradient-to-r from-orange-burnt to-[#E06D2B] h-2 w-full" />
+
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedTicket(null)}
+                className="absolute top-4 right-4 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 p-1.5 rounded-full transition-all cursor-pointer"
+              >
+                ✕
+              </button>
+
+              <div className="p-6 flex flex-col items-center">
+                {/* Header info */}
+                <div className="text-center mb-4">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-burnt/10 border border-orange-burnt/20 text-orange-burnt text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <Ticket className="w-3.5 h-3.5" /> Event Pass
+                  </div>
+                  <h3 className="font-display font-extrabold text-white text-lg leading-snug">
+                    {selectedTicket.service?.name}
+                  </h3>
+                  <p className="text-white/40 text-xs mt-1">
+                    {selectedTicket.service?.category} Pass
+                  </p>
+                </div>
+
+                {/* QR Code Container with nice aesthetic styling */}
+                <div className="bg-white p-4 rounded-2xl shadow-xl border-4 border-orange-burnt/10 relative">
+                  <QRCode
+                    value={selectedTicket.qr_payload || ''}
+                    size={160}
+                    bgColor="#ffffff"
+                    fgColor="#0A122C"
+                    level="Q"
+                  />
+                </div>
+
+                <p className="text-white/40 text-[9px] font-mono mt-3 uppercase tracking-wider">
+                  Secure Encrypted QR · Valid for check-in
+                </p>
+
+                {/* Ticket details card */}
+                <div className="w-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4 mt-5 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">Student Name</span>
+                      <span className="text-xs font-semibold text-white truncate block">{selectedTicket.full_name}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">Registration ID</span>
+                      <span className="text-xs font-mono font-semibold text-orange-burnt block truncate">{selectedTicket.registration_id}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">Course / Year</span>
+                      <span className="text-xs font-semibold text-white block truncate">{selectedTicket.branch || selectedTicket.year || '—'}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">PRN</span>
+                      <span className="text-xs font-semibold text-white block truncate">{selectedTicket.prn || '—'}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">College</span>
+                      <span className="text-xs font-semibold text-white block truncate">{selectedTicket.college || '—'}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">Check-in Status</span>
+                      {selectedTicket.checked_in ? (
+                        <span className="text-xs font-bold text-emerald-400 block">
+                          ✓ Checked In
+                        </span>
+                      ) : (
+                        <span className="text-xs font-bold text-amber-400 block animate-pulse">
+                          ⏱️ Pending Entry
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {selectedTicket.checked_in && selectedTicket.checked_in_at && (
+                    <div className="border-t border-white/5 pt-2 flex items-center justify-between text-[9px] text-white/45">
+                      <span>Checked-in at:</span>
+                      <span className="font-semibold text-white">
+                        {new Date(selectedTicket.checked_in_at).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom actions */}
+                <div className="w-full mt-5 flex gap-2">
+                  {selectedTicket.checked_in ? (
+                    <button
+                      onClick={() => {
+                        generateCertificatePdf({
+                          studentName: selectedTicket.full_name,
+                          eventName: selectedTicket.service?.name || 'Event',
+                          registrationId: selectedTicket.registration_id,
+                          date: selectedTicket.checked_in_at
+                            ? new Date(selectedTicket.checked_in_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+                            : new Date().toLocaleDateString('en-IN'),
+                          year: selectedTicket.year || undefined,
+                          college: selectedTicket.college || undefined,
+                        });
+                        toast.success('Certificate downloaded successfully!');
+                      }}
+                      className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-emerald-600/10"
+                    >
+                      <Award className="w-4 h-4" /> Download Certificate
+                    </button>
+                  ) : (
+                    <div className="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-center text-white/40 text-[10px] uppercase font-bold tracking-wider">
+                      Certificate unlocks after Check-in
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

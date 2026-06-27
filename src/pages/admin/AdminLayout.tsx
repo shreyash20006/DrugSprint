@@ -33,6 +33,8 @@ const PAGE_TITLES: Record<string, string> = {
   '/admin/developer': 'Developer Console',
   '/admin/services': 'Services Manager',
   '/admin/service-registrations': 'Service Registrations',
+  '/admin/qr-scanner': 'QR Scanner — Event Check-in',
+  '/admin/attendance': 'Attendance Dashboard',
 };
 
 export const AdminLayout: React.FC = () => {

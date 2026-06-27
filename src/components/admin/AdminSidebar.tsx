@@ -8,6 +8,7 @@ import {
   Users, Sliders, ClipboardList, Bug, Sun, Moon, CheckSquare, MessageSquare,
   MessageCircle, Award, Newspaper, HeartHandshake, BadgeCheck, AlertTriangle,
   Wrench, CreditCard, GraduationCap, Camera, UserPlus, X, ChevronDown, FolderOpen, Tag,
+  QrCode, BarChart3,
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -104,6 +105,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       { path: '/admin/files', name: 'File Manager', icon: <FolderOpen className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/notices', name: 'Notices', icon: <Megaphone className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/events', name: 'Events', icon: <Calendar className="w-4 h-4" strokeWidth={2.2} /> },
+      { path: '/admin/qr-scanner', name: 'QR Scanner', icon: <QrCode className="w-4 h-4 text-emerald-400" strokeWidth={2.2} />, badgeText: 'NEW' },
+      { path: '/admin/attendance', name: 'Attendance Dashboard', icon: <BarChart3 className="w-4 h-4 text-cyan-400" strokeWidth={2.2} /> },
       { path: '/admin/exams', name: 'Exam Schedule', icon: <GraduationCap className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/stories', name: 'Stories', icon: <Camera className="w-4 h-4" strokeWidth={2.2} /> },
       { path: '/admin/gallery', name: 'Gallery', icon: <ImageIcon className="w-4 h-4" strokeWidth={2.2} /> },

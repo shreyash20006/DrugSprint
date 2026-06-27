@@ -145,6 +145,11 @@ export function useRole() {
         return ['admin', 'developer'].includes(role);
       case 'view_registrations':
         return ['admin', 'developer', 'vice_president', 'general_secretary', 'coordinator'].includes(role);
+      case 'scan_qr_checkin':
+      case 'view_attendance':
+        return ['admin', 'developer', 'vice_president', 'general_secretary', 'coordinator', 'secretary', 'treasurer', 'president'].includes(role);
+      case 'manage_checkin':
+        return ['super_admin', 'developer'].includes(role);
       case 'manage_polls':
         return ['admin', 'developer', 'president', 'vice_president'].includes(role);
       case 'view_feedback':

@@ -4,8 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Mail, Phone, BookOpen, Clock, Heart, 
   CheckCircle, MessageSquare, LogOut, 
-  BadgeCheck, Loader2, Edit, Fingerprint, Trash2, Sun, Moon
+  BadgeCheck, Loader2, Edit, Fingerprint, Trash2, Sun, Moon,
+  QrCode, Award, Ticket
 } from 'lucide-react';
+import QRCode from 'react-qr-code';
+import { generateCertificatePdf } from '../../lib/certificatePdf';
 import { supabase } from '../../lib/supabase';
 import { useStudentAuth } from '../../lib/StudentAuthProvider';
 import { useToast } from '../../components/admin/Toast';
@@ -42,6 +45,7 @@ export const Profile: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'registrations' | 'services' | 'bookmarks' | 'questions'>('registrations');
   const [serviceRegistrations, setServiceRegistrations] = useState<any[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState('');
   const [year, setYear] = useState('First Year');
@@ -758,8 +762,50 @@ export const Profile: React.FC = () => {
                         </div>
                         <div className="border-t border-white/5 pt-2 flex items-center justify-between">
                           <span className="font-mono text-[8px] text-white/40">{reg.registration_id}</span>
-                          <span className="text-[9px] text-white/40">{new Date(reg.created_at).toLocaleDateString('en-IN')}</span>
+                          <div className="flex items-center gap-1.5">
+                            {reg.checked_in ? (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[8px] font-bold">
+                                ✓ Checked In
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[8px] font-bold">
+                                ⏱️ Pending
+                              </span>
+                            )}
+                            <span className="text-[9px] text-white/40">{new Date(reg.created_at).toLocaleDateString('en-IN')}</span>
+                          </div>
                         </div>
+
+                        {reg.payment_status === 'completed' && (
+                          <div className="mt-3 flex gap-2 pt-2 border-t border-white/5">
+                            <button
+                              onClick={() => setSelectedTicket(reg)}
+                              className="flex-1 py-1.5 text-center bg-orange-burnt/10 border border-orange-burnt/20 text-orange-burnt text-[9px] font-display font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              <QrCode className="w-3 h-3" /> View QR Pass
+                            </button>
+                            {reg.checked_in && (
+                              <button
+                                onClick={() => {
+                                  generateCertificatePdf({
+                                    studentName: reg.full_name,
+                                    eventName: reg.service?.name || 'Event',
+                                    registrationId: reg.registration_id,
+                                    date: reg.checked_in_at
+                                      ? new Date(reg.checked_in_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+                                      : new Date().toLocaleDateString('en-IN'),
+                                    year: reg.year || undefined,
+                                    college: reg.college || undefined,
+                                  });
+                                  toast.success('Certificate downloaded successfully!');
+                                }}
+                                className="flex-1 py-1.5 text-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[9px] font-display font-bold uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                              >
+                                <Award className="w-3 h-3" /> Certificate
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -864,6 +910,147 @@ export const Profile: React.FC = () => {
           </AnimatePresence>
         )}
       </div>
+
+      {/* QR Ticket Modal */}
+      <AnimatePresence>
+        {selectedTicket && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedTicket(null)}
+              className="absolute inset-0 bg-black/85 backdrop-blur-md"
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="relative w-full max-w-sm bg-[#0D1B3E] border-2 border-white/10 rounded-3xl overflow-hidden shadow-2xl z-10"
+            >
+              {/* Decorative top bar */}
+              <div className="bg-gradient-to-r from-orange-burnt to-[#E06D2B] h-2 w-full" />
+
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedTicket(null)}
+                className="absolute top-4 right-4 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 p-1.5 rounded-full transition-all cursor-pointer"
+              >
+                ✕
+              </button>
+
+              <div className="p-5 flex flex-col items-center">
+                {/* Header info */}
+                <div className="text-center mb-3">
+                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-burnt/10 border border-orange-burnt/20 text-orange-burnt text-[9px] font-bold uppercase tracking-wider mb-1.5">
+                    <Ticket className="w-3 h-3" /> Event Pass
+                  </div>
+                  <h3 className="font-display font-extrabold text-white text-base leading-snug">
+                    {selectedTicket.service?.name}
+                  </h3>
+                  <p className="text-white/40 text-[10px] mt-0.5">
+                    {selectedTicket.service?.category} Pass
+                  </p>
+                </div>
+
+                {/* QR Code Container */}
+                <div className="bg-white p-3 rounded-2xl shadow-xl border-4 border-orange-burnt/10 relative">
+                  <QRCode
+                    value={selectedTicket.qr_payload || ''}
+                    size={150}
+                    bgColor="#ffffff"
+                    fgColor="#0A122C"
+                    level="Q"
+                  />
+                </div>
+
+                <p className="text-white/40 text-[8px] font-mono mt-2.5 uppercase tracking-wider">
+                  Secure Encrypted QR · Valid for check-in
+                </p>
+
+                {/* Ticket details */}
+                <div className="w-full bg-white/[0.02] border border-white/[0.06] rounded-2xl p-3.5 mt-4 space-y-2 text-left">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">Student Name</span>
+                      <span className="text-[11px] font-semibold text-white truncate block">{selectedTicket.full_name}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">Registration ID</span>
+                      <span className="text-[11px] font-mono font-semibold text-orange-burnt block truncate">{selectedTicket.registration_id}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">Course / Year</span>
+                      <span className="text-[11px] font-semibold text-white block truncate">{selectedTicket.branch || selectedTicket.year || '—'}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">PRN</span>
+                      <span className="text-[11px] font-semibold text-white block truncate">{selectedTicket.prn || '—'}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">College</span>
+                      <span className="text-[11px] font-semibold text-white block truncate">{selectedTicket.college || '—'}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[8px] font-bold text-white/40 uppercase tracking-wider">Check-in Status</span>
+                      {selectedTicket.checked_in ? (
+                        <span className="text-[11px] font-bold text-emerald-400 block">
+                          ✓ Checked In
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-bold text-amber-400 block animate-pulse">
+                          ⏱️ Pending Entry
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {selectedTicket.checked_in && selectedTicket.checked_in_at && (
+                    <div className="border-t border-white/5 pt-1.5 flex items-center justify-between text-[8px] text-white/45">
+                      <span>Checked-in at:</span>
+                      <span className="font-semibold text-white">
+                        {new Date(selectedTicket.checked_in_at).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom actions */}
+                <div className="w-full mt-4">
+                  {selectedTicket.checked_in ? (
+                    <button
+                      onClick={() => {
+                        generateCertificatePdf({
+                          studentName: selectedTicket.full_name,
+                          eventName: selectedTicket.service?.name || 'Event',
+                          registrationId: selectedTicket.registration_id,
+                          date: selectedTicket.checked_in_at
+                            ? new Date(selectedTicket.checked_in_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+                            : new Date().toLocaleDateString('en-IN'),
+                          year: selectedTicket.year || undefined,
+                          college: selectedTicket.college || undefined,
+                        });
+                        toast.success('Certificate downloaded successfully!');
+                      }}
+                      className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-display text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1 cursor-pointer shadow-lg shadow-emerald-600/10"
+                    >
+                      <Award className="w-3.5 h-3.5" /> Download Certificate
+                    </button>
+                  ) : (
+                    <div className="w-full py-2.5 bg-white/5 border border-white/10 rounded-xl text-center text-white/40 text-[9px] uppercase font-bold tracking-wider">
+                      Certificate unlocks after Check-in
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
