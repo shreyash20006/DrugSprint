@@ -52,6 +52,7 @@ const Refunds = lazy(() => import('./pages/Refunds'));
 const Search = lazy(() => import('./pages/Search'));
 const ExamSchedule = lazy(() => import('./pages/ExamSchedule'));
 const CompleteProfile = lazy(() => import('./pages/CompleteProfile'));
+const BloodDonation = lazy(() => import('./pages/BloodDonation'));
 
 const MobileEventRegister = lazy(() => import('./mobile/screens/EventRegister'));
 const MobileEventFeedback = lazy(() => import('./mobile/screens/EventFeedback'));
@@ -176,6 +177,7 @@ const AppContent: React.FC = () => {
             {/* Special full screen pages on mobile */}
             <Route path="/register/:eventId" element={<MobileEventRegister />} />
             <Route path="/feedback/:eventId" element={<MobileEventFeedback />} />
+            <Route path="/blood-donation" element={<BloodDonation />} />
 
             {/* Secure Admin Routes */}
             <Route path="/admin" element={<AdminLogin />} />
@@ -258,6 +260,7 @@ const AppContent: React.FC = () => {
             <Route path="/ask" element={<Ask />} />
             <Route path="/notices" element={<Notices />} />
             <Route path="/events" element={<Events />} />
+            <Route path="/blood-donation" element={<BloodDonation />} />
             <Route path="/media" element={<Gallery />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/report" element={<ReportBug />} />

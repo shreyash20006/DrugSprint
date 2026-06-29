@@ -10,6 +10,15 @@ export interface Notice {
 
 export const notices: Notice[] = [
   {
+    id: "b100dda7-ea02-4026-b104-d0ae7e11fe27",
+    title: "Blood Donation Drive 2026 🩸 — Register Now!",
+    date: "June 29, 2026",
+    description: "Donate Blood, Donate Life! Be a Hero. Save a Life.\n\nThis is to inform all students that a Blood Donation Drive is being organized by TGPCOP on 1 July 2026. Students who are interested in donating blood are requested to send their names.\n\nWhy Donate Blood?\n- Save up to 3 Lives: One donation can save 2 or 3 lives!\n- Helps in emergencies and surgeries.\n- Support your community and be someone's hero.\n- It is good for your health!\n\nAfter Donation, You Will Receive:\n1. Refreshments\n2. Water Bottle / Office Tiffin Box\n3. Blood Donation Card (applicable in the future for a discount when the donor requires blood)\n\nAll eligible donors are encouraged to come forward. Donate Blood, Donate Life! Send your details today and be a lifesaver!",
+    category: "Event",
+    linkText: "Register as Donor",
+    linkUrl: "/blood-donation"
+  },
+  {
     id: "mid-sem-2025",
     title: "Mid-Semester Exam Schedule Released",
     date: "May 20, 2026",

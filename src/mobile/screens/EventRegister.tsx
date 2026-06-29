@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { sendAdminNotification } from '../../lib/brevo';
@@ -10,6 +10,11 @@ import {
 
 export const EventRegister: React.FC = () => {
   const { eventId } = useParams<{ eventId: string }>();
+  
+  if (eventId === 'b100dda7-ea02-4026-b104-d0ae7e11fe26') {
+    return <Navigate to="/blood-donation" replace />;
+  }
+
   const navigate = useNavigate();
   const [event, setEvent] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
